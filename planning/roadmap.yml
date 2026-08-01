@@ -1425,7 +1425,7 @@ issues:
     target: MVP
     sequence: 1009
   - id: DOS-M09-010
-    title: "DOS-M09-010 — Re-review source redistribution rights for hosted network serving"
+    title: "DOS-M09-010 — Data-source authorization, factual-use classification, trademark posture, and recommendation substantiation"
     type: child
     variant: data
     milestone: M09
