@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">Digital Oil Sticker</title>
+  <desc id="logo-desc">A rounded service-sticker badge with an amber oil drop, teal digital pixels, and the Digital Oil Sticker wordmark.</desc>
+  <g fill="none" fill-rule="evenodd">
+    <rect x="24" y="34" width="1152" height="292" rx="92" fill="#FFFFFF" stroke="#132238" stroke-width="22"/>
+
+    <path d="M274 82c-76 0-138 62-138 138 0 16 3 32 8 47" stroke="#087E8B" stroke-width="18" stroke-linecap="round"/>
+    <path d="M274 82c72 0 131 56 137 126" stroke="#087E8B" stroke-width="18" stroke-linecap="round"/>
+    <path d="M274 118c-20 31-64 79-64 121 0 36 29 65 64 65s64-29 64-65c0-42-44-90-64-121Z" fill="#F4A261"/>
+    <path d="M239 238c0 20 16 36 36 36" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round"/>
+
+    <rect x="356" y="238" width="24" height="24" rx="4" fill="#087E8B"/>
+    <rect x="390" y="238" width="24" height="24" rx="4" fill="#087E8B"/>
+    <rect x="390" y="272" width="24" height="24" rx="4" fill="#087E8B"/>
+
+    <text x="466" y="143" fill="#087E8B" font-family="Inter, Montserrat, Arial, sans-serif" font-size="64" font-weight="700" letter-spacing="1">Digital</text>
+    <text x="460" y="245" fill="#132238" font-family="Inter, Montserrat, Arial, sans-serif" font-size="112" font-weight="800" letter-spacing="-4">Oil Sticker</text>
+
+    <path d="M468 282h527" stroke="#087E8B" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="1028" cy="282" r="31" fill="#087E8B"/>
+    <path d="m1012 282 11 11 23-25" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M1098 315c39-8 66-37 76-77v-5c-5 38-28 63-66 75l-10 7Z" fill="#087E8B"/>
+    <path d="M1098 315c26-18 43-43 51-76-18 27-39 44-64 54l13 22Z" fill="#FFFFFF" stroke="#132238" stroke-width="8" stroke-linejoin="round"/>
+  </g>
+</svg>

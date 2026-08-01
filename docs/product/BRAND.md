@@ -1,6 +1,16 @@
 # Brand assets
 
-## Logo
+## Canonical files (owner-adopted 2026-07-31)
+
+| Asset | File | Role |
+| --- | --- | --- |
+| Main icon / logo (vector) | `assets/brand/logo.svg` | Primary mark for the app interface (`AppShell`) and site header — accessible SVG ("Digital Oil Sticker — Next Service Due"; digital oil-change form with Date/Mileage and Grade fields, crossed checkered flags, peel corner) |
+| Favicon (vector) | `assets/brand/favicon.svg` | Browser/site favicon; source for ICO/PNG favicon exports and a candidate app-icon base |
+| Original raster badge | `assets/brand/logo-original.png` | The first adopted lockup (oil-drop gauge badge); retained as brand history/alternate. Green backdrop is chroma, not brand. |
+
+DOS-M02-002 (design system) owns final icon/splash exports, contrast-checked tokens, and reconciling the two marks into one design language.
+
+## Original raster logo
 
 The original **Digital Oil Sticker** logo (rounded sticker badge: orange oil drop in a teal circular gauge, "Digital Oil Sticker" wordmark in navy, teal check-terminated underline, folded sticker corner) was adopted by the product owner on 2026-07-31 as the product mark for the app interface and the static site.
 
