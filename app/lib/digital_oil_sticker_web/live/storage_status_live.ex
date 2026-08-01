@@ -6,6 +6,8 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   """
   use DigitalOilStickerWeb, :live_view
 
+  alias DigitalOilStickerWeb.Layouts
+
   alias DigitalOilStickerWeb.Copy
 
   @impl true
@@ -25,41 +27,43 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-xl">
-      <h1 class="text-2xl font-bold">Storage</h1>
+    <Layouts.app flash={@flash}>
+      <div class="mx-auto max-w-xl">
+        <h1 class="text-2xl font-bold">Storage</h1>
 
-      <p class="mt-4 text-sm leading-relaxed text-zinc-600">{Copy.empty_body()}</p>
+        <p class="mt-4 text-sm leading-relaxed text-zinc-600">{Copy.empty_body()}</p>
 
-      <dl class="mt-6 space-y-3 text-sm">
-        <div class="rounded border p-3">
-          <dt class="font-semibold">State</dt>
-          <dd data-test="storage-state">{state_line(@local_state, @storage_mode)}</dd>
-        </div>
-        <div class="rounded border p-3">
-          <dt class="font-semibold">Keeping storage under pressure</dt>
-          <dd>{persist_line(@persist_granted)}</dd>
-          <button
-            :if={is_nil(@persist_granted) and @storage_mode == :durable_capable}
-            phx-click="request_persist"
-            class="btn btn-sm mt-2"
-          >
-            Ask this browser to keep storage
-          </button>
-        </div>
-        <div class="rounded border p-3">
-          <dt class="font-semibold">Space</dt>
-          <dd>{quota_line(@quota)}</dd>
-        </div>
-        <div :if={@quarantine != []} class="rounded border border-amber-400 p-3">
-          <dt class="font-semibold">{Copy.quarantine_notice()}</dt>
-          <dd>{Copy.quarantine_body(length(@quarantine), record_total(assigns))}</dd>
-        </div>
-      </dl>
+        <dl class="mt-6 space-y-3 text-sm">
+          <div class="rounded border p-3">
+            <dt class="font-semibold">State</dt>
+            <dd data-test="storage-state">{state_line(@local_state, @storage_mode)}</dd>
+          </div>
+          <div class="rounded border p-3">
+            <dt class="font-semibold">Keeping storage under pressure</dt>
+            <dd>{persist_line(@persist_granted)}</dd>
+            <button
+              :if={is_nil(@persist_granted) and @storage_mode == :durable_capable}
+              phx-click="request_persist"
+              class="btn btn-sm mt-2"
+            >
+              Ask this browser to keep storage
+            </button>
+          </div>
+          <div class="rounded border p-3">
+            <dt class="font-semibold">Space</dt>
+            <dd>{quota_line(@quota)}</dd>
+          </div>
+          <div :if={@quarantine != []} class="rounded border border-amber-400 p-3">
+            <dt class="font-semibold">{Copy.quarantine_notice()}</dt>
+            <dd>{Copy.quarantine_body(length(@quarantine), record_total(assigns))}</dd>
+          </div>
+        </dl>
 
-      <button phx-click="export" class="btn btn-primary mt-6">Export a file</button>
+        <button phx-click="export" class="btn btn-primary mt-6">Export a file</button>
 
-      <p class="mt-8 text-xs text-zinc-400">{Copy.no_affiliation()}</p>
-    </div>
+        <p class="mt-8 text-xs text-zinc-400">{Copy.no_affiliation()}</p>
+      </div>
+    </Layouts.app>
     """
   end
 

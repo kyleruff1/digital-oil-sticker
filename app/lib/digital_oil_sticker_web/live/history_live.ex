@@ -7,6 +7,8 @@ defmodule DigitalOilStickerWeb.HistoryLive do
   """
   use DigitalOilStickerWeb, :live_view
 
+  alias DigitalOilStickerWeb.Layouts
+
   alias DigitalOilStickerWeb.Components.Badges
   alias DigitalOilStickerWeb.Copy
   alias DigitalOilStickerWeb.LocalStore.Session
@@ -74,60 +76,62 @@ defmodule DigitalOilStickerWeb.HistoryLive do
     assigns = assign(assigns, :events, sorted_events(assigns))
 
     ~H"""
-    <div class="mx-auto max-w-2xl">
-      <h1 class="text-2xl font-bold">History</h1>
+    <Layouts.app flash={@flash}>
+      <div class="mx-auto max-w-2xl">
+        <h1 class="text-2xl font-bold">History</h1>
 
-      <div :if={@local_state == :hydrating} class="mt-6 animate-pulse rounded border p-6" aria-hidden="true">
-        <span class="sr-only">{Copy.sr_checking()}</span>
-      </div>
+        <div :if={@local_state == :hydrating} class="mt-6 animate-pulse rounded border p-6" aria-hidden="true">
+          <span class="sr-only">{Copy.sr_checking()}</span>
+        </div>
 
-      <p :if={@local_state == :loaded and @events == []} class="mt-6 text-sm text-zinc-600">
-        Nothing recorded yet — the next useful step is to
-        <.link navigate={~p"/service/new"} class="underline">record the first oil change</.link>.
-      </p>
+        <p :if={@local_state == :loaded and @events == []} class="mt-6 text-sm text-zinc-600">
+          Nothing recorded yet — the next useful step is to
+          <.link navigate={~p"/service/new"} class="underline">record the first oil change</.link>.
+        </p>
 
-      <ol :if={@events != []} class="mt-6 space-y-3">
-        <li :for={event <- @events} class="rounded border p-4" data-test="history-row">
-          <div :if={@undo == event["event_id"]} class="flex items-center justify-between">
-            <p class="text-sm">Deleting…</p>
-            <button phx-click="undo_delete" class="btn btn-sm">Undo</button>
-          </div>
-          <div :if={@undo != event["event_id"]}>
-            <div class="flex items-baseline justify-between gap-2">
-              <span class="font-semibold">{event["performed_at"]}</span>
-              <span class="text-sm text-zinc-600">
-                {event["odometer_input_value"]} {event["input_unit"]}
-              </span>
+        <ol :if={@events != []} class="mt-6 space-y-3">
+          <li :for={event <- @events} class="rounded border p-4" data-test="history-row">
+            <div :if={@undo == event["event_id"]} class="flex items-center justify-between">
+              <p class="text-sm">Deleting…</p>
+              <button phx-click="undo_delete" class="btn btn-sm">Undo</button>
             </div>
-            <p class="mt-1 flex flex-wrap items-center gap-2 text-sm">
-              <span :if={event["oil_brand"] || event["oil_family"]}>
-                {[event["oil_brand"], event["oil_family"]] |> Enum.reject(&is_nil/1) |> Enum.join(" ")}
-              </span>
-              <span :if={event["oil_viscosity"]}>· {event["oil_viscosity"]}</span>
-              <Badges.provenance_badge mode={if event["provenance_mode"] == "catalog", do: :catalog, else: :manual} />
-            </p>
-            <p :if={event["notes"] not in [nil, ""]} class="mt-1 text-sm text-zinc-600">{event["notes"]}</p>
-            <div class="mt-2">
-              <button
-                :if={@confirm_delete != event["event_id"]}
-                phx-click="ask_delete"
-                phx-value-event-id={event["event_id"]}
-                class="btn btn-ghost btn-sm"
-              >
-                Delete
-              </button>
-              <span :if={@confirm_delete == event["event_id"]} class="flex items-center gap-2">
-                <span class="text-sm">Delete this record from this browser?</span>
-                <button phx-click="confirm_delete" phx-value-event-id={event["event_id"]} class="btn btn-sm">
+            <div :if={@undo != event["event_id"]}>
+              <div class="flex items-baseline justify-between gap-2">
+                <span class="font-semibold">{event["performed_at"]}</span>
+                <span class="text-sm text-zinc-600">
+                  {event["odometer_input_value"]} {event["input_unit"]}
+                </span>
+              </div>
+              <p class="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                <span :if={event["oil_brand"] || event["oil_family"]}>
+                  {[event["oil_brand"], event["oil_family"]] |> Enum.reject(&is_nil/1) |> Enum.join(" ")}
+                </span>
+                <span :if={event["oil_viscosity"]}>· {event["oil_viscosity"]}</span>
+                <Badges.provenance_badge mode={if event["provenance_mode"] == "catalog", do: :catalog, else: :manual} />
+              </p>
+              <p :if={event["notes"] not in [nil, ""]} class="mt-1 text-sm text-zinc-600">{event["notes"]}</p>
+              <div class="mt-2">
+                <button
+                  :if={@confirm_delete != event["event_id"]}
+                  phx-click="ask_delete"
+                  phx-value-event-id={event["event_id"]}
+                  class="btn btn-ghost btn-sm"
+                >
                   Delete
                 </button>
-                <button phx-click="cancel_delete" class="btn btn-ghost btn-sm">Keep</button>
-              </span>
+                <span :if={@confirm_delete == event["event_id"]} class="flex items-center gap-2">
+                  <span class="text-sm">Delete this record from this browser?</span>
+                  <button phx-click="confirm_delete" phx-value-event-id={event["event_id"]} class="btn btn-sm">
+                    Delete
+                  </button>
+                  <button phx-click="cancel_delete" class="btn btn-ghost btn-sm">Keep</button>
+                </span>
+              </div>
             </div>
-          </div>
-        </li>
-      </ol>
-    </div>
+          </li>
+        </ol>
+      </div>
+    </Layouts.app>
     """
   end
 

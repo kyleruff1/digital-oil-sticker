@@ -8,6 +8,8 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   """
   use DigitalOilStickerWeb, :live_view
 
+  alias DigitalOilStickerWeb.Layouts
+
   import DigitalOilStickerWeb.Components.CascadeSelect
   alias DigitalOilSticker.Catalog
   alias DigitalOilSticker.Catalog.Selector
@@ -82,77 +84,79 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <h1 class="text-2xl font-bold">Choose a vehicle</h1>
+    <Layouts.app flash={@flash}>
+      <div>
+        <h1 class="text-2xl font-bold">Choose a vehicle</h1>
 
-      <p :if={@catalog_error} class="mt-4 rounded border border-red-300 p-3 text-sm" role="alert">
-        {Copy.catalog_unreadable()}
-      </p>
-
-      <form phx-change="cascade_change" class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <.cascade_select
-          id="cascade-year"
-          name="year"
-          label="Year"
-          options={Enum.map(@years, &{&1, &1})}
-          value={@year}
-          state={if @years == [], do: :loading, else: :populated}
-        />
-        <.cascade_select
-          id="cascade-make"
-          name="make_id"
-          label="Make"
-          options={Enum.map(@makes, &{&1.display_name, &1.id})}
-          value={@make_id}
-          state={level_state(@year, @makes, @makes_empty)}
-          upstream_label="year"
-        />
-        <.cascade_select
-          id="cascade-model"
-          name="model_id"
-          label="Model"
-          options={Enum.map(@models, &{&1.display_name, &1.id})}
-          value={@model_id}
-          state={level_state(@make_id, @models, @models_empty)}
-          upstream_label="make"
-        />
-        <.cascade_select
-          id="cascade-config"
-          name="configuration_key"
-          label="Build"
-          options={Enum.map(@configs, &{config_label(&1), &1.configuration_key})}
-          value={@configuration_key}
-          state={level_state(@model_id, @configs, @configs_empty)}
-          upstream_label="model"
-        />
-      </form>
-
-      <p id="cascade-count" role="status" aria-live="polite" aria-atomic="true" class="mt-2 text-sm text-zinc-500">
-        {@count_announcement}
-      </p>
-
-      <section :if={@configuration_key} class="mt-6 rounded border p-4" data-test="confirm-panel">
-        <h2 class="font-semibold">Review before saving</h2>
-        <p class="mt-2 text-sm">{selected_summary(assigns)}</p>
-        <p class="mt-2 flex flex-wrap gap-2 text-sm">
-          <Badges.support_badge status={selected_status(assigns)} />
-          <Badges.precision_badge :if={selected_config(assigns) && is_nil(selected_config(assigns).trim)} />
+        <p :if={@catalog_error} class="mt-4 rounded border border-red-300 p-3 text-sm" role="alert">
+          {Copy.catalog_unreadable()}
         </p>
-        <p class="mt-2 text-xs text-zinc-500">
-          Recommendations depend on exact configuration. {Copy.source_unavailable()} means no
-          licensed schedule exists for this selection yet — you can still record oil changes
-          and set {Copy.your_interval()}.
-        </p>
-        <button phx-click="confirm" class="btn btn-primary mt-4" data-test="confirm-vehicle">
-          Save this vehicle
-        </button>
-      </section>
 
-      <p class="mt-8 text-sm">
-        <span class="font-semibold">{Copy.vehicle_not_listed()}?</span>
-        A custom-vehicle path ships next; nothing is transmitted about your vehicle either way.
-      </p>
-    </div>
+        <form phx-change="cascade_change" class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <.cascade_select
+            id="cascade-year"
+            name="year"
+            label="Year"
+            options={Enum.map(@years, &{&1, &1})}
+            value={@year}
+            state={if @years == [], do: :loading, else: :populated}
+          />
+          <.cascade_select
+            id="cascade-make"
+            name="make_id"
+            label="Make"
+            options={Enum.map(@makes, &{&1.display_name, &1.id})}
+            value={@make_id}
+            state={level_state(@year, @makes, @makes_empty)}
+            upstream_label="year"
+          />
+          <.cascade_select
+            id="cascade-model"
+            name="model_id"
+            label="Model"
+            options={Enum.map(@models, &{&1.display_name, &1.id})}
+            value={@model_id}
+            state={level_state(@make_id, @models, @models_empty)}
+            upstream_label="make"
+          />
+          <.cascade_select
+            id="cascade-config"
+            name="configuration_key"
+            label="Build"
+            options={Enum.map(@configs, &{config_label(&1), &1.configuration_key})}
+            value={@configuration_key}
+            state={level_state(@model_id, @configs, @configs_empty)}
+            upstream_label="model"
+          />
+        </form>
+
+        <p id="cascade-count" role="status" aria-live="polite" aria-atomic="true" class="mt-2 text-sm text-zinc-500">
+          {@count_announcement}
+        </p>
+
+        <section :if={@configuration_key} class="mt-6 rounded border p-4" data-test="confirm-panel">
+          <h2 class="font-semibold">Review before saving</h2>
+          <p class="mt-2 text-sm">{selected_summary(assigns)}</p>
+          <p class="mt-2 flex flex-wrap gap-2 text-sm">
+            <Badges.support_badge status={selected_status(assigns)} />
+            <Badges.precision_badge :if={selected_config(assigns) && is_nil(selected_config(assigns).trim)} />
+          </p>
+          <p class="mt-2 text-xs text-zinc-500">
+            Recommendations depend on exact configuration. {Copy.source_unavailable()} means no
+            licensed schedule exists for this selection yet — you can still record oil changes
+            and set {Copy.your_interval()}.
+          </p>
+          <button phx-click="confirm" class="btn btn-primary mt-4" data-test="confirm-vehicle">
+            Save this vehicle
+          </button>
+        </section>
+
+        <p class="mt-8 text-sm">
+          <span class="font-semibold">{Copy.vehicle_not_listed()}?</span>
+          A custom-vehicle path ships next; nothing is transmitted about your vehicle either way.
+        </p>
+      </div>
+    </Layouts.app>
     """
   end
 

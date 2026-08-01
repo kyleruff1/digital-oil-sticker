@@ -8,6 +8,8 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   """
   use DigitalOilStickerWeb, :live_view
 
+  alias DigitalOilStickerWeb.Layouts
+
   import DigitalOilStickerWeb.Components.{DateSelect, OdometerInput, ProductSelect}
   alias DigitalOilSticker.Catalog
   alias DigitalOilSticker.Catalog.Selector
@@ -265,87 +267,89 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   def render(assigns) do
     assigns = assign(assigns, :notes_limit, @notes_limit)
     ~H"""
-    <div class="mx-auto max-w-xl">
-      <h1 class="text-2xl font-bold">Log an oil change</h1>
+    <Layouts.app flash={@flash}>
+      <div class="mx-auto max-w-xl">
+        <h1 class="text-2xl font-bold">Log an oil change</h1>
 
-      <form phx-change="form_change" phx-submit="submit" class="mt-6 space-y-5">
-        <input type="hidden" name="form_token" value={@form_token} />
+        <form phx-change="form_change" phx-submit="submit" class="mt-6 space-y-5">
+          <input type="hidden" name="form_token" value={@form_token} />
 
-        <.date_select
-          id="oil-date"
-          legend="Oil changed date"
-          month={@month}
-          day={@day}
-          year={@year}
-          min_year={min_year(assigns)}
-          max_year={Clock.today().year}
-          errors={@date_errors}
-          announce={@date_announce}
-        />
+          <.date_select
+            id="oil-date"
+            legend="Oil changed date"
+            month={@month}
+            day={@day}
+            year={@year}
+            min_year={min_year(assigns)}
+            max_year={Clock.today().year}
+            errors={@date_errors}
+            announce={@date_announce}
+          />
 
-        <.odometer_input id="oil-odometer" value={@odo_value} unit={@odo_unit} errors={@odo_errors} />
+          <.odometer_input id="oil-odometer" value={@odo_value} unit={@odo_unit} errors={@odo_errors} />
 
-        <.product_select
-          brands={@oil_brands}
-          families={@oil_families}
-          brand_id={@oil_brand_id}
-          family_id={@oil_family_id}
-          manual?={@manual?}
-          manual_brand={@manual_brand}
-          manual_family={@manual_family}
-        />
+          <.product_select
+            brands={@oil_brands}
+            families={@oil_families}
+            brand_id={@oil_brand_id}
+            family_id={@oil_family_id}
+            manual?={@manual?}
+            manual_brand={@manual_brand}
+            manual_family={@manual_family}
+          />
 
-        <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="oil-viscosity" class="mb-1 block text-sm font-semibold">Grade (viscosity)</label>
+              <input
+                type="text"
+                id="oil-viscosity"
+                name="viscosity"
+                value={@viscosity}
+                placeholder="e.g. 5W-30"
+                maxlength="20"
+                class="w-full min-h-11 rounded border px-3 py-2"
+              />
+            </div>
+            <div>
+              <label for="oil-filter" class="mb-1 block text-sm font-semibold">Filter (optional)</label>
+              <input
+                type="text"
+                id="oil-filter"
+                name="filter"
+                value={@filter_text}
+                maxlength="80"
+                class="w-full min-h-11 rounded border px-3 py-2"
+              />
+            </div>
+          </div>
+
           <div>
-            <label for="oil-viscosity" class="mb-1 block text-sm font-semibold">Grade (viscosity)</label>
-            <input
-              type="text"
-              id="oil-viscosity"
-              name="viscosity"
-              value={@viscosity}
-              placeholder="e.g. 5W-30"
-              maxlength="20"
-              class="w-full min-h-11 rounded border px-3 py-2"
-            />
+            <label for="oil-notes" class="mb-1 block text-sm font-semibold">Notes (optional)</label>
+            <textarea id="oil-notes" name="notes" rows="3" maxlength={to_string(@notes_limit)} class="w-full rounded border px-3 py-2">{@notes}</textarea>
+            <p class="mt-1 text-xs text-zinc-500">{String.length(@notes)}/{@notes_limit} characters</p>
           </div>
-          <div>
-            <label for="oil-filter" class="mb-1 block text-sm font-semibold">Filter (optional)</label>
-            <input
-              type="text"
-              id="oil-filter"
-              name="filter"
-              value={@filter_text}
-              maxlength="80"
-              class="w-full min-h-11 rounded border px-3 py-2"
-            />
+
+          <div :if={@duplicate_pending} class="rounded border border-amber-400 p-3" role="alertdialog" aria-label="Possible duplicate">
+            <p class="text-sm">
+              {Copy.duplicate_warning(
+                @duplicate_pending["performed_at"],
+                @duplicate_pending["odometer_input_value"],
+                @duplicate_pending["input_unit"]
+              )}
+            </p>
+            <div class="mt-2 flex gap-2">
+              <button type="button" phx-click="duplicate_proceed" class="btn btn-sm">Record it anyway</button>
+              <button type="button" phx-click="duplicate_cancel" class="btn btn-ghost btn-sm">Cancel</button>
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label for="oil-notes" class="mb-1 block text-sm font-semibold">Notes (optional)</label>
-          <textarea id="oil-notes" name="notes" rows="3" maxlength={to_string(@notes_limit)} class="w-full rounded border px-3 py-2">{@notes}</textarea>
-          <p class="mt-1 text-xs text-zinc-500">{String.length(@notes)}/{@notes_limit} characters</p>
-        </div>
-
-        <div :if={@duplicate_pending} class="rounded border border-amber-400 p-3" role="alertdialog" aria-label="Possible duplicate">
-          <p class="text-sm">
-            {Copy.duplicate_warning(
-              @duplicate_pending["performed_at"],
-              @duplicate_pending["odometer_input_value"],
-              @duplicate_pending["input_unit"]
-            )}
-          </p>
-          <div class="mt-2 flex gap-2">
-            <button type="button" phx-click="duplicate_proceed" class="btn btn-sm">Record it anyway</button>
-            <button type="button" phx-click="duplicate_cancel" class="btn btn-ghost btn-sm">Cancel</button>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary w-full" phx-disable-with={Copy.saving()}>
-          Save to this browser
-        </button>
-      </form>
-    </div>
+          <button type="submit" class="btn btn-primary w-full" phx-disable-with={Copy.saving()}>
+            Save to this browser
+          </button>
+        </form>
+      </div>
+    </Layouts.app>
     """
   end
 

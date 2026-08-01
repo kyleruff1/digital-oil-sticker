@@ -11,6 +11,8 @@ defmodule DigitalOilStickerWeb.StickerLive do
   """
   use DigitalOilStickerWeb, :live_view
 
+  alias DigitalOilStickerWeb.Layouts
+
   import DigitalOilStickerWeb.Components.Sticker
   alias DigitalOilSticker.Units
   alias DigitalOilStickerWeb.Copy
@@ -25,48 +27,50 @@ defmodule DigitalOilStickerWeb.StickerLive do
     assigns = assign(assigns, :view, derive_view(assigns))
 
     ~H"""
-    <div class="mx-auto max-w-2xl">
-      <.sticker
-        :if={@view.mode in [:skeleton, :sticker]}
-        skeleton={@view.mode == :skeleton}
-        date_value={@view.date}
-        mileage_value={@view.mileage}
-        grade_value={@view.grade}
-      />
+    <Layouts.app flash={@flash}>
+      <div class="mx-auto max-w-2xl">
+        <.sticker
+          :if={@view.mode in [:skeleton, :sticker]}
+          skeleton={@view.mode == :skeleton}
+          date_value={@view.date}
+          mileage_value={@view.mileage}
+          grade_value={@view.grade}
+        />
 
-      <p :if={@view.mode == :sticker and @view.qualifier} class="mt-3 text-center text-sm text-zinc-500">
-        {@view.qualifier}
-      </p>
-
-      <div :if={@view.mode == :empty} class="py-10 text-center">
-        <h1 class="text-2xl font-bold">{Copy.empty_heading()}</h1>
-        <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">{Copy.empty_body()}</p>
-        <.link navigate={~p"/vehicle/select"} class="btn btn-primary mt-6">Set up a vehicle</.link>
-      </div>
-
-      <div :if={@view.mode == :data_missing} class="py-10 text-center">
-        <h1 class="text-2xl font-bold">{Copy.data_missing_heading()}</h1>
-        <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">{Copy.data_missing_body()}</p>
-        <.link navigate={~p"/settings/storage"} class="btn btn-primary mt-6">Import a file</.link>
-      </div>
-
-      <div :if={@view.mode == :storage_unavailable} class="py-10 text-center">
-        <h1 class="text-2xl font-bold">{Copy.storage_unavailable_heading()}</h1>
-        <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
-          {Copy.storage_unavailable_body()}
+        <p :if={@view.mode == :sticker and @view.qualifier} class="mt-3 text-center text-sm text-zinc-500">
+          {@view.qualifier}
         </p>
-        <.link navigate={~p"/vehicle/select"} class="btn mt-6">Look up a vehicle</.link>
-      </div>
 
-      <div :if={@view.mode == :sticker} class="mt-8 flex justify-center gap-3">
-        <.link navigate={~p"/service/new"} class="btn btn-primary">Log an oil change</.link>
-        <.link navigate={~p"/history"} class="btn btn-ghost">History</.link>
-      </div>
+        <div :if={@view.mode == :empty} class="py-10 text-center">
+          <h1 class="text-2xl font-bold">{Copy.empty_heading()}</h1>
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">{Copy.empty_body()}</p>
+          <.link navigate={~p"/vehicle/select"} class="btn btn-primary mt-6">Set up a vehicle</.link>
+        </div>
 
-      <p :if={@view.mode == :sticker} class="mt-6 text-center text-xs text-zinc-400">
-        {Copy.does_not_notify()}
-      </p>
-    </div>
+        <div :if={@view.mode == :data_missing} class="py-10 text-center">
+          <h1 class="text-2xl font-bold">{Copy.data_missing_heading()}</h1>
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">{Copy.data_missing_body()}</p>
+          <.link navigate={~p"/settings/storage"} class="btn btn-primary mt-6">Import a file</.link>
+        </div>
+
+        <div :if={@view.mode == :storage_unavailable} class="py-10 text-center">
+          <h1 class="text-2xl font-bold">{Copy.storage_unavailable_heading()}</h1>
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+            {Copy.storage_unavailable_body()}
+          </p>
+          <.link navigate={~p"/vehicle/select"} class="btn mt-6">Look up a vehicle</.link>
+        </div>
+
+        <div :if={@view.mode == :sticker} class="mt-8 flex justify-center gap-3">
+          <.link navigate={~p"/service/new"} class="btn btn-primary">Log an oil change</.link>
+          <.link navigate={~p"/history"} class="btn btn-ghost">History</.link>
+        </div>
+
+        <p :if={@view.mode == :sticker} class="mt-6 text-center text-xs text-zinc-400">
+          {Copy.does_not_notify()}
+        </p>
+      </div>
+    </Layouts.app>
     """
   end
 

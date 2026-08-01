@@ -6,6 +6,8 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
   """
   use DigitalOilStickerWeb, :live_view
 
+  alias DigitalOilStickerWeb.Layouts
+
   alias DigitalOilStickerWeb.Components.Badges
   alias DigitalOilStickerWeb.Copy
   alias DigitalOilStickerWeb.LocalStore.Session
@@ -68,74 +70,76 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
     assigns = assign(assigns, :vehicle, active_vehicle(assigns.garage))
 
     ~H"""
-    <div class="mx-auto max-w-xl">
-      <h1 class="text-2xl font-bold">Your vehicle</h1>
+    <Layouts.app flash={@flash}>
+      <div class="mx-auto max-w-xl">
+        <h1 class="text-2xl font-bold">Your vehicle</h1>
 
-      <div :if={@local_state == :hydrating} class="mt-6 animate-pulse rounded border p-6" aria-hidden="true">
-        <span class="sr-only">{Copy.sr_checking()}</span>
-      </div>
+        <div :if={@local_state == :hydrating} class="mt-6 animate-pulse rounded border p-6" aria-hidden="true">
+          <span class="sr-only">{Copy.sr_checking()}</span>
+        </div>
 
-      <div :if={@local_state != :hydrating and is_nil(@vehicle)} class="mt-6">
-        <p class="text-sm text-zinc-600">No vehicle is set up in this browser yet.</p>
-        <.link navigate={~p"/vehicle/select"} class="btn btn-primary mt-4">Choose a vehicle</.link>
-      </div>
+        <div :if={@local_state != :hydrating and is_nil(@vehicle)} class="mt-6">
+          <p class="text-sm text-zinc-600">No vehicle is set up in this browser yet.</p>
+          <.link navigate={~p"/vehicle/select"} class="btn btn-primary mt-4">Choose a vehicle</.link>
+        </div>
 
-      <div :if={@vehicle} class="mt-6 space-y-6">
-        <section class="rounded border p-4">
-          <h2 class="font-semibold">
-            {snapshot_line(@vehicle)}
-          </h2>
-          <p class="mt-2 flex flex-wrap gap-2">
-            <Badges.support_badge status={support_atom(@vehicle["support_status"])} />
-            <Badges.precision_badge :if={@vehicle["display_snapshot"]["build"] =~ Copy.not_specified()} />
-          </p>
-          <p class="mt-2 text-xs text-zinc-500">
-            Schedule: {Copy.source_unavailable()} — no licensed manufacturer schedule exists for
-            this selection yet. Your records and estimates use {Copy.your_interval()} below.
-          </p>
-        </section>
-
-        <section class="rounded border p-4">
-          <h2 class="font-semibold">{Copy.your_interval()}</h2>
-          <p class="mt-1 text-xs text-zinc-500">
-            User-entered — not manufacturer guidance. The sticker's estimated due date and
-            mileage come from this interval applied to your last recorded change.
-          </p>
-          <form phx-change="interval_change" phx-submit="interval_save" class="mt-3">
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label for="interval-months" class="mb-1 block text-xs font-medium">Months</label>
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  id="interval-months"
-                  name="interval[months]"
-                  value={@interval_months || current_interval(@vehicle, "interval_months")}
-                  class="w-full min-h-11 rounded border px-3 py-2"
-                />
-              </div>
-              <div>
-                <label for="interval-miles" class="mb-1 block text-xs font-medium">Miles</label>
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  id="interval-miles"
-                  name="interval[miles]"
-                  value={@interval_miles || current_interval(@vehicle, "interval_miles")}
-                  class="w-full min-h-11 rounded border px-3 py-2"
-                />
-              </div>
-            </div>
-            <p :if={@interval_errors != []} role="alert" class="mt-2 text-sm text-red-700">
-              {Enum.join(@interval_errors, " ")}
+        <div :if={@vehicle} class="mt-6 space-y-6">
+          <section class="rounded border p-4">
+            <h2 class="font-semibold">
+              {snapshot_line(@vehicle)}
+            </h2>
+            <p class="mt-2 flex flex-wrap gap-2">
+              <Badges.support_badge status={support_atom(@vehicle["support_status"])} />
+              <Badges.precision_badge :if={@vehicle["display_snapshot"]["build"] =~ Copy.not_specified()} />
             </p>
-            <button type="submit" class="btn btn-primary mt-3" phx-disable-with={Copy.saving()}>
-              Save {Copy.your_interval()}
-            </button>
-          </form>
-        </section>
+            <p class="mt-2 text-xs text-zinc-500">
+              Schedule: {Copy.source_unavailable()} — no licensed manufacturer schedule exists for
+              this selection yet. Your records and estimates use {Copy.your_interval()} below.
+            </p>
+          </section>
+
+          <section class="rounded border p-4">
+            <h2 class="font-semibold">{Copy.your_interval()}</h2>
+            <p class="mt-1 text-xs text-zinc-500">
+              User-entered — not manufacturer guidance. The sticker's estimated due date and
+              mileage come from this interval applied to your last recorded change.
+            </p>
+            <form phx-change="interval_change" phx-submit="interval_save" class="mt-3">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label for="interval-months" class="mb-1 block text-xs font-medium">Months</label>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    id="interval-months"
+                    name="interval[months]"
+                    value={@interval_months || current_interval(@vehicle, "interval_months")}
+                    class="w-full min-h-11 rounded border px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label for="interval-miles" class="mb-1 block text-xs font-medium">Miles</label>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    id="interval-miles"
+                    name="interval[miles]"
+                    value={@interval_miles || current_interval(@vehicle, "interval_miles")}
+                    class="w-full min-h-11 rounded border px-3 py-2"
+                  />
+                </div>
+              </div>
+              <p :if={@interval_errors != []} role="alert" class="mt-2 text-sm text-red-700">
+                {Enum.join(@interval_errors, " ")}
+              </p>
+              <button type="submit" class="btn btn-primary mt-3" phx-disable-with={Copy.saving()}>
+                Save {Copy.your_interval()}
+              </button>
+            </form>
+          </section>
+        </div>
       </div>
-    </div>
+    </Layouts.app>
     """
   end
 
