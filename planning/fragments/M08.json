@@ -1,0 +1,102 @@
+{
+  "milestone": "M08",
+  "milestoneTitle": "M08 — Post-MVP multi-vehicle and catalog operations",
+  "issues": [
+    {
+      "id": "DOS-M08-000",
+      "title": "DOS-M08-000 — Post-MVP Multi-Vehicle Garage and Signed Catalog Operations",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "Product",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M08-001",
+      "title": "DOS-M08-001 — Enable the existing vehicle-scoped schema as a multi-vehicle garage",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task"],
+      "workstream": "Domain Rules",
+      "blockedBy": ["DOS-M05-001", "DOS-M05-007", "DOS-M07-007"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M08-002",
+      "title": "DOS-M08-002 — Build the accessible tabbed garage and vehicle-management UX",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "quality:accessibility"],
+      "workstream": "LiveView UI",
+      "blockedBy": ["DOS-M05-002", "DOS-M05-005", "DOS-M08-001"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M08-003",
+      "title": "DOS-M08-003 — Isolate service history, intervals, usage, forecasts, and due state per vehicle",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature"],
+      "workstream": "Domain Rules",
+      "blockedBy": ["DOS-M06-001", "DOS-M06-003", "DOS-M06-004", "DOS-M08-001", "DOS-M08-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M08-004",
+      "title": "DOS-M08-004 — Schedule and reconcile fair per-vehicle notifications within OS limits",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "platform:ios", "platform:android"],
+      "workstream": "Notifications",
+      "blockedBy": ["DOS-M06-005", "DOS-M06-006", "DOS-M08-001", "DOS-M08-002", "DOS-M08-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M08-005",
+      "title": "DOS-M08-005 — Define the signed, versioned catalog-pack and trust-root contract",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "quality:security", "needs:decision"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M07-001", "DOS-M07-005", "DOS-M07-007"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M08-006",
+      "title": "DOS-M08-006 — Build, sign, publish, observe, and roll back catalog packs on Netlify",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "platform:netlify", "quality:security", "needs:data-validation"],
+      "workstream": "DevOps/Release",
+      "blockedBy": ["DOS-M08-005", "DOS-M07-007"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M08-007",
+      "title": "DOS-M08-007 — Download, verify, atomically activate, and recover catalog updates",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "platform:ios", "platform:android", "quality:security"],
+      "workstream": "Mob/iOS/Android",
+      "blockedBy": ["DOS-M08-001", "DOS-M08-003", "DOS-M08-004", "DOS-M08-005", "DOS-M08-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    }
+  ]
+}

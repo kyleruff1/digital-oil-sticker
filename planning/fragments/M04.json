@@ -1,0 +1,138 @@
+{
+  "milestone": "M04",
+  "milestoneTitle": "M04 — Local domain and persistence",
+  "issues": [
+    {
+      "id": "DOS-M04-000",
+      "title": "DOS-M04-000 — Local Domain & Persistence",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "Architecture",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-001",
+      "title": "DOS-M04-001 — Approve the Mob/Ecto dual-repository persistence ADR",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:decision", "platform:ios", "platform:android"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M03-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-002",
+      "title": "DOS-M04-002 — Implement versioned catalog SQL schema and build-time migrations",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M04-001", "DOS-M03-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-003",
+      "title": "DOS-M04-003 — Implement multi-vehicle-safe user SQL schema and invariants",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M04-001"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-004",
+      "title": "DOS-M04-004 — Implement deterministic, read-only `CatalogRepo`",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:ios", "platform:android"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M04-001", "DOS-M04-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-005",
+      "title": "DOS-M04-005 — Implement transactional, vehicle-scoped `UserRepo`",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:ios", "platform:android"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M04-001", "DOS-M04-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-006",
+      "title": "DOS-M04-006 — Bootstrap dual on-device Ecto SQLite repos and durable native files",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:ios", "platform:android"],
+      "workstream": "Mob/iOS/Android",
+      "blockedBy": ["DOS-M04-001", "DOS-M04-002", "DOS-M04-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-007",
+      "title": "DOS-M04-007 — Run `UserRepo` Ecto migrations safely at device boot",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:ios", "platform:android"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M04-003", "DOS-M04-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-008",
+      "title": "DOS-M04-008 — Install and atomically upgrade the catalog from the native app bundle",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:ios", "platform:android"],
+      "workstream": "Mob/iOS/Android",
+      "blockedBy": ["DOS-M03-010", "DOS-M04-002", "DOS-M04-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-009",
+      "title": "DOS-M04-009 — Implement versioned local export/import and user-controlled erasure",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "quality:privacy", "platform:ios", "platform:android"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M04-003", "DOS-M04-005", "DOS-M04-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M04-010",
+      "title": "DOS-M04-010 — Certify Ecto repository conformance, integrity, privacy, and physical-device budgets",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:qa", "quality:performance", "quality:privacy", "platform:ios", "platform:android"],
+      "workstream": "QA",
+      "blockedBy": ["DOS-M03-010", "DOS-M04-001", "DOS-M04-002", "DOS-M04-003", "DOS-M04-004", "DOS-M04-005", "DOS-M04-006", "DOS-M04-007", "DOS-M04-008", "DOS-M04-009"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    }
+  ]
+}

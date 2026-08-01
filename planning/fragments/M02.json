@@ -1,0 +1,114 @@
+{
+  "milestone": "M02",
+  "milestoneTitle": "M02 — UX and content contract",
+  "issues": [
+    {
+      "id": "DOS-M02-000",
+      "title": "DOS-M02-000 — Freeze the mobile interaction and language model before feature UI is built",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "UX",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-001",
+      "title": "DOS-M02-001 — Define information architecture, routes, and end-to-end task flows",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M00-001", "DOS-M00-004", "DOS-M00-005", "DOS-M00-006", "DOS-M01-002", "DOS-M01-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-002",
+      "title": "DOS-M02-002 — Specify the mobile design system and accessibility contract",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design", "quality:accessibility", "platform:ios", "platform:android"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M02-001", "DOS-M00-003", "DOS-M00-005"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-003",
+      "title": "DOS-M02-003 — Specify first-run, local-profile, privacy, and data-readiness UX",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design", "quality:privacy"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M00-001", "DOS-M00-002", "DOS-M00-004", "DOS-M01-003", "DOS-M01-004", "DOS-M01-005", "DOS-M02-001"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-004",
+      "title": "DOS-M02-004 — Specify offline vehicle search, filtering, selection, and custom-vehicle fallback",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M00-004", "DOS-M00-006", "DOS-M01-003", "DOS-M01-004", "DOS-M01-005", "DOS-M02-001", "DOS-M02-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-005",
+      "title": "DOS-M02-005 — Specify the one-vehicle MVP and post-MVP Garage/tabs direction",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M02-001", "DOS-M02-002", "DOS-M02-004", "DOS-M01-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-006",
+      "title": "DOS-M02-006 — Specify oil-change logging, history, and recommendation/product selection",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M00-006", "DOS-M01-002", "DOS-M01-003", "DOS-M02-002", "DOS-M02-004", "DOS-M02-005"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-007",
+      "title": "DOS-M02-007 — Specify driving-usage sampling and explainable due-date/mileage forecasts",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M00-001", "DOS-M00-006", "DOS-M01-002", "DOS-M01-003", "DOS-M02-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M02-008",
+      "title": "DOS-M02-008 — Specify reminder setup, permission, notification, and in-app fallback UX",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:docs", "needs:design", "platform:ios", "platform:android"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M00-005", "DOS-M01-002", "DOS-M01-003", "DOS-M02-002", "DOS-M02-005", "DOS-M02-006", "DOS-M02-007"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    }
+  ]
+}

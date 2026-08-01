@@ -1,0 +1,115 @@
+{
+  "milestone": "M05",
+  "milestoneTitle": "M05 — Single-vehicle offline MVP",
+  "issues": [
+    {
+      "id": "DOS-M05-000",
+      "title": "DOS-M05-000 — Single-Vehicle, Local-Only, Offline MVP",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "Product",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M05-001",
+      "title": "DOS-M05-001 — Integrate the M04 dual-repository domain contract into the single-vehicle runtime",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:ios", "platform:android"],
+      "workstream": "Architecture",
+      "blockedBy": [
+        "DOS-M01-002",
+        "DOS-M03-010",
+        "DOS-M04-001",
+        "DOS-M04-002",
+        "DOS-M04-003",
+        "DOS-M04-004",
+        "DOS-M04-005",
+        "DOS-M04-006",
+        "DOS-M04-007",
+        "DOS-M04-008",
+        "DOS-M04-009",
+        "DOS-M04-010"
+      ],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M05-002",
+      "title": "DOS-M05-002 — Build offline exact-vehicle search and selection",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature"],
+      "workstream": "LiveView UI",
+      "blockedBy": ["DOS-M05-001"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M05-003",
+      "title": "DOS-M05-003 — Create and edit the local vehicle and maintenance-basis profile",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature"],
+      "workstream": "LiveView UI",
+      "blockedBy": ["DOS-M05-001", "DOS-M05-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M05-004",
+      "title": "DOS-M05-004 — Record oil changes and odometer readings as an auditable local history",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature"],
+      "workstream": "LiveView UI",
+      "blockedBy": ["DOS-M05-001", "DOS-M05-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M05-005",
+      "title": "DOS-M05-005 — Deliver the single-vehicle digital oil sticker dashboard",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature"],
+      "workstream": "LiveView UI",
+      "blockedBy": ["DOS-M05-002", "DOS-M05-003", "DOS-M05-004"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M05-006",
+      "title": "DOS-M05-006 — Package and boot the Mob LiveView application reliably offline",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:ios", "platform:android", "needs:decision"],
+      "workstream": "Mob/iOS/Android",
+      "blockedBy": ["DOS-M05-001"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M05-007",
+      "title": "DOS-M05-007 — Provide local export, import, reset, and recovery controls",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "platform:ios", "platform:android"],
+      "workstream": "Mob/iOS/Android",
+      "blockedBy": ["DOS-M05-001", "DOS-M05-003", "DOS-M05-004"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "milestone": "M03",
+  "milestoneTitle": "M03 — Data acquisition and offline catalog",
+  "issues": [
+    {
+      "id": "DOS-M03-000",
+      "title": "DOS-M03-000 — Data Acquisition & Offline Catalog",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "vPIC/Data",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-001",
+      "title": "DOS-M03-001 — Approve the data-source and redistribution rights matrix",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:decision", "needs:license"],
+      "workstream": "vPIC/Data",
+      "blockedBy": [],
+      "priorityOverride": "P0 Critical",
+      "riskOverride": "High",
+      "targetOverride": "Gate"
+    },
+    {
+      "id": "DOS-M03-002",
+      "title": "DOS-M03-002 — Freeze the catalog vocabulary, identity rules, and field-level provenance contract",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:decision", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": [],
+      "priorityOverride": "P0 Critical",
+      "riskOverride": "High",
+      "targetOverride": "Gate"
+    },
+    {
+      "id": "DOS-M03-003",
+      "title": "DOS-M03-003 — Build an immutable raw-data landing zone and reproducible ingest ledger",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-001", "DOS-M03-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-004",
+      "title": "DOS-M03-004 — Implement a courteous, contract-tested vPIC acquisition client",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-002", "DOS-M03-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-005",
+      "title": "DOS-M03-005 — Acquire the rolling 30-year vPIC vehicle identity corpus",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-004"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-006",
+      "title": "DOS-M03-006 — Normalize vehicle configurations and create auditable cross-source identities",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-002", "DOS-M03-005"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-007",
+      "title": "DOS-M03-007 — Gate and ingest rights-approved OEM-derived oil-service schedules and lubricant requirements",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:license", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-008",
+      "title": "DOS-M03-008 — Gate and ingest the API EOLCS licensed-product directory",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:license", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-009",
+      "title": "DOS-M03-009 — Gate and ingest rights-approved filter products, applications, and reference data",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:license", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-010",
+      "title": "DOS-M03-010 — Compile, quality-gate, and publish a deterministic offline catalog release",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:data-validation", "needs:qa", "platform:ios", "platform:android"],
+      "workstream": "vPIC/Data",
+      "blockedBy": [
+        "DOS-M03-001",
+        "DOS-M03-002",
+        "DOS-M03-003",
+        "DOS-M03-004",
+        "DOS-M03-005",
+        "DOS-M03-006",
+        "DOS-M03-007",
+        "DOS-M03-008",
+        "DOS-M03-009"
+      ],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    }
+  ]
+}

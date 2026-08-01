@@ -1,0 +1,90 @@
+{
+  "milestone": "M01",
+  "milestoneTitle": "M01 — Engineering foundation",
+  "issues": [
+    {
+      "id": "DOS-M01-000",
+      "title": "DOS-M01-000 — Establish a reproducible, offline-safe engineering platform",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "Architecture",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M01-001",
+      "title": "DOS-M01-001 — Create the pinned repository and cross-platform toolchain baseline",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task"],
+      "workstream": "DevOps/Release",
+      "blockedBy": ["DOS-M00-000", "DOS-M00-002", "DOS-M00-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M01-002",
+      "title": "DOS-M01-002 — Establish domain, UI, storage, data, and platform adapter boundaries",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M01-001", "DOS-M00-002", "DOS-M00-003", "DOS-M00-004", "DOS-M00-005"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M01-003",
+      "title": "DOS-M01-003 — Define `CatalogRepo` and `UserRepo` SQLite schemas with Ecto migrations",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M00-004", "DOS-M00-006", "DOS-M01-001", "DOS-M01-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M01-004",
+      "title": "DOS-M01-004 — Scaffold the catalog-build contract with a tiny offline fixture",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M00-006", "DOS-M01-002", "DOS-M01-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M01-005",
+      "title": "DOS-M01-005 — Implement the on-device Mob/LiveView shell and separate Netlify support site",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "platform:ios", "platform:android", "platform:netlify", "quality:security"],
+      "workstream": "Mob/iOS/Android",
+      "blockedBy": ["DOS-M01-001", "DOS-M01-002", "DOS-M01-003", "DOS-M01-004", "DOS-M00-002", "DOS-M00-004"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M01-006",
+      "title": "DOS-M01-006 — Establish CI, test pyramids, quality budgets, and release evidence",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:qa", "platform:ios", "platform:android"],
+      "workstream": "DevOps/Release",
+      "blockedBy": ["DOS-M01-001", "DOS-M01-002", "DOS-M01-003", "DOS-M01-004", "DOS-M01-005"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    }
+  ]
+}

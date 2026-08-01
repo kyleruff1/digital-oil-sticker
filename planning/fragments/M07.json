@@ -1,0 +1,102 @@
+{
+  "milestone": "M07",
+  "milestoneTitle": "M07 — Hardening, beta, and release",
+  "issues": [
+    {
+      "id": "DOS-M07-000",
+      "title": "DOS-M07-000 — Hardening, Closed Beta, and Store Release",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "DevOps/Release",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M07-001",
+      "title": "DOS-M07-001 — Threat-model and lock down the local-only privacy boundary",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "quality:privacy", "quality:security", "platform:ios", "platform:android"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M05-001", "DOS-M05-006", "DOS-M05-007", "DOS-M06-005", "DOS-M06-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M07-002",
+      "title": "DOS-M07-002 — Meet the mobile accessibility and inclusive-design release bar",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "quality:accessibility", "platform:ios", "platform:android"],
+      "workstream": "LiveView UI",
+      "blockedBy": ["DOS-M05-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M07-003",
+      "title": "DOS-M07-003 — Enforce startup, interaction, storage, memory, and battery budgets",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:qa", "quality:performance", "platform:ios", "platform:android"],
+      "workstream": "QA",
+      "blockedBy": ["DOS-M05-001", "DOS-M05-002", "DOS-M05-006", "DOS-M06-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M07-004",
+      "title": "DOS-M07-004 — Execute the cross-platform offline, migration, and notification QA matrix",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:qa", "platform:ios", "platform:android"],
+      "workstream": "QA",
+      "blockedBy": ["DOS-M05-001", "DOS-M05-002", "DOS-M05-003", "DOS-M05-004", "DOS-M05-005", "DOS-M05-006", "DOS-M05-007", "DOS-M06-001", "DOS-M06-002", "DOS-M06-003", "DOS-M06-004", "DOS-M06-005", "DOS-M06-006", "DOS-M06-007", "DOS-M07-001", "DOS-M07-002", "DOS-M07-003"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M07-005",
+      "title": "DOS-M07-005 — Establish CI, supply-chain, migration, and signed-build quality gates",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "quality:security", "platform:ios", "platform:android"],
+      "workstream": "DevOps/Release",
+      "blockedBy": ["DOS-M05-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M07-006",
+      "title": "DOS-M07-006 — Run a privacy-preserving closed beta and defect triage program",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:qa", "quality:privacy", "platform:ios", "platform:android"],
+      "workstream": "QA",
+      "blockedBy": ["DOS-M05-007", "DOS-M06-007", "DOS-M07-001", "DOS-M07-002", "DOS-M07-003", "DOS-M07-004", "DOS-M07-005"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M07-007",
+      "title": "DOS-M07-007 — Prepare, stage, monitor, and recover the production release",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:decision", "platform:ios", "platform:android", "platform:netlify"],
+      "workstream": "DevOps/Release",
+      "blockedBy": ["DOS-M07-001", "DOS-M07-002", "DOS-M07-003", "DOS-M07-004", "DOS-M07-005", "DOS-M07-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    }
+  ]
+}
