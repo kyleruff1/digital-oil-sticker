@@ -150,7 +150,7 @@ export function buildFixtures({ repoRoot, outDir }) {
   const outB = join(outDir, 'catalog-fixture-b.sqlite3')
   const b = buildCatalog({ outPath: outB, metadata: meta('fixture-b'), rows: { ...commonRows, vehicle_configurations: dedupedConfigs.slice(1) } })
 
-  writeManifest(join(outDir, 'catalog-manifest.json'), {
+  writeManifest(join(outDir, 'catalog-fixture-manifest.json'), {
     manifest_version: 1, kind: 'fixture', generated_at: FIXTURE_TS,
     artifacts: {
       'catalog.sqlite3': { data_version: 'fixture-a', sha256: a.sha256, size: a.size, counts: a.counts },

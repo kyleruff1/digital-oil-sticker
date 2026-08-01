@@ -1,48 +1,25 @@
 {
   "manifest_version": 1,
-  "kind": "fixture",
-  "generated_at": "2026-08-01T00:00:00Z",
-  "artifacts": {
-    "catalog.sqlite3": {
-      "data_version": "fixture-a",
-      "sha256": "abc23dcd2a3aa203ccc0e5d36d17be0612075f49a10af8eed32ad8db30ffdad4",
-      "size": 401408,
-      "counts": {
-        "data_sources": 2,
-        "makes": 8,
-        "models": 226,
-        "vehicle_configurations": 235,
-        "aliases": 1,
-        "oil_brands": 1,
-        "oil_products": 1,
-        "oil_product_claims": 1,
-        "maintenance_schedules": 0,
-        "oil_requirements": 0,
-        "filter_brands": 0,
-        "filter_products": 0,
-        "filter_fitments": 0
-      }
-    },
-    "catalog-fixture-b.sqlite3": {
-      "data_version": "fixture-b",
-      "sha256": "8ca90372dbd8c0c99d1cdfe157d7b0d472346666e8b3525fb11cc49c10454e56",
-      "size": 401408,
-      "counts": {
-        "data_sources": 2,
-        "makes": 8,
-        "models": 226,
-        "vehicle_configurations": 234,
-        "aliases": 1,
-        "oil_brands": 1,
-        "oil_products": 1,
-        "oil_product_claims": 1,
-        "maintenance_schedules": 0,
-        "oil_requirements": 0,
-        "filter_brands": 0,
-        "filter_products": 0,
-        "filter_fitments": 0
-      }
-    }
+  "kind": "bootstrap-interim",
+  "catalog_version": "2026.08.0-bootstrap",
+  "schema_version": "1",
+  "built_at": "2026-08-01T00:00:00Z",
+  "payload_sha256": "b687344e98692a8e86a0ffb1878fb23a7f5d60721e9f19557b36d2e785912171",
+  "size": 401408,
+  "counts": {
+    "data_sources": 1,
+    "makes": 8,
+    "models": 226,
+    "vehicle_configurations": 235,
+    "aliases": 0,
+    "oil_brands": 0,
+    "oil_products": 0,
+    "oil_product_claims": 0,
+    "maintenance_schedules": 0,
+    "oil_requirements": 0,
+    "filter_brands": 0,
+    "filter_products": 0,
+    "filter_fitments": 0
   },
-  "removed_in_b": "027d866d-742d-593b-b63f-5f071a622cb9"
+  "note": "Interim 8-make slice; superseded by the full 73-make production build."
 }

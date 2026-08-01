@@ -22,7 +22,10 @@ defmodule DigitalOilStickerWeb.Components.DateSelect do
   attr :announce, :string, default: nil, doc: "e.g. the day-cleared announcement"
 
   def date_select(assigns) do
-    assigns = assign(assigns, :day_options, day_options(assigns.month, assigns.year))
+    assigns =
+      assigns
+      |> assign(:day_options, day_options(assigns.month, assigns.year))
+      |> assign(:months, @months)
 
     ~H"""
     <fieldset id={@id} phx-hook="DateSelect" class="rounded border p-3">

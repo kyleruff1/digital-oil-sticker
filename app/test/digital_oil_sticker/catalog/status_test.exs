@@ -72,7 +72,7 @@ defmodule DigitalOilSticker.Catalog.StatusTest do
 
   test "a configuration_key absent from this data_version is unsupported through the facade" do
     manifest =
-      "priv/catalog/catalog-manifest.json"
+      "priv/catalog/catalog-fixture-manifest.json"
       |> File.read!()
       |> JSON.decode!()
 
