@@ -2,3 +2,6 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local third-party reference imagery (never committed - rights discipline)
+MOTOCRAFT-OIL-CHANGE-STICKERS-STATIC-CLING_MOT-1T_800x600__70559.1547570380.webp
