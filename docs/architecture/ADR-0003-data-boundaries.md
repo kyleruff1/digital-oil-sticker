@@ -1,6 +1,6 @@
 # ADR-0003 — Vehicle and maintenance-data boundaries
 
-**Status:** Proposed — pending DOS-M00-006 ratification · **Implements:** [DOS-M00-006](https://github.com/kyleruff1/digital-oil-sticker/issues/7) · **Cites:** INV-8, INV-9, INV-10, INV-11, INV-12, INV-15, INV-16 ([CONSTITUTION.md](../product/CONSTITUTION.md))
+**Status:** Accepted — ratified 2026-07-31 by the owner (product/data roles); legal/redistribution assumptions owner-reviewed and accepted the same day · **Implements:** [DOS-M00-006](https://github.com/kyleruff1/digital-oil-sticker/issues/7) · **Cites:** INV-8, INV-9, INV-10, INV-11, INV-12, INV-15, INV-16 ([CONSTITUTION.md](../product/CONSTITUTION.md))
 
 ## Decision
 
