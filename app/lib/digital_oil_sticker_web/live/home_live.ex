@@ -25,7 +25,7 @@ defmodule DigitalOilStickerWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <main class="mx-auto max-w-2xl px-6 py-16">
-      <img src={~p"/logo.svg"} alt="Digital Oil Sticker" class="w-full max-w-md" />
+      <img src={~p"/images/dos-logo.svg"} alt="Digital Oil Sticker" class="w-full max-w-md" />
 
       <p class="mt-8 text-lg leading-relaxed">
         An accurate, explainable replacement for the windshield oil-change sticker.

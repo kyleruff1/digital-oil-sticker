@@ -15,7 +15,10 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
   force_ssl: [
     rewrite_on: [:x_forwarded_proto],
     exclude: [
-      # paths: ["/health"],
+      # Fly's platform health check reaches the machine over plain HTTP on the
+      # internal port, so redirecting it to https makes the machine look
+      # unhealthy and it gets stopped. HSTS still applies to every other path.
+      paths: ["/health"],
       hosts: ["localhost", "127.0.0.1"]
     ]
   ]

@@ -17,7 +17,10 @@ defmodule DigitalOilStickerWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico favicon.svg logo.svg robots.txt)
+  # Brand assets live under images/ because Plug.Static matches the first path
+  # segment: a digested root-level file (logo-<hash>.svg) would never match a
+  # bare "logo.svg" entry here and would 404 in production.
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
 
   def router do
     quote do
