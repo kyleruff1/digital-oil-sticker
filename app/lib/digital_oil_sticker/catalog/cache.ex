@@ -77,7 +77,10 @@ defmodule DigitalOilSticker.Catalog.Cache do
 
   defp put(key, value) do
     :ets.insert(@young, {key, value})
-    if :ets.info(@young, :size) > @max_entries_per_generation, do: GenServer.cast(__MODULE__, :rotate)
+
+    if :ets.info(@young, :size) > @max_entries_per_generation,
+      do: GenServer.cast(__MODULE__, :rotate)
+
     :ok
   end
 

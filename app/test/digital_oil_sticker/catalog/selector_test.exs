@@ -35,7 +35,8 @@ defmodule DigitalOilSticker.Catalog.SelectorTest do
       assert {:error, :invalid_selector} = Selector.validate(:list_makes, %{"year" => bad})
     end
 
-    assert {:error, :invalid_selector} = Selector.validate(:list_makes, %{"year" => @valid_year, "page_size" => "50"})
+    assert {:error, :invalid_selector} =
+             Selector.validate(:list_makes, %{"year" => @valid_year, "page_size" => "50"})
   end
 
   test "years outside the catalog window are rejected (window from metadata, not hardcoded)" do
@@ -66,12 +67,14 @@ defmodule DigitalOilSticker.Catalog.SelectorTest do
   end
 
   test "the selector struct cannot hold fields outside the vocabulary" do
-    assert Map.keys(%Selector{function: :list_years}) -- [:__struct__, :function | Vocabulary.all_fields()] == []
+    assert Map.keys(%Selector{function: :list_years}) --
+             [:__struct__, :function | Vocabulary.all_fields()] == []
   end
 
   test "every event allowlist key is in the global vocabulary" do
     for {event, keys} <- Vocabulary.event_allowlist(), key <- keys do
-      assert match?({:ok, _}, Vocabulary.key_atom(key)), "#{event} allows #{key} which is not in the vocabulary"
+      assert match?({:ok, _}, Vocabulary.key_atom(key)),
+             "#{event} allows #{key} which is not in the vocabulary"
     end
   end
 end

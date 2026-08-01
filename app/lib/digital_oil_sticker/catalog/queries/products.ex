@@ -40,5 +40,4 @@ defmodule DigitalOilSticker.Catalog.Queries.Products do
     )
     |> CatalogRepo.all()
   end
-
 end

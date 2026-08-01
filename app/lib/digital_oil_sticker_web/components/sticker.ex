@@ -62,9 +62,21 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
         <div class="flex items-center gap-3">
           <img src="/images/dos-mark.svg" alt="" width="48" height="48" />
           <dl class="text-sm">
-            <div><dt class="inline font-semibold">Date:</dt> <dd class="inline" data-test="sticker-date-compact">{@date_value || "—"}</dd></div>
-            <div><dt class="inline font-semibold">Mileage:</dt> <dd class="inline">{@mileage_value || "—"}</dd></div>
-            <div><dt class="inline font-semibold">Grade:</dt> <dd class="inline">{@grade_value || "—"}</dd></div>
+            <div>
+              <dt class="inline font-semibold">Date:</dt>
+              
+              <dd class="inline" data-test="sticker-date-compact">{@date_value || "—"}</dd>
+            </div>
+            <div>
+              <dt class="inline font-semibold">Mileage:</dt>
+              
+              <dd class="inline">{@mileage_value || "—"}</dd>
+            </div>
+            <div>
+              <dt class="inline font-semibold">Grade:</dt>
+              
+              <dd class="inline">{@grade_value || "—"}</dd>
+            </div>
           </dl>
         </div>
       </div>
@@ -80,7 +92,11 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
 
   defp viewport(assigns) do
     ~H"""
-    <div class="absolute flex flex-col items-center justify-center" style={@style} data-test={@test_id}>
+    <div
+      class="absolute flex flex-col items-center justify-center"
+      style={@style}
+      data-test={@test_id}
+    >
       <span class="text-[1.6cqw] font-bold uppercase tracking-widest" style="color:#101820;">
         {@label}
       </span>
@@ -96,8 +112,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
         class="dos-skeleton h-[2.6cqw] w-3/4 animate-pulse rounded"
         style="background:#10182022;"
         aria-hidden="true"
-      >
-      </span>
+      ></span>
       <span :if={@skeleton} class="sr-only">{Copy.sr_checking()}</span>
     </div>
     """

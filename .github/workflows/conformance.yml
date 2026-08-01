@@ -5,12 +5,23 @@ name: Browser conformance
 # launched — so "we did not run it" can never reach a release as "it is fine".
 
 on:
+  # Callable from the deploy workflow, so a deploy is verified by the same
+  # assertions a release is gated on rather than a separate ad-hoc check.
+  workflow_call:
   workflow_dispatch:
     inputs:
       base_url:
         description: Deployed application to run against
         required: true
         default: https://digital-oil-sticker.fly.dev
+  # Work in this repo lands directly on main, so a pull_request-only trigger
+  # meant this workflow had never run once.
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'conformance/**'
+      - 'docs/quality/SUPPORT_MATRIX.md'
   pull_request:
     paths:
       - 'app/**'

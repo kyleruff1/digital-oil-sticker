@@ -7,7 +7,10 @@ defmodule DigitalOilSticker.Catalog.Telemetry do
   @spec span(atom(), (-> result)) :: result when result: var
   def span(function, fun) do
     start = System.monotonic_time()
-    :telemetry.execute([:dos, :catalog, :query, :start], %{system_time: System.system_time()}, %{function: function})
+
+    :telemetry.execute([:dos, :catalog, :query, :start], %{system_time: System.system_time()}, %{
+      function: function
+    })
 
     try do
       result = fun.()

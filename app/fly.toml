@@ -32,6 +32,21 @@ primary_region = "ord"
     hard_limit = 200
     soft_limit = 100
 
+# Two checks, because liveness and readiness answer different questions.
+#
+# Readiness decides whether this machine takes traffic: it verifies the catalog
+# is present, unchanged since boot, read-only, schema-supported, queryable, and
+# that the release identifies itself. A failure here rotates the machine out.
+[[http_service.checks]]
+  interval = "15s"
+  timeout = "5s"
+  grace_period = "20s"
+  method = "GET"
+  path = "/ready"
+
+# Liveness decides whether the process is worth keeping. It consults nothing,
+# on purpose: a liveness probe that checks dependencies turns one bad artifact
+# into a restart storm across every machine.
 [[http_service.checks]]
   interval = "30s"
   timeout = "5s"

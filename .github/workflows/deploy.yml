@@ -1,0 +1,153 @@
+name: Deploy
+
+# Build once, deploy that exact image, prove it is ready, record what shipped.
+#
+# INERT UNTIL THE OWNER PROVISIONS `FLY_API_TOKEN`. The guard below is
+# deliberate: a deploy workflow that silently no-ops looks the same as one that
+# worked, so this one says which it is.
+#
+# Trigger is manual on purpose. The open question in DOS-M09-005 — deploy on
+# merge vs explicit trigger — is not ours to settle: every deploy drops every
+# live LiveView socket, so "on merge" is a product decision about interrupting
+# people mid-task, not a CI preference. Until the owner records that decision,
+# the safe default is that a human asks for it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Why this deploy is happening (recorded in the release ledger)
+        required: true
+      skip_conformance:
+        description: Skip the post-deploy browser sweep (emergency rollback only)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Preflight
+    runs-on: ubuntu-latest
+    outputs:
+      armed: ${{ steps.token.outputs.armed }}
+    steps:
+      - id: token
+        name: Is the deploy credential present?
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          if [ -z "$FLY_API_TOKEN" ]; then
+            echo "armed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::FLY_API_TOKEN is not set — this workflow is inert."
+            echo "The owner must run 'fly tokens create deploy' and add the result"
+            echo "as the FLY_API_TOKEN repository secret. Until then every deploy"
+            echo "is a workstation deploy with no ledger entry and no gate."
+          else
+            echo "armed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    name: Build, deploy, verify
+    needs: preflight
+    if: needs.preflight.outputs.armed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: production
+
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      FLY_APP: digital-oil-sticker
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Record what is live now, so rollback has a target
+        id: before
+        run: |
+          previous=$(flyctl releases --app "$FLY_APP" --json | python3 -c "import sys,json;print(json.load(sys.stdin)[0]['Version'])")
+          echo "previous_release=$previous" >> "$GITHUB_OUTPUT"
+          echo "currently live: v$previous"
+
+      # Build and deploy are one flyctl invocation, but the image is tagged with
+      # the commit so the ledger entry names something that can be pulled again.
+      - name: Build and deploy this exact commit
+        id: deploy
+        run: |
+          flyctl deploy \
+            --app "$FLY_APP" \
+            --build-arg GIT_SHA="${{ github.sha }}" \
+            --build-arg BUILD_TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --image-label "sha-${{ github.sha }}" \
+            --wait-timeout 600
+
+      # The deploy reporting success means Fly accepted it. Readiness means the
+      # machine can actually serve — catalog present, unchanged, read-only,
+      # queryable, and identifying itself.
+      - name: Poll readiness
+        run: |
+          for attempt in $(seq 1 30); do
+            body=$(curl -fsS "https://$FLY_APP.fly.dev/ready" || true)
+            if echo "$body" | grep -q '"status":"ready"'; then
+              echo "ready after ${attempt} attempt(s)"
+              echo "$body"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::the deployed machine never reported ready"
+          curl -sS "https://$FLY_APP.fly.dev/ready" || true
+          exit 1
+
+      # Prove the running machine is the commit we just built. A deploy that
+      # silently reused a cached image would otherwise be undetectable.
+      - name: Assert the running release is this commit
+        run: |
+          reported=$(curl -fsS "https://$FLY_APP.fly.dev/version" | python3 -c "import sys,json;print(json.load(sys.stdin)['git_sha'])")
+          if [ "$reported" != "${{ github.sha }}" ]; then
+            echo "::error::the live machine reports git_sha=$reported, expected ${{ github.sha }}"
+            exit 1
+          fi
+          echo "live release confirmed: $reported"
+
+      - name: Smoke walk
+        run: |
+          set -e
+          curl -fsS "https://$FLY_APP.fly.dev/health" > /dev/null
+          curl -fsS "https://$FLY_APP.fly.dev/" | grep -q "Digital Oil Sticker"
+          # The catalog must actually answer, not merely open.
+          curl -fsS "https://$FLY_APP.fly.dev/vehicle/select" | grep -q "Choose a vehicle"
+          echo "smoke walk passed"
+
+      - name: Write the release ledger entry
+        if: always()
+        env:
+          REASON: ${{ github.event.inputs.reason }}
+          PREVIOUS: v${{ steps.before.outputs.previous_release }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          mkdir -p artifacts
+          curl -fsS "https://$FLY_APP.fly.dev/version" > artifacts/release-identity.json || echo '{}' > artifacts/release-identity.json
+          python3 tools/release/ledger_entry.py artifacts/release-identity.json > artifacts/ledger-entry.md
+          cat artifacts/ledger-entry.md
+
+      - name: Upload release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-evidence
+          path: artifacts/
+          retention-days: 365
+
+  conformance:
+    name: Post-deploy conformance
+    needs: [preflight, deploy]
+    if: needs.preflight.outputs.armed == 'true' && github.event.inputs.skip_conformance != 'true'
+    uses: ./.github/workflows/conformance.yml

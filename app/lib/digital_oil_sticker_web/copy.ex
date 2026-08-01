@@ -86,7 +86,10 @@ defmodule DigitalOilStickerWeb.Copy do
   # --- Cascade / catalog states ----------------------------------------------
   def choose_upstream(level), do: "Choose a #{level} first."
   def loading, do: "Loading…"
-  def narrowed_empty(level, upstream), do: "No #{level} options are listed for the #{upstream} you chose."
+
+  def narrowed_empty(level, upstream),
+    do: "No #{level} options are listed for the #{upstream} you chose."
+
   def no_catalog_match, do: "No catalog match for these choices."
   def catalog_unreadable, do: "The vehicle catalog could not be read."
   def rate_limited, do: "Too many requests — wait a moment and try again."
@@ -94,7 +97,9 @@ defmodule DigitalOilStickerWeb.Copy do
   def results_count(n), do: "#{n} results"
   def count_unknown, do: "Result count unknown"
   def vehicle_not_listed, do: "My vehicle is not listed"
-  def connection_problem, do: "Connection problem — this is not a statement about your vehicle's data."
+
+  def connection_problem,
+    do: "Connection problem — this is not a statement about your vehicle's data."
 
   # --- Products / provenance ---------------------------------------------------
   def from_catalog, do: "From catalog"
@@ -145,9 +150,15 @@ defmodule DigitalOilStickerWeb.Copy do
   # --- Oil change form ---------------------------------------------------------
   def date_incomplete, do: "Choose a month, a day, and a year."
   def date_future, do: "A service date in the future can't be recorded."
-  def date_before_model_year, do: "That date is before this vehicle's model year. Check the date before saving."
-  def day_cleared(month_name, year, days), do: "Day cleared — #{month_name} #{year} has #{days} days."
-  def repeat_prefill_hint, do: "Enter today's date and the odometer reading — these are never carried over."
+
+  def date_before_model_year,
+    do: "That date is before this vehicle's model year. Check the date before saving."
+
+  def day_cleared(month_name, year, days),
+    do: "Day cleared — #{month_name} #{year} has #{days} days."
+
+  def repeat_prefill_hint,
+    do: "Enter today's date and the odometer reading — these are never carried over."
 
   def duplicate_warning(date, odo, unit),
     do: "You already recorded an oil change on #{date} at #{odo} #{unit}."

@@ -30,7 +30,12 @@ defmodule DigitalOilStickerWeb.Router do
   scope "/", DigitalOilStickerWeb do
     pipe_through :api
 
-    get "/health", HealthController, :index
+    # Three distinct questions, three endpoints. Liveness must not consult
+    # dependencies (a dependency failure would restart every machine instead
+    # of rotating it out); readiness must consult all of them.
+    get "/health", HealthController, :health
+    get "/ready", HealthController, :ready
+    get "/version", HealthController, :version
   end
 
   # Other scopes may use custom stacks.

@@ -20,7 +20,8 @@ defmodule DigitalOilSticker.Catalog.Status do
   def derive(config, outcome) do
     cond do
       not SourceGate.cleared?(:maintenance_schedules) ->
-        {:unsupported, [%{code: :source_not_cleared_for_web_serving, fact_domain: :maintenance_schedules}]}
+        {:unsupported,
+         [%{code: :source_not_cleared_for_web_serving, fact_domain: :maintenance_schedules}]}
 
       bev?(config) ->
         {:not_applicable, [%{code: :no_engine_oil_plan, basis: :electrification_bev}]}
@@ -41,7 +42,10 @@ defmodule DigitalOilSticker.Catalog.Status do
 
   @doc "BEV iff a stored catalog column says so. NULL means unknown, never BEV."
   def bev?(%{electrification_level: "BEV"}), do: true
-  def bev?(%{electrification_level: level}) when is_binary(level), do: String.upcase(level) == "BEV"
+
+  def bev?(%{electrification_level: level}) when is_binary(level),
+    do: String.upcase(level) == "BEV"
+
   def bev?(%{fuel_primary: "Electricity", fuel_secondary: nil}), do: true
   def bev?(_), do: false
 end

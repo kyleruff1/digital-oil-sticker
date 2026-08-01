@@ -8,20 +8,26 @@ defmodule DigitalOilSticker.Catalog.StatusTest do
 
   test "BEV configuration derives not_applicable" do
     assert {:not_applicable, [%{code: :no_engine_oil_plan}]} =
-             Status.derive(%{electrification_level: "BEV", fuel_primary: "Electricity", fuel_secondary: nil}, %{
-               schedules: [],
-               requirements: [],
-               claims: []
-             })
+             Status.derive(
+               %{electrification_level: "BEV", fuel_primary: "Electricity", fuel_secondary: nil},
+               %{
+                 schedules: [],
+                 requirements: [],
+                 claims: []
+               }
+             )
   end
 
   test "NULL electrification is NOT a BEV — unknown stays unknown" do
     assert {:identity_only, [%{code: :no_licensed_schedule}]} =
-             Status.derive(%{electrification_level: nil, fuel_primary: nil, fuel_secondary: nil}, %{
-               schedules: [],
-               requirements: [],
-               claims: []
-             })
+             Status.derive(
+               %{electrification_level: nil, fuel_primary: nil, fuel_secondary: nil},
+               %{
+                 schedules: [],
+                 requirements: [],
+                 claims: []
+               }
+             )
   end
 
   test "missing configuration is unsupported, never a nearest match" do
@@ -62,11 +68,16 @@ defmodule DigitalOilSticker.Catalog.StatusTest do
     flat = :erlang.term_to_binary(result)
 
     for invented <- [3000, 5000, 7500, 10_000, 15_000] do
-      refute :binary.match(flat, :erlang.term_to_binary(invented) |> binary_part(1, byte_size(:erlang.term_to_binary(invented)) - 1)) != :nomatch and
+      refute :binary.match(
+               flat,
+               :erlang.term_to_binary(invented)
+               |> binary_part(1, byte_size(:erlang.term_to_binary(invented)) - 1)
+             ) != :nomatch and
                false
 
       # Direct assertion: no integer interval values appear in the data.
-      refute invented in List.flatten([result.data]), "invented interval #{invented} must not appear"
+      refute invented in List.flatten([result.data]),
+             "invented interval #{invented} must not appear"
     end
   end
 

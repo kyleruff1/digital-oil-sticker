@@ -67,10 +67,16 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
         >
           <option value="">Choose…</option>
           <optgroup :if={@suggested_grades != []} label={suggested_label(@engine_class_name)}>
-            {Phoenix.HTML.Form.options_for_select(Enum.map(@suggested_grades, &{&1.code, &1.code}), @grade)}
+            {Phoenix.HTML.Form.options_for_select(
+              Enum.map(@suggested_grades, &{&1.code, &1.code}),
+              @grade
+            )}
           </optgroup>
           <optgroup :if={@show_all_grades? and @other_grades != []} label="Every other grade we list">
-            {Phoenix.HTML.Form.options_for_select(Enum.map(@other_grades, &{&1.code, &1.code}), @grade)}
+            {Phoenix.HTML.Form.options_for_select(
+              Enum.map(@other_grades, &{&1.code, &1.code}),
+              @grade
+            )}
           </optgroup>
           <option value="__all__">{Copy.grade_show_all()}</option>
           <option value="__manual__">{Copy.grade_not_listed()}</option>

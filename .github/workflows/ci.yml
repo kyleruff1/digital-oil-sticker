@@ -1,0 +1,148 @@
+name: CI
+
+# The gate that did not exist. Every quality assertion in this repo — the
+# read-only repo proof, the deploy-config assertions, the copy lint, the
+# readiness fault matrix — was advisory until something ran it on push.
+#
+# Runs on push to main as well as on pull requests, because work in this repo
+# lands directly on main; a PR-only trigger would have meant this never ran.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  elixir:
+    name: Elixir
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to the versions DOS-M01-001 froze. A floating toolchain means a
+      # green build proves nothing about what actually ships.
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.18'
+          otp-version: '28.4'
+
+      - name: Restore deps and build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/deps
+            app/_build
+          key: ${{ runner.os }}-mix-${{ hashFiles('app/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        working-directory: app
+        run: mix deps.get
+
+      # The fixture catalog is a build artifact, not a committed test input for
+      # CI's purposes — rebuilding it here proves the pipeline that produces it
+      # still works, and that the committed fixture matches what it emits.
+      - name: Build the fixture catalog
+        run: node tools/catalog/bin/dos-catalog.mjs fixture
+
+      - name: Assert the committed fixture matches a fresh build
+        run: |
+          if ! git diff --quiet -- app/priv/catalog; then
+            echo "::error::the committed fixture catalog differs from a fresh build — the pipeline is not deterministic, or the fixture was hand-edited"
+            git diff --stat -- app/priv/catalog
+            exit 1
+          fi
+
+      - name: Check formatting
+        working-directory: app
+        run: mix format --check-formatted
+
+      # Warnings are the early form of most defects this project has hit.
+      - name: Compile with warnings as errors
+        working-directory: app
+        run: mix compile --warnings-as-errors
+
+      - name: Test
+        working-directory: app
+        run: mix test
+
+      # Unused dependencies and a stale lockfile are supply-chain surface.
+      - name: Check for unused dependencies
+        working-directory: app
+        run: mix deps.unlock --check-unused
+
+  catalog-tools:
+    name: Catalog pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # Zero-dependency Node ESM by design, so there is nothing to install.
+      # Determinism is the property that matters: the same inputs must produce
+      # a byte-identical artifact, or "verified against its manifest" is
+      # meaningless.
+      - name: Build the fixture catalog twice and compare
+        run: |
+          node tools/catalog/bin/dos-catalog.mjs fixture
+          sha_first=$(sha256sum app/priv/catalog/catalog-fixture-a.sqlite3 | cut -d' ' -f1)
+          node tools/catalog/bin/dos-catalog.mjs fixture
+          sha_second=$(sha256sum app/priv/catalog/catalog-fixture-a.sqlite3 | cut -d' ' -f1)
+          if [ "$sha_first" != "$sha_second" ]; then
+            echo "::error::the catalog build is not deterministic: $sha_first vs $sha_second"
+            exit 1
+          fi
+          echo "deterministic: $sha_first"
+
+      - name: Verify the production artifact against its manifest
+        run: |
+          manifest=app/priv/catalog/catalog-manifest.json
+          catalog=app/priv/catalog/catalog.sqlite3
+          expected=$(sed -n 's/.*"payload_sha256"[[:space:]]*:[[:space:]]*"\([0-9a-f]*\)".*/\1/p' "$manifest")
+          actual=$(sha256sum "$catalog" | cut -d' ' -f1)
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::the committed catalog does not match its manifest ($actual vs $expected)"
+            exit 1
+          fi
+          echo "catalog verified: $actual"
+
+  suite-tests:
+    name: Conformance suite self-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install
+        working-directory: conformance
+        run: npm ci --no-audit --no-fund
+
+      # Proves the report writer still treats `unproven` as blocking. Cheap,
+      # and it does not need a browser — the full browser sweep is its own
+      # workflow because it needs a deployed target.
+      - name: Test
+        working-directory: conformance
+        run: npm test

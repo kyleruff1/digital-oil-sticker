@@ -33,9 +33,14 @@ defmodule DigitalOilSticker.Catalog.Queries.Identity do
         order_by: [asc: m.normalized_name, asc: m.id]
       )
 
-    paginate(base, sel, fn q, [norm, id] ->
-      where(q, [c, m], fragment("(?, ?) > (?, ?)", m.normalized_name, m.id, ^norm, ^id))
-    end, fn row -> [row.normalized_name, row.id] end)
+    paginate(
+      base,
+      sel,
+      fn q, [norm, id] ->
+        where(q, [c, m], fragment("(?, ?) > (?, ?)", m.normalized_name, m.id, ^norm, ^id))
+      end,
+      fn row -> [row.normalized_name, row.id] end
+    )
   end
 
   def models_page(%Selector{year: year, make_id: make_id} = sel) do
@@ -53,9 +58,14 @@ defmodule DigitalOilSticker.Catalog.Queries.Identity do
         order_by: [asc: mo.normalized_name, asc: mo.id]
       )
 
-    paginate(base, sel, fn q, [norm, id] ->
-      where(q, [c, mo], fragment("(?, ?) > (?, ?)", mo.normalized_name, mo.id, ^norm, ^id))
-    end, fn row -> [row.normalized_name, row.id] end)
+    paginate(
+      base,
+      sel,
+      fn q, [norm, id] ->
+        where(q, [c, mo], fragment("(?, ?) > (?, ?)", mo.normalized_name, mo.id, ^norm, ^id))
+      end,
+      fn row -> [row.normalized_name, row.id] end
+    )
   end
 
   def configurations_page(%Selector{year: year, make_id: make_id, model_id: model_id} = sel) do
@@ -87,9 +97,14 @@ defmodule DigitalOilSticker.Catalog.Queries.Identity do
         order_by: [asc: c.configuration_key]
       )
 
-    paginate(base, sel, fn q, [key] ->
-      where(q, [c], c.configuration_key > ^key)
-    end, fn row -> [row.configuration_key] end)
+    paginate(
+      base,
+      sel,
+      fn q, [key] ->
+        where(q, [c], c.configuration_key > ^key)
+      end,
+      fn row -> [row.configuration_key] end
+    )
   end
 
   def get_configuration(key) do

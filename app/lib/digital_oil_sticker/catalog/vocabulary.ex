@@ -28,7 +28,8 @@ defmodule DigitalOilSticker.Catalog.Vocabulary do
     base_stock_code: {:catalog_code, :oil_base_stock},
     grade_code: {:catalog_code, :oil_grade},
     service_condition: {:catalog_code, :service_condition},
-    entity_type: {:enum, [:configuration, :schedule, :requirement, :oil_product, :filter_fitment]},
+    entity_type:
+      {:enum, [:configuration, :schedule, :requirement, :oil_product, :filter_fitment]},
     entity_key: {:catalog_id, :any},
     cursor: {:cursor},
     page_size: {:integer, 1..200}
@@ -40,7 +41,10 @@ defmodule DigitalOilSticker.Catalog.Vocabulary do
     list_years: %{required: [], optional: []},
     list_makes: %{required: [:year], optional: [:cursor, :page_size]},
     list_models: %{required: [:year, :make_id], optional: [:cursor, :page_size]},
-    list_configurations: %{required: [:year, :make_id, :model_id], optional: [:cursor, :page_size]},
+    list_configurations: %{
+      required: [:year, :make_id, :model_id],
+      optional: [:cursor, :page_size]
+    },
     get_configuration: %{required: [:configuration_key], optional: []},
     get_schedules: %{required: [:configuration_key], optional: [:condition]},
     get_lubricant_requirements: %{required: [:configuration_key], optional: []},
@@ -68,7 +72,11 @@ defmodule DigitalOilSticker.Catalog.Vocabulary do
     "catalog:page" => ["cursor", "page_size"],
     "catalog:list_oil_grades" => ["engine_class_code"],
     "catalog:select_base_stock" => ["base_stock_code", "engine_class_code", "service_condition"],
-    "catalog:select_service_condition" => ["service_condition", "base_stock_code", "engine_class_code"]
+    "catalog:select_service_condition" => [
+      "service_condition",
+      "base_stock_code",
+      "engine_class_code"
+    ]
   }
 
   def field_specs, do: @field_specs

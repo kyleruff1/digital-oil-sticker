@@ -72,7 +72,8 @@ defmodule DigitalOilStickerWeb.CopyLintTest do
     for path <- images do
       name = Path.basename(path) |> String.downcase()
 
-      refute name =~ ~r/(api[-_]?donut|starburst|shield|mobil|castrol|valvoline|pennzoil|toyota|ford[-_]logo|honda)/,
+      refute name =~
+               ~r/(api[-_]?donut|starburst|shield|mobil|castrol|valvoline|pennzoil|toyota|ford[-_]logo|honda)/,
              "suspicious third-party mark asset: #{path}"
     end
   end

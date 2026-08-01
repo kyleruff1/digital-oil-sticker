@@ -33,7 +33,8 @@ defmodule DigitalOilSticker.Catalog.Selector do
 
   @spec validate(atom(), map()) :: {:ok, t()} | {:error, :invalid_selector}
   def validate(function, params) when is_map(params) do
-    with %{required: required, optional: optional} <- Map.get(Vocabulary.function_specs(), function),
+    with %{required: required, optional: optional} <-
+           Map.get(Vocabulary.function_specs(), function),
          {:ok, atomized} <- atomize_keys(params),
          :ok <- reject_unknown(atomized, required ++ optional),
          :ok <- require_all(atomized, required),

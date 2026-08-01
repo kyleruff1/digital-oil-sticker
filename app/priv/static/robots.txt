@@ -1,5 +1,15 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# Digital Oil Sticker
 #
-# To ban all spiders from the entire site uncomment the next two lines:
-# User-agent: *
-# Disallow: /
+# Operational endpoints are excluded from indexing. They are not secret — they
+# carry no personal data and no secrets by construction — but they are not
+# content, and a search result pointing at a readiness probe helps nobody.
+# The endpoints also send `x-robots-tag: noindex, nofollow`, because a
+# robots.txt rule is a request and a header is an instruction.
+
+User-agent: *
+Disallow: /health
+Disallow: /ready
+Disallow: /version
+
+# Everything else is indexable.
+Allow: /

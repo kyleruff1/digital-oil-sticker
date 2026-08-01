@@ -24,7 +24,11 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
     model = hd(models.data)
 
     {:ok, configs_sel} =
-      Selector.validate(:list_configurations, %{"year" => 2024, "make_id" => toyota.id, "model_id" => model.id})
+      Selector.validate(:list_configurations, %{
+        "year" => 2024,
+        "make_id" => toyota.id,
+        "model_id" => model.id
+      })
 
     {:ok, configs} = Catalog.list_configurations(configs_sel)
     assert configs.data != []
@@ -32,7 +36,9 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
   end
 
   test "oil grades are suggested per engine class and always labeled as our own model" do
-    {:ok, sel} = Selector.validate(:list_oil_grades, %{"engine_class_code" => "gas_direct_injection"})
+    {:ok, sel} =
+      Selector.validate(:list_oil_grades, %{"engine_class_code" => "gas_direct_injection"})
+
     {:ok, result} = Catalog.list_oil_grades(sel)
 
     assert result.status == :our_model
@@ -72,7 +78,9 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
   end
 
   test "severe service never lengthens an interval" do
-    for stock <- OilModel.base_stocks(), class <- OilModel.engine_classes(), class.engine_oil == "applicable" do
+    for stock <- OilModel.base_stocks(),
+        class <- OilModel.engine_classes(),
+        class.engine_oil == "applicable" do
       {:ok, normal} = OilModel.interval(class.code, stock.code, "normal")
       {:ok, severe} = OilModel.interval(class.code, stock.code, "severe")
 
@@ -82,7 +90,9 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
   end
 
   test "no modelled interval ever exceeds its base stock's published range" do
-    for stock <- OilModel.base_stocks(), class <- OilModel.engine_classes(), class.engine_oil == "applicable" do
+    for stock <- OilModel.base_stocks(),
+        class <- OilModel.engine_classes(),
+        class.engine_oil == "applicable" do
       {:ok, rule} = OilModel.interval(class.code, stock.code, "normal")
       assert rule.miles_recommended <= stock.published_miles_high
     end
@@ -118,21 +128,31 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
       bucket = RateLimit.new()
 
       assert {:error, :invalid_selector, _} =
-               CatalogEvents.handle("catalog:select_year", %{"year" => 2024, "vin" => "X"}, bucket, 0)
+               CatalogEvents.handle(
+                 "catalog:select_year",
+                 %{"year" => 2024, "vin" => "X"},
+                 bucket,
+                 0
+               )
 
       assert query_count(ref) == 0
     end
 
     test "a valid event round-trips and spends one token" do
       bucket = RateLimit.new(30, 5, 0)
-      assert {:ok, result, bucket2} = CatalogEvents.handle("catalog:select_year", %{"year" => 2024}, bucket, 0)
+
+      assert {:ok, result, bucket2} =
+               CatalogEvents.handle("catalog:select_year", %{"year" => 2024}, bucket, 0)
+
       assert result.status == :identity_only
       assert bucket2.tokens < bucket.tokens
     end
 
     test "a drained bucket rate-limits without executing" do
       empty = %RateLimit{RateLimit.new(1, 1, 0) | tokens: 0.0}
-      assert {:error, :rate_limited, ^empty} = CatalogEvents.handle("catalog:select_year", %{"year" => 2024}, empty, 0)
+
+      assert {:error, :rate_limited, ^empty} =
+               CatalogEvents.handle("catalog:select_year", %{"year" => 2024}, empty, 0)
     end
 
     test "an unknown event name is invalid" do

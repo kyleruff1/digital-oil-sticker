@@ -36,10 +36,11 @@ defmodule DigitalOilStickerWeb.Endpoint do
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :digital_oil_sticker
   end
 
-  plug Phoenix.LiveDashboard.RequestLogger,
-    param_key: "request_logger",
-    cookie_key: "request_logger"
-
+  # No Phoenix.LiveDashboard.RequestLogger. The generator mounts it
+  # unconditionally, which leaves a request-log tap on every production
+  # request: anyone who sets the `request_logger` param or cookie starts
+  # streaming this server's logs. The dashboard route itself is dev-only, so
+  # the plug bought nothing in production and gave away log access (INV-26).
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 

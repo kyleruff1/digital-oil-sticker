@@ -27,7 +27,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Storage</h1>
 
@@ -79,9 +79,14 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   defp state_line(_, :session_only), do: Copy.session_only_banner()
   defp state_line(_, _), do: "Checking…"
 
-  defp persist_line(true), do: "This browser agreed to keep the app's storage when space runs low."
-  defp persist_line(false), do: "This browser did not agree to keep the app's storage when space runs low."
-  defp persist_line(nil), do: "This browser does not report whether it will keep the app's storage."
+  defp persist_line(true),
+    do: "This browser agreed to keep the app's storage when space runs low."
+
+  defp persist_line(false),
+    do: "This browser did not agree to keep the app's storage when space runs low."
+
+  defp persist_line(nil),
+    do: "This browser does not report whether it will keep the app's storage."
 
   defp quota_line(nil), do: "This browser does not report a storage estimate."
 

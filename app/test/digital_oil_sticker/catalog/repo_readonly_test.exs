@@ -23,7 +23,14 @@ defmodule DigitalOilSticker.Catalog.RepoReadonlyTest do
   end
 
   test "read_only: true removed the write API at compile time" do
-    for {fun, arity} <- [insert: 2, update: 2, delete: 2, insert_all: 3, update_all: 3, delete_all: 2] do
+    for {fun, arity} <- [
+          insert: 2,
+          update: 2,
+          delete: 2,
+          insert_all: 3,
+          update_all: 3,
+          delete_all: 2
+        ] do
       refute function_exported?(CatalogRepo, fun, arity),
              "#{fun}/#{arity} must not exist on a read-only repo"
     end
@@ -34,7 +41,8 @@ defmodule DigitalOilSticker.Catalog.RepoReadonlyTest do
   end
 
   test "the artifact is not in WAL mode (read-only image opens need DELETE)" do
-    assert %{rows: [["delete"]]} = Ecto.Adapters.SQL.query!(CatalogRepo, "PRAGMA journal_mode", [])
+    assert %{rows: [["delete"]]} =
+             Ecto.Adapters.SQL.query!(CatalogRepo, "PRAGMA journal_mode", [])
   end
 
   test "mutations are rejected at the connection layer" do
@@ -57,13 +65,29 @@ defmodule DigitalOilSticker.Catalog.RepoReadonlyTest do
     # (mode: :readonly is an independent layer below query_only).
     _ = Ecto.Adapters.SQL.query(CatalogRepo, "PRAGMA query_only = OFF", [])
     assert {:error, _} = Ecto.Adapters.SQL.query(CatalogRepo, "DELETE FROM makes", [])
+
+    # Put it back. The pragma is per-CONNECTION and the connection returns to a
+    # shared pool, so leaving it off poisons whichever test checks out that
+    # connection next — which is exactly how this test broke the readiness
+    # check when it was added.
+    _ = Ecto.Adapters.SQL.query(CatalogRepo, "PRAGMA query_only = ON", [])
   end
 
   test "the catalog fixture is present, queryable, and honestly empty where unlicensed" do
-    assert %{rows: [[n]]} = Ecto.Adapters.SQL.query!(CatalogRepo, "SELECT count(*) FROM makes", [])
+    assert %{rows: [[n]]} =
+             Ecto.Adapters.SQL.query!(CatalogRepo, "SELECT count(*) FROM makes", [])
+
     assert n > 0
-    assert %{rows: [[0]]} = Ecto.Adapters.SQL.query!(CatalogRepo, "SELECT count(*) FROM maintenance_schedules", [])
-    assert %{rows: [[0]]} = Ecto.Adapters.SQL.query!(CatalogRepo, "SELECT count(*) FROM oil_requirements", [])
+
+    assert %{rows: [[0]]} =
+             Ecto.Adapters.SQL.query!(
+               CatalogRepo,
+               "SELECT count(*) FROM maintenance_schedules",
+               []
+             )
+
+    assert %{rows: [[0]]} =
+             Ecto.Adapters.SQL.query!(CatalogRepo, "SELECT count(*) FROM oil_requirements", [])
   end
 
   test "no -wal or -shm sidecar exists beside the fixture" do

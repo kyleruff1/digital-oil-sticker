@@ -38,14 +38,23 @@ defmodule DigitalOilStickerWeb.SavePathTest do
         from(c in "vehicle_configurations",
           join: m in "makes",
           on: m.id == c.make_id,
-          select: %{key: c.configuration_key, year: c.model_year, make_id: c.make_id, model_id: c.model_id},
+          select: %{
+            key: c.configuration_key,
+            year: c.model_year,
+            make_id: c.make_id,
+            model_id: c.model_id
+          },
           limit: 1
         )
       )
 
     # Drive the cascade so the LiveView holds the selection it commits.
     render_change(view, "cascade_change", %{"year" => to_string(row.year)})
-    render_change(view, "cascade_change", %{"year" => to_string(row.year), "make_id" => row.make_id})
+
+    render_change(view, "cascade_change", %{
+      "year" => to_string(row.year),
+      "make_id" => row.make_id
+    })
 
     render_change(view, "cascade_change", %{
       "year" => to_string(row.year),
@@ -80,7 +89,12 @@ defmodule DigitalOilStickerWeb.SavePathTest do
       "vehicle_id" => "11111111-1111-4111-8111-111111111111",
       "archived" => false,
       "model_year" => 2020,
-      "display_snapshot" => %{"year" => 2020, "make" => "Toyota", "model" => "Camry", "build" => "LE"},
+      "display_snapshot" => %{
+        "year" => 2020,
+        "make" => "Toyota",
+        "model" => "Camry",
+        "build" => "LE"
+      },
       "support_status" => "identity_only",
       "maintenance_plan" => nil
     }
@@ -125,7 +139,12 @@ defmodule DigitalOilStickerWeb.SavePathTest do
       "vehicle_id" => "11111111-1111-4111-8111-111111111111",
       "archived" => false,
       "model_year" => 2020,
-      "display_snapshot" => %{"year" => 2020, "make" => "Toyota", "model" => "Camry", "build" => "LE"},
+      "display_snapshot" => %{
+        "year" => 2020,
+        "make" => "Toyota",
+        "model" => "Camry",
+        "build" => "LE"
+      },
       "support_status" => "identity_only",
       "engine_class_code" => "gas_direct_injection",
       "maintenance_plan" => nil
@@ -149,8 +168,19 @@ defmodule DigitalOilStickerWeb.SavePathTest do
       "storage" => %{"mode" => "idb", "boot_hint" => "has_data"}
     })
 
-    {:ok, normal} = DigitalOilSticker.Catalog.OilModel.interval("gas_direct_injection", "full_synthetic", "normal")
-    {:ok, severe} = DigitalOilSticker.Catalog.OilModel.interval("gas_direct_injection", "full_synthetic", "severe")
+    {:ok, normal} =
+      DigitalOilSticker.Catalog.OilModel.interval(
+        "gas_direct_injection",
+        "full_synthetic",
+        "normal"
+      )
+
+    {:ok, severe} =
+      DigitalOilSticker.Catalog.OilModel.interval(
+        "gas_direct_injection",
+        "full_synthetic",
+        "severe"
+      )
 
     assert render(view) =~ "#{normal.months_cap} months"
 
@@ -158,6 +188,39 @@ defmodule DigitalOilStickerWeb.SavePathTest do
 
     assert html =~ "#{severe.months_cap} months"
     refute severe.months_cap == normal.months_cap
+  end
+
+  test "a browser holding newer records is told why saving is off", %{conn: conn} do
+    # The defect this guards, same shape as the refused-write one: read_only
+    # was set, mutations were gated on it, and Copy.read_only_banner/0 was
+    # rendered nowhere — so the user found the save buttons inert with no
+    # explanation and no route to their data.
+    for route <- ["/", "/vehicle", "/service/new", "/history", "/settings/storage"] do
+      {:ok, view, _html} = live(conn, route)
+
+      html =
+        render_hook(view, "local_store:hydrate", %{
+          "envelope" => "dos_local",
+          # Newer than the server's logical schema version.
+          "schema_version" => 99,
+          "seq" => 5,
+          "tab_id" => "t",
+          "generated_at" => "2026-08-01T00:00:00Z",
+          "data" => %{
+            "meta" => %{"schema_version" => 99, "seq" => 5},
+            "vehicles" => [],
+            "events" => [],
+            "readings" => [],
+            "usage" => [],
+            "reminders" => [],
+            "prefs" => nil
+          },
+          "storage" => %{"mode" => "idb", "boot_hint" => "has_data"}
+        })
+
+      assert html =~ "data from a newer version", "#{route} did not explain why saving is off"
+      assert html =~ "Export a file", "#{route} offered no way to get the data out"
+    end
   end
 
   test "a write the browser refused is shown, persistently, on every route", %{conn: conn} do

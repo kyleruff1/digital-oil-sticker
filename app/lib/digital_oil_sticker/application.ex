@@ -21,7 +21,8 @@ defmodule DigitalOilSticker.Application do
       # catalog without it fails loudly instead of showing no intervals.
       DigitalOilSticker.Catalog.OilModel,
       DigitalOilSticker.Catalog.Cache,
-      {DNSCluster, query: Application.get_env(:digital_oil_sticker, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:digital_oil_sticker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DigitalOilSticker.PubSub},
       # Start a worker by calling: DigitalOilSticker.Worker.start_link(arg)
       # {DigitalOilSticker.Worker, arg},
@@ -32,7 +33,14 @@ defmodule DigitalOilSticker.Application do
     # See https://elixir.hexdocs.pm/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: DigitalOilSticker.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    with {:ok, pid} <- Supervisor.start_link(children, opts) do
+      # Baseline for the readiness check: the artifact hash as it was when this
+      # machine booted. Recorded after the repo is up (so the path resolves)
+      # and before the endpoint takes traffic.
+      DigitalOilStickerWeb.HealthController.record_boot_payload_sha256()
+      {:ok, pid}
+    end
   end
 
   # Tell Phoenix to update the endpoint configuration
@@ -42,5 +50,4 @@ defmodule DigitalOilSticker.Application do
     DigitalOilStickerWeb.Endpoint.config_change(changed, removed)
     :ok
   end
-
 end

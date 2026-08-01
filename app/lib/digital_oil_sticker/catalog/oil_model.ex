@@ -154,7 +154,11 @@ defmodule DigitalOilSticker.Catalog.OilModel do
   defp fallback(stock, condition_code) do
     factor = if condition_code == "severe", do: 0.5, else: 1.0
     low = max(500, round(stock.published_miles_low * factor / 250) * 250)
-    months = if condition_code == "severe", do: max(3, div(stock.published_months_cap, 2)), else: stock.published_months_cap
+
+    months =
+      if condition_code == "severe",
+        do: max(3, div(stock.published_months_cap, 2)),
+        else: stock.published_months_cap
 
     %{
       miles_low: low,
@@ -168,7 +172,8 @@ defmodule DigitalOilSticker.Catalog.OilModel do
   end
 
   defp load do
-    metadata = query!("SELECT key, value FROM oil_model_metadata") |> Map.new(fn [k, v] -> {k, v} end)
+    metadata =
+      query!("SELECT key, value FROM oil_model_metadata") |> Map.new(fn [k, v] -> {k, v} end)
 
     if metadata == %{}, do: raise("catalog has no oil model (oil_model_metadata is empty)")
 

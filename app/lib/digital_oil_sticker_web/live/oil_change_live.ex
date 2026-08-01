@@ -54,7 +54,8 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     odo = params["odometer"] || %{}
     oil = params["oil"] || %{}
 
-    {month, day, year} = {parse_int(date["month"]), parse_int(date["day"]), parse_int(date["year"])}
+    {month, day, year} =
+      {parse_int(date["month"]), parse_int(date["day"]), parse_int(date["year"])}
 
     {day, announce} =
       case validate_day_clear(month, day, year) do
@@ -67,7 +68,11 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     socket =
       socket
       |> assign(month: month, day: day, year: year, date_announce: announce, date_errors: [])
-      |> assign(odo_value: presence(odo["value"]), odo_unit: odo["unit"] || socket.assigns.odo_unit, odo_errors: [])
+      |> assign(
+        odo_value: presence(odo["value"]),
+        odo_unit: odo["unit"] || socket.assigns.odo_unit,
+        odo_errors: []
+      )
       |> assign(base_stock: presence(oil["base_stock"]))
       |> assign(grade: grade, show_all_grades?: show_all?, manual_grade?: manual_grade?)
       |> assign(manual_grade: presence(oil["manual_grade"]))
@@ -109,9 +114,17 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
     with {:vehicle, vehicle} when is_map(vehicle) <- {:vehicle, vehicle},
          {:date, {:ok, date}} <-
-           {:date, validate(socket.assigns.month, socket.assigns.day, socket.assigns.year, model_year, today)},
+           {:date,
+            validate(
+              socket.assigns.month,
+              socket.assigns.day,
+              socket.assigns.year,
+              model_year,
+              today
+            )},
          {:odo, {:ok, metres}} <-
-           {:odo, Units.to_metres(socket.assigns.odo_value || "", unit_atom(socket.assigns.odo_unit))} do
+           {:odo,
+            Units.to_metres(socket.assigns.odo_value || "", unit_atom(socket.assigns.odo_unit))} do
       event = build_event(socket, vehicle, date, metres)
 
       case find_duplicate(socket.assigns.garage, event) do
@@ -177,7 +190,10 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     {socket, _mutation_id} =
       Session.stage_mutation(
         socket,
-        [%{"store" => "events", "record" => event}, %{"store" => "readings", "record" => reading}],
+        [
+          %{"store" => "events", "record" => event},
+          %{"store" => "readings", "record" => reading}
+        ],
         [],
         navigate_to: ~p"/"
       )
@@ -201,7 +217,8 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     end
   end
 
-  defp active_vehicle(garage), do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
+  defp active_vehicle(garage),
+    do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
 
   # Grades filtered to the vehicle's engine class, with the rest one control
   # away. An unclassified vehicle gets no suggestions rather than another
@@ -245,7 +262,8 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   defp validate_day_clear(month, day, year) do
     if is_integer(month) and is_integer(day) and is_integer(year) and
          day > :calendar.last_day_of_the_month(year, month) do
-      {:cleared, Copy.day_cleared(month_name(month), year, :calendar.last_day_of_the_month(year, month))}
+      {:cleared,
+       Copy.day_cleared(month_name(month), year, :calendar.last_day_of_the_month(year, month))}
     else
       :ok
     end
@@ -271,8 +289,9 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   @impl true
   def render(assigns) do
     assigns = assigns |> assign(:notes_limit, @notes_limit) |> grade_assigns()
+
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Log an oil change</h1>
 
@@ -321,11 +340,24 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
           <div>
             <label for="oil-notes" class="mb-1 block text-sm font-semibold">Notes (optional)</label>
-            <textarea id="oil-notes" name="notes" rows="3" maxlength={to_string(@notes_limit)} class="w-full rounded border px-3 py-2">{@notes}</textarea>
-            <p class="mt-1 text-xs text-zinc-500">{String.length(@notes)}/{@notes_limit} characters</p>
+            <textarea
+              id="oil-notes"
+              name="notes"
+              rows="3"
+              maxlength={to_string(@notes_limit)}
+              class="w-full rounded border px-3 py-2"
+            >{@notes}</textarea>
+            <p class="mt-1 text-xs text-zinc-500">
+              {String.length(@notes)}/{@notes_limit} characters
+            </p>
           </div>
 
-          <div :if={@duplicate_pending} class="rounded border border-amber-400 p-3" role="alertdialog" aria-label="Possible duplicate">
+          <div
+            :if={@duplicate_pending}
+            class="rounded border border-amber-400 p-3"
+            role="alertdialog"
+            aria-label="Possible duplicate"
+          >
             <p class="text-sm">
               {Copy.duplicate_warning(
                 @duplicate_pending["performed_at"],
@@ -354,5 +386,4 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
       _ -> Clock.today().year - 30
     end
   end
-
 end

@@ -19,9 +19,11 @@ defmodule DigitalOilSticker.Catalog do
     Status,
     Telemetry
   }
+
   alias DigitalOilSticker.Catalog.Queries.{Identity, Products, Provenance, Service}
 
-  @type error :: {:error, :invalid_selector | :rate_limited | :catalog_unavailable | :stale_cursor}
+  @type error ::
+          {:error, :invalid_selector | :rate_limited | :catalog_unavailable | :stale_cursor}
 
   def metadata do
     guarded(:metadata, fn -> {:ok, Metadata.get()} end)
@@ -31,7 +33,14 @@ defmodule DigitalOilSticker.Catalog do
   def list_years(%Selector{function: :list_years}) do
     call(:list_years, %Selector{function: :list_years}, fn sel ->
       years = Identity.years()
-      {:ok, Result.new(:identity_only, years, total_known?: true, total: length(years), provenance: [], qualifiers: qualifiers_for_identity(sel))}
+
+      {:ok,
+       Result.new(:identity_only, years,
+         total_known?: true,
+         total: length(years),
+         provenance: [],
+         qualifiers: qualifiers_for_identity(sel)
+       )}
     end)
   end
 
@@ -79,8 +88,15 @@ defmodule DigitalOilSticker.Catalog do
       {status, qualifiers} = Status.derive(config, %{schedules: [], requirements: [], claims: []})
 
       case config do
-        nil -> {:ok, Result.new(status, nil, qualifiers: qualifiers)}
-        _ -> {:ok, Result.new(config_status(config), config, qualifiers: qualifiers, provenance: Provenance.sources([config.source_id]))}
+        nil ->
+          {:ok, Result.new(status, nil, qualifiers: qualifiers)}
+
+        _ ->
+          {:ok,
+           Result.new(config_status(config), config,
+             qualifiers: qualifiers,
+             provenance: Provenance.sources([config.source_id])
+           )}
       end
     end)
   end
@@ -92,8 +108,15 @@ defmodule DigitalOilSticker.Catalog do
     call(:get_schedules, sel, fn s ->
       config = Identity.get_configuration(s.configuration_key)
       schedules = if config, do: Service.schedules(s), else: []
-      {status, qualifiers} = Status.derive(config, %{schedules: schedules, requirements: [], claims: []})
-      {:ok, Result.new(status, schedules, qualifiers: qualifiers, provenance: Provenance.sources(Enum.map(schedules, & &1.source_id)))}
+
+      {status, qualifiers} =
+        Status.derive(config, %{schedules: schedules, requirements: [], claims: []})
+
+      {:ok,
+       Result.new(status, schedules,
+         qualifiers: qualifiers,
+         provenance: Provenance.sources(Enum.map(schedules, & &1.source_id))
+       )}
     end)
   end
 
@@ -104,10 +127,17 @@ defmodule DigitalOilSticker.Catalog do
     call(:get_lubricant_requirements, sel, fn s ->
       config = Identity.get_configuration(s.configuration_key)
       requirements = if config, do: Service.requirements(s), else: []
-      {status, qualifiers} = Status.derive(config, %{schedules: [], requirements: requirements, claims: []})
+
+      {status, qualifiers} =
+        Status.derive(config, %{schedules: [], requirements: requirements, claims: []})
 
       status = if status == :schedule_supported, do: :identity_only, else: status
-      {:ok, Result.new(status, requirements, qualifiers: qualifiers, provenance: Provenance.sources(Enum.map(requirements, & &1.source_id)))}
+
+      {:ok,
+       Result.new(status, requirements,
+         qualifiers: qualifiers,
+         provenance: Provenance.sources(Enum.map(requirements, & &1.source_id))
+       )}
     end)
   end
 
@@ -124,9 +154,11 @@ defmodule DigitalOilSticker.Catalog do
       if Products.requirement_exists?(s.requirement_id) do
         # Requirement resolution + claim intersection lands with M03 data; the
         # branch is unreachable in build 1 and returns honestly empty.
-        {:ok, Result.new(:identity_only, [], qualifiers: [%{code: :no_licensed_requirement_match}])}
+        {:ok,
+         Result.new(:identity_only, [], qualifiers: [%{code: :no_licensed_requirement_match}])}
       else
-        {:ok, Result.new(:unsupported, [], qualifiers: [%{code: :requirement_not_in_data_version}])}
+        {:ok,
+         Result.new(:unsupported, [], qualifiers: [%{code: :requirement_not_in_data_version}])}
       end
     end)
   end
@@ -212,7 +244,8 @@ defmodule DigitalOilSticker.Catalog do
 
       cond do
         is_nil(config) ->
-          {:ok, Result.new(:unsupported, [], qualifiers: [%{code: :configuration_not_in_data_version}])}
+          {:ok,
+           Result.new(:unsupported, [], qualifiers: [%{code: :configuration_not_in_data_version}])}
 
         not SourceGate.cleared?(:filters) ->
           {:ok, Result.new(:identity_only, [], qualifiers: [%{code: :no_licensed_filter_source}])}
@@ -263,6 +296,10 @@ defmodule DigitalOilSticker.Catalog do
   # Every oil-model result carries this so no caller can render an interval
   # without the sentence that says whose model it is.
   defp our_model_qualifier do
-    %{code: :our_own_model, model_version: OilModel.model_version(), basis: OilModel.basis_statement()}
+    %{
+      code: :our_own_model,
+      model_version: OilModel.model_version(),
+      basis: OilModel.basis_statement()
+    }
   end
 end

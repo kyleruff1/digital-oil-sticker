@@ -92,7 +92,9 @@ defmodule DigitalOilSticker.IntervalPolicy do
         _ -> []
       end
     end)
-    |> Enum.min_by(fn {value, basis} -> {value, precedence_index(basis)} end, fn -> {nil, :none} end)
+    |> Enum.min_by(fn {value, basis} -> {value, precedence_index(basis)} end, fn ->
+      {nil, :none}
+    end)
   end
 
   defp precedence_index(basis) do

@@ -20,7 +20,8 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   @impl true
   def mount(_params, _session, socket) do
     years =
-      case Selector.validate(:list_years, %{}) |> then(fn {:ok, s} -> Catalog.list_years(s) end) do
+      case Selector.validate(:list_years, %{})
+           |> then(fn {:ok, s} -> Catalog.list_years(s) end) do
         {:ok, result} -> result.data
         _ -> []
       end
@@ -42,10 +43,17 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
 
     socket =
       cond do
-        year != socket.assigns.year -> socket |> reset_cascade(:year) |> assign(:year, year) |> load_makes()
-        make_id != socket.assigns.make_id -> socket |> reset_cascade(:make) |> assign(:make_id, make_id) |> load_models()
-        model_id != socket.assigns.model_id -> socket |> reset_cascade(:model) |> assign(:model_id, model_id) |> load_configs()
-        true -> assign(socket, :configuration_key, config_key)
+        year != socket.assigns.year ->
+          socket |> reset_cascade(:year) |> assign(:year, year) |> load_makes()
+
+        make_id != socket.assigns.make_id ->
+          socket |> reset_cascade(:make) |> assign(:make_id, make_id) |> load_models()
+
+        model_id != socket.assigns.model_id ->
+          socket |> reset_cascade(:model) |> assign(:model_id, model_id) |> load_configs()
+
+        true ->
+          assign(socket, :configuration_key, config_key)
       end
 
     {:noreply, socket}
@@ -89,14 +97,16 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
 
       {:noreply, socket}
     else
-      _ -> {:noreply, put_flash(socket, :error, "Choose a vehicle first, and make sure storage is available.")}
+      _ ->
+        {:noreply,
+         put_flash(socket, :error, "Choose a vehicle first, and make sure storage is available.")}
     end
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div>
         <h1 class="text-2xl font-bold">Choose a vehicle</h1>
 
@@ -142,7 +152,13 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
           />
         </form>
 
-        <p id="cascade-count" role="status" aria-live="polite" aria-atomic="true" class="mt-2 text-sm text-zinc-500">
+        <p
+          id="cascade-count"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          class="mt-2 text-sm text-zinc-500"
+        >
           {@count_announcement}
         </p>
 
@@ -151,7 +167,9 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
           <p class="mt-2 text-sm">{selected_summary(assigns)}</p>
           <p class="mt-2 flex flex-wrap gap-2 text-sm">
             <Badges.support_badge status={selected_status(assigns)} />
-            <Badges.precision_badge :if={selected_config(assigns) && is_nil(selected_config(assigns).trim)} />
+            <Badges.precision_badge :if={
+              selected_config(assigns) && is_nil(selected_config(assigns).trim)
+            } />
           </p>
           <p class="mt-2 text-xs text-zinc-500">{confirm_note(assigns)}</p>
           <button phx-click="confirm" class="btn btn-primary mt-4" data-test="confirm-vehicle">
@@ -185,13 +203,16 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   end
 
   defp reset_cascade(socket, :model) do
-    socket |> assign(model_id: nil, configuration_key: nil) |> assign(configs: [], configs_empty: false)
+    socket
+    |> assign(model_id: nil, configuration_key: nil)
+    |> assign(configs: [], configs_empty: false)
   end
 
   defp load_makes(%{assigns: %{year: nil}} = socket), do: socket
 
   defp load_makes(socket) do
-    run(socket, :list_makes, %{"year" => socket.assigns.year, "page_size" => 200}, fn socket, result ->
+    run(socket, :list_makes, %{"year" => socket.assigns.year, "page_size" => 200}, fn socket,
+                                                                                      result ->
       socket
       |> assign(:makes, result.data)
       |> assign(:makes_empty, result.data == [])
@@ -202,7 +223,11 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   defp load_models(%{assigns: %{make_id: nil}} = socket), do: socket
 
   defp load_models(socket) do
-    params = %{"year" => socket.assigns.year, "make_id" => socket.assigns.make_id, "page_size" => 200}
+    params = %{
+      "year" => socket.assigns.year,
+      "make_id" => socket.assigns.make_id,
+      "page_size" => 200
+    }
 
     run(socket, :list_models, params, fn socket, result ->
       socket
@@ -298,7 +323,12 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
     model = Enum.find(assigns.models, &(&1.id == assigns.model_id))
     config = selected_config(assigns)
 
-    [assigns.year, make && make.display_name, model && model.display_name, config && config_label(config)]
+    [
+      assigns.year,
+      make && make.display_name,
+      model && model.display_name,
+      config && config_label(config)
+    ]
     |> Enum.reject(&is_nil/1)
     |> Enum.join(" ")
   end

@@ -8,10 +8,22 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   import Phoenix.Component, only: [assign: 3]
   alias DigitalOilSticker.LocalStore.{Envelope, Migrations, Validation}
 
-  @hydration_deadline_ms Application.compile_env(:digital_oil_sticker, :hydration_deadline_ms, 5_000)
+  @hydration_deadline_ms Application.compile_env(
+                           :digital_oil_sticker,
+                           :hydration_deadline_ms,
+                           5_000
+                         )
   @ack_timeout_ms Application.compile_env(:digital_oil_sticker, :ack_timeout_ms, 2_000)
 
-  @empty_garage %{vehicles: [], events: [], readings: [], usage: [], reminders: [], prefs: nil, meta: nil}
+  @empty_garage %{
+    vehicles: [],
+    events: [],
+    readings: [],
+    usage: [],
+    reminders: [],
+    prefs: nil,
+    meta: nil
+  }
 
   def init(socket) do
     socket =
@@ -104,7 +116,9 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   def stage_mutation(socket, upserts, deletes, opts) when is_list(opts) do
     mutation_id = generate_id()
     seq = socket.assigns.seq + 1
-    payload = Envelope.build_put(mutation_id, seq, to_pairs(upserts, "record"), to_pairs(deletes, "key"))
+
+    payload =
+      Envelope.build_put(mutation_id, seq, to_pairs(upserts, "record"), to_pairs(deletes, "key"))
 
     pending =
       Map.put(socket.assigns.pending_writes, mutation_id, %{
@@ -132,8 +146,11 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
     socket = assign(socket, :pending_writes, pending)
 
     case write do
-      %{navigate_to: path} when is_binary(path) -> Phoenix.LiveView.push_navigate(socket, to: path)
-      _ -> socket
+      %{navigate_to: path} when is_binary(path) ->
+        Phoenix.LiveView.push_navigate(socket, to: path)
+
+      _ ->
+        socket
     end
   end
 
@@ -204,7 +221,9 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
     id = Map.get(record, id_key)
 
     if Enum.any?(list, &(Map.get(&1, id_key) == id)) do
-      Enum.map(list, fn existing -> if Map.get(existing, id_key) == id, do: record, else: existing end)
+      Enum.map(list, fn existing ->
+        if Map.get(existing, id_key) == id, do: record, else: existing
+      end)
     else
       list ++ [record]
     end
@@ -221,7 +240,12 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
 
   defp mark_unsaved(socket, mutation_id, reason \\ nil) do
     pending =
-      Map.update(socket.assigns.pending_writes, mutation_id, %{status: :unsaved}, &%{&1 | status: :unsaved})
+      Map.update(
+        socket.assigns.pending_writes,
+        mutation_id,
+        %{status: :unsaved},
+        &%{&1 | status: :unsaved}
+      )
 
     already = Enum.any?(socket.assigns.unsaved_writes, &(&1.mutation_id == mutation_id))
 
@@ -250,7 +274,9 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   defp storage_mode(%{"mode" => "session_only"}), do: :session_only
   defp storage_mode(_), do: :unknown
 
-  defp quota(%{"estimate" => %{"usage" => u, "quota" => q}}) when is_integer(u) and is_integer(q), do: %{usage: u, quota: q}
+  defp quota(%{"estimate" => %{"usage" => u, "quota" => q}}) when is_integer(u) and is_integer(q),
+    do: %{usage: u, quota: q}
+
   defp quota(_), do: nil
 
   # The validator returns wire-keyed (string) collections; the garage assign

@@ -29,12 +29,21 @@ defmodule DigitalOilStickerWeb.Components.Badges do
   end
 
   attr :status, :atom,
-    values: [:identity_only, :schedule_supported, :full_product_supported, :not_applicable, :unsupported],
+    values: [
+      :identity_only,
+      :schedule_supported,
+      :full_product_supported,
+      :not_applicable,
+      :unsupported
+    ],
     required: true
 
   def support_badge(assigns) do
     ~H"""
-    <span class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs" data-support={@status}>
+    <span
+      class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs"
+      data-support={@status}
+    >
       {support_label(@status)}
     </span>
     """
@@ -48,7 +57,10 @@ defmodule DigitalOilStickerWeb.Components.Badges do
 
   def precision_badge(assigns) do
     ~H"""
-    <span class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs" data-precision="unverified">
+    <span
+      class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs"
+      data-precision="unverified"
+    >
       {Copy.precision_unverified()}
     </span>
     """

@@ -75,7 +75,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
         {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
 
       is_nil(months) and is_nil(miles) ->
-        {:noreply, assign(socket, :interval_errors, ["#{Copy.your_interval()} needs months, miles, or both."])}
+        {:noreply,
+         assign(socket, :interval_errors, [
+           "#{Copy.your_interval()} needs months, miles, or both."
+         ])}
 
       (is_integer(months) and months <= 0) or (is_integer(miles) and miles <= 0) ->
         {:noreply, assign(socket, :interval_errors, ["Intervals must be positive."])}
@@ -103,7 +106,12 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
     stage_opts = if opts[:navigate], do: [navigate_to: ~p"/"], else: []
 
     {socket, _id} =
-      Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => updated}], [], stage_opts)
+      Session.stage_mutation(
+        socket,
+        [%{"store" => "vehicles", "record" => updated}],
+        [],
+        stage_opts
+      )
 
     put_flash(socket, :info, Copy.saving())
   end
@@ -121,11 +129,15 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> assign(:severe_questions, severe_questions())
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Your vehicle</h1>
 
-        <div :if={@local_state == :hydrating} class="mt-6 animate-pulse rounded border p-6" aria-hidden="true">
+        <div
+          :if={@local_state == :hydrating}
+          class="mt-6 animate-pulse rounded border p-6"
+          aria-hidden="true"
+        >
           <span class="sr-only">{Copy.sr_checking()}</span>
         </div>
 
@@ -139,7 +151,9 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
             <h2 class="font-semibold">{snapshot_line(@vehicle)}</h2>
             <p class="mt-2 flex flex-wrap gap-2">
               <Badges.support_badge status={support_atom(@vehicle["support_status"])} />
-              <Badges.precision_badge :if={@vehicle["display_snapshot"]["build"] =~ Copy.not_specified()} />
+              <Badges.precision_badge :if={
+                @vehicle["display_snapshot"]["build"] =~ Copy.not_specified()
+              } />
             </p>
             <p :if={@engine_class} class="mt-2 text-xs text-zinc-500">
               {Copy.engine_class_line(@engine_class.display_name)} — {@engine_class.reasoning}
@@ -167,7 +181,9 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
             <p class="mt-3 text-xs leading-relaxed text-zinc-500">{Copy.our_model_basis()}</p>
 
             <details class="mt-3">
-              <summary class="cursor-pointer text-sm font-medium">Every interval we model for this engine</summary>
+              <summary class="cursor-pointer text-sm font-medium">
+                Every interval we model for this engine
+              </summary>
               <table class="mt-2 w-full text-left text-xs">
                 <thead>
                   <tr>
@@ -246,7 +262,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                     inputmode="numeric"
                     id="interval-months"
                     name="interval[months]"
-                    value={@interval_months || current_interval(@vehicle, "interval_months") || suggested(@estimate, :months_cap)}
+                    value={
+                      @interval_months || current_interval(@vehicle, "interval_months") ||
+                        suggested(@estimate, :months_cap)
+                    }
                     class="w-full min-h-11 rounded border px-3 py-2"
                   />
                 </div>
@@ -257,7 +276,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                     inputmode="numeric"
                     id="interval-miles"
                     name="interval[miles]"
-                    value={@interval_miles || current_interval(@vehicle, "interval_miles") || suggested(@estimate, :miles_recommended)}
+                    value={
+                      @interval_miles || current_interval(@vehicle, "interval_miles") ||
+                        suggested(@estimate, :miles_recommended)
+                    }
                     class="w-full min-h-11 rounded border px-3 py-2"
                   />
                 </div>
@@ -276,7 +298,8 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
     """
   end
 
-  defp active_vehicle(garage), do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
+  defp active_vehicle(garage),
+    do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
 
   defp condition_of(nil), do: "normal"
 
@@ -290,7 +313,11 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
   defp estimate_for(nil), do: nil
 
   defp estimate_for(vehicle) do
-    case OilModel.interval(vehicle["engine_class_code"], @default_base_stock, condition_of(vehicle)) do
+    case OilModel.interval(
+           vehicle["engine_class_code"],
+           @default_base_stock,
+           condition_of(vehicle)
+         ) do
       {:ok, interval} -> interval
       :not_applicable -> :not_applicable
       {:error, _} -> nil
@@ -307,7 +334,9 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
     end
   end
 
-  defp cell({:ok, %{miles_recommended: miles, months_cap: months}}), do: "#{miles} mi / #{months} mo"
+  defp cell({:ok, %{miles_recommended: miles, months_cap: months}}),
+    do: "#{miles} mi / #{months} mo"
+
   defp cell(_), do: Copy.not_specified()
 
   defp severe_questions do
@@ -320,7 +349,9 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
   defp suggested(estimate, key) when is_map(estimate), do: Map.get(estimate, key)
   defp suggested(_estimate, _key), do: nil
 
-  defp snapshot_line(%{"display_snapshot" => %{"year" => y, "make" => ma, "model" => mo, "build" => b}}) do
+  defp snapshot_line(%{
+         "display_snapshot" => %{"year" => y, "make" => ma, "model" => mo, "build" => b}
+       }) do
     [y, ma, mo, b] |> Enum.reject(&is_nil/1) |> Enum.join(" ")
   end
 

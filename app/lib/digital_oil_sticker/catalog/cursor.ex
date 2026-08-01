@@ -20,7 +20,8 @@ defmodule DigitalOilSticker.Catalog.Cursor do
     |> Base.url_encode64(padding: false)
   end
 
-  @spec decode(binary(), Selector.t()) :: {:ok, [term()]} | {:error, :stale_cursor | :invalid_selector}
+  @spec decode(binary(), Selector.t()) ::
+          {:ok, [term()]} | {:error, :stale_cursor | :invalid_selector}
   def decode(cursor, %Selector{} = sel) when is_binary(cursor) do
     with {:ok, json} <- Base.url_decode64(cursor, padding: false),
          {:ok, [@version, data_version, fp | components]} <- safe_json(json) do

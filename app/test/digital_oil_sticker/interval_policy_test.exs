@@ -69,14 +69,21 @@ defmodule DigitalOilSticker.IntervalPolicyTest do
 
   test "for_vehicle uses our model when the user has set no plan" do
     resolved =
-      IntervalPolicy.for_vehicle(nil, {:ok, %{miles_recommended: 8_000, months_cap: 12, miles_low: 6_000}})
+      IntervalPolicy.for_vehicle(
+        nil,
+        {:ok, %{miles_recommended: 8_000, months_cap: 12, miles_low: 6_000}}
+      )
 
     assert resolved.miles == 8_000
     assert resolved.basis == :our_model
   end
 
   test "zero and negative intervals are ignored rather than treated as strictest" do
-    resolved = IntervalPolicy.resolve(user: %{miles: 0, months: -1}, our_model: %{miles: 8_000, months: 12})
+    resolved =
+      IntervalPolicy.resolve(
+        user: %{miles: 0, months: -1},
+        our_model: %{miles: 8_000, months: 12}
+      )
 
     assert resolved.miles == 8_000
     assert resolved.basis == :our_model

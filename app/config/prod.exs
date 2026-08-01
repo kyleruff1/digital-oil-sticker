@@ -6,7 +6,11 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  # Explicit, not inherited: whether stack traces and source excerpts reach the
+  # internet is not something to leave to a framework default.
+  debug_errors: false,
+  code_reloader: false
 
 # Force using SSL in production. This also sets the "strict-security-transport" header,
 # known as HSTS. If you have a health check endpoint, you may want to exclude it below.
@@ -15,10 +19,10 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
   force_ssl: [
     rewrite_on: [:x_forwarded_proto],
     exclude: [
-      # Fly's platform health check reaches the machine over plain HTTP on the
-      # internal port, so redirecting it to https makes the machine look
-      # unhealthy and it gets stopped. HSTS still applies to every other path.
-      paths: ["/health"],
+      # Fly's platform checks reach the machine over plain HTTP on the internal
+      # port, so redirecting them to https makes the machine look unhealthy and
+      # it gets stopped. HSTS still applies to every other path.
+      paths: ["/health", "/ready", "/version"],
       hosts: ["localhost", "127.0.0.1"]
     ]
   ]

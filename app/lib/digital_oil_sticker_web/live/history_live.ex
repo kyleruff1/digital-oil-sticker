@@ -76,17 +76,23 @@ defmodule DigitalOilStickerWeb.HistoryLive do
     assigns = assign(assigns, :events, sorted_events(assigns))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div class="mx-auto max-w-2xl">
         <h1 class="text-2xl font-bold">History</h1>
 
-        <div :if={@local_state == :hydrating} class="mt-6 animate-pulse rounded border p-6" aria-hidden="true">
+        <div
+          :if={@local_state == :hydrating}
+          class="mt-6 animate-pulse rounded border p-6"
+          aria-hidden="true"
+        >
           <span class="sr-only">{Copy.sr_checking()}</span>
         </div>
 
         <p :if={@local_state == :loaded and @events == []} class="mt-6 text-sm text-zinc-600">
-          Nothing recorded yet — the next useful step is to
-          <.link navigate={~p"/service/new"} class="underline">record the first oil change</.link>.
+          Nothing recorded yet — the next useful step is to <.link
+            navigate={~p"/service/new"}
+            class="underline"
+          >record the first oil change</.link>.
         </p>
 
         <ol :if={@events != []} class="mt-6 space-y-3">
@@ -104,12 +110,18 @@ defmodule DigitalOilStickerWeb.HistoryLive do
               </div>
               <p class="mt-1 flex flex-wrap items-center gap-2 text-sm">
                 <span :if={event["oil_brand"] || event["oil_family"]}>
-                  {[event["oil_brand"], event["oil_family"]] |> Enum.reject(&is_nil/1) |> Enum.join(" ")}
+                  {[event["oil_brand"], event["oil_family"]]
+                  |> Enum.reject(&is_nil/1)
+                  |> Enum.join(" ")}
                 </span>
                 <span :if={event["oil_viscosity"]}>· {event["oil_viscosity"]}</span>
-                <Badges.provenance_badge mode={if event["provenance_mode"] == "catalog", do: :catalog, else: :manual} />
+                <Badges.provenance_badge mode={
+                  if event["provenance_mode"] == "catalog", do: :catalog, else: :manual
+                } />
               </p>
-              <p :if={event["notes"] not in [nil, ""]} class="mt-1 text-sm text-zinc-600">{event["notes"]}</p>
+              <p :if={event["notes"] not in [nil, ""]} class="mt-1 text-sm text-zinc-600">
+                {event["notes"]}
+              </p>
               <div class="mt-2">
                 <button
                   :if={@confirm_delete != event["event_id"]}
@@ -121,7 +133,11 @@ defmodule DigitalOilStickerWeb.HistoryLive do
                 </button>
                 <span :if={@confirm_delete == event["event_id"]} class="flex items-center gap-2">
                   <span class="text-sm">Delete this record from this browser?</span>
-                  <button phx-click="confirm_delete" phx-value-event-id={event["event_id"]} class="btn btn-sm">
+                  <button
+                    phx-click="confirm_delete"
+                    phx-value-event-id={event["event_id"]}
+                    class="btn btn-sm"
+                  >
                     Delete
                   </button>
                   <button phx-click="cancel_delete" class="btn btn-ghost btn-sm">Keep</button>

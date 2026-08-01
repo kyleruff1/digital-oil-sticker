@@ -13,7 +13,12 @@ defmodule DigitalOilSticker.Catalog.RateLimit do
 
   @spec new(pos_integer(), pos_integer(), integer()) :: t()
   def new(capacity \\ 30, refill_per_second \\ 5, now_ms \\ 0) do
-    %__MODULE__{capacity: capacity, refill_per_second: refill_per_second, tokens: capacity * 1.0, updated_ms: now_ms}
+    %__MODULE__{
+      capacity: capacity,
+      refill_per_second: refill_per_second,
+      tokens: capacity * 1.0,
+      updated_ms: now_ms
+    }
   end
 
   @spec take(t(), pos_integer(), integer()) :: {:ok, t()} | {:error, :rate_limited}

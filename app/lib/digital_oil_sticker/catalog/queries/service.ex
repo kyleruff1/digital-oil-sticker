@@ -28,8 +28,11 @@ defmodule DigitalOilSticker.Catalog.Queries.Service do
       )
 
     case sel.condition do
-      nil -> CatalogRepo.all(base)
-      condition -> base |> where([s], s.condition == ^Atom.to_string(condition)) |> CatalogRepo.all()
+      nil ->
+        CatalogRepo.all(base)
+
+      condition ->
+        base |> where([s], s.condition == ^Atom.to_string(condition)) |> CatalogRepo.all()
     end
   end
 

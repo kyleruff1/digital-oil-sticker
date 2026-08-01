@@ -16,7 +16,11 @@ defmodule DigitalOilSticker.Catalog.Metadata do
   @impl true
   def init(_opts) do
     rows =
-      Ecto.Adapters.SQL.query!(DigitalOilSticker.CatalogRepo, "SELECT key, value FROM catalog_metadata", [])
+      Ecto.Adapters.SQL.query!(
+        DigitalOilSticker.CatalogRepo,
+        "SELECT key, value FROM catalog_metadata",
+        []
+      )
 
     meta = Map.new(rows.rows, fn [k, v] -> {k, v} end)
 
@@ -27,13 +31,17 @@ defmodule DigitalOilSticker.Catalog.Metadata do
     end
 
     jm = Ecto.Adapters.SQL.query!(DigitalOilSticker.CatalogRepo, "PRAGMA journal_mode", [])
-    unless jm.rows == [["delete"]], do: raise("catalog artifact must be journal_mode=delete, got #{inspect(jm.rows)}")
+
+    unless jm.rows == [["delete"]],
+      do: raise("catalog artifact must be journal_mode=delete, got #{inspect(jm.rows)}")
 
     :persistent_term.put(@key, %{
       schema_version: schema_version,
       data_version: Map.fetch!(meta, "data_version"),
       generated_at: Map.fetch!(meta, "generated_at"),
-      window: {String.to_integer(Map.fetch!(meta, "window_start_year")), String.to_integer(Map.fetch!(meta, "window_end_year"))},
+      window:
+        {String.to_integer(Map.fetch!(meta, "window_start_year")),
+         String.to_integer(Map.fetch!(meta, "window_end_year"))},
       market: Map.fetch!(meta, "market"),
       features: %{
         schedules: Map.get(meta, "feature_schedules", "absent"),
@@ -45,6 +53,8 @@ defmodule DigitalOilSticker.Catalog.Metadata do
 
     {:ok, %{}}
   end
+
+  def supported_schema_versions, do: @supported_schema_versions
 
   def get, do: :persistent_term.get(@key)
   def data_version, do: get().data_version

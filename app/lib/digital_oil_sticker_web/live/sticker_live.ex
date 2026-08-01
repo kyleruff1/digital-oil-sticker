@@ -31,7 +31,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
     assigns = assign(assigns, :view, derive_view(assigns))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div class="mx-auto max-w-2xl">
         <.sticker
           :if={@view.mode in [:skeleton, :sticker]}
@@ -41,19 +41,26 @@ defmodule DigitalOilStickerWeb.StickerLive do
           grade_value={@view.grade}
         />
 
-        <p :if={@view.mode == :sticker and @view.qualifier} class="mt-3 text-center text-sm text-zinc-500">
+        <p
+          :if={@view.mode == :sticker and @view.qualifier}
+          class="mt-3 text-center text-sm text-zinc-500"
+        >
           {@view.qualifier}
         </p>
 
         <div :if={@view.mode == :empty} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.empty_heading()}</h1>
-          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">{Copy.empty_body()}</p>
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+            {Copy.empty_body()}
+          </p>
           <.link navigate={~p"/vehicle/select"} class="btn btn-primary mt-6">Set up a vehicle</.link>
         </div>
 
         <div :if={@view.mode == :data_missing} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.data_missing_heading()}</h1>
-          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">{Copy.data_missing_body()}</p>
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+            {Copy.data_missing_body()}
+          </p>
           <.link navigate={~p"/settings/storage"} class="btn btn-primary mt-6">Import a file</.link>
         </div>
 
@@ -134,7 +141,8 @@ defmodule DigitalOilStickerWeb.StickerLive do
   # DATE/MILEAGE come from the last change plus the resolved interval. With no
   # change recorded there is nothing to count from, so we say that rather than
   # showing a due date measured from nothing.
-  defp due_values(nil, _plan, _vehicle), do: %{date: nil, mileage: nil, qualifier: "No oil change recorded yet."}
+  defp due_values(nil, _plan, _vehicle),
+    do: %{date: nil, mileage: nil, qualifier: "No oil change recorded yet."}
 
   defp due_values(event, plan, vehicle) do
     unit = event["input_unit"] || "mi"
@@ -195,7 +203,8 @@ defmodule DigitalOilStickerWeb.StickerLive do
     do: "Record what type of oil went in, or set #{Copy.your_interval()}, to see a due estimate."
 
   defp qualifier(%{basis: :user}),
-    do: "#{Copy.estimated_due_date()} — based on #{Copy.your_interval()}, not manufacturer guidance."
+    do:
+      "#{Copy.estimated_due_date()} — based on #{Copy.your_interval()}, not manufacturer guidance."
 
   defp qualifier(%{basis: :our_model}),
     do: "#{Copy.estimated_due_date()} — #{Copy.our_model_label()}, not manufacturer guidance."
@@ -225,7 +234,11 @@ defmodule DigitalOilStickerWeb.StickerLive do
   end
 
   defp format_int(n) when n >= 1000 do
-    n |> Integer.to_string() |> String.reverse() |> String.replace(~r/(\d{3})(?=\d)/, "\\1,") |> String.reverse()
+    n
+    |> Integer.to_string()
+    |> String.reverse()
+    |> String.replace(~r/(\d{3})(?=\d)/, "\\1,")
+    |> String.reverse()
   end
 
   defp format_int(n), do: Integer.to_string(n)

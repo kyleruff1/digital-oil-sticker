@@ -13,7 +13,15 @@ defmodule DigitalOilStickerWeb.StickerLiveTest do
       "generated_at" => "2026-08-01T00:00:00Z",
       "data" =>
         Map.merge(
-          %{"meta" => nil, "vehicles" => [], "events" => [], "readings" => [], "usage" => [], "reminders" => [], "prefs" => nil},
+          %{
+            "meta" => nil,
+            "vehicles" => [],
+            "events" => [],
+            "readings" => [],
+            "usage" => [],
+            "reminders" => [],
+            "prefs" => nil
+          },
           Map.delete(data, "seq")
         ),
       "storage" => storage
@@ -63,8 +71,17 @@ defmodule DigitalOilStickerWeb.StickerLiveTest do
       "vehicle_id" => "11111111-1111-4111-8111-111111111111",
       "archived" => false,
       "model_year" => 2020,
-      "display_snapshot" => %{"year" => 2020, "make" => "Toyota", "model" => "Camry", "build" => "LE"},
-      "maintenance_plan" => %{"basis" => "user_entered", "interval_months" => 6, "interval_miles" => 5000}
+      "display_snapshot" => %{
+        "year" => 2020,
+        "make" => "Toyota",
+        "model" => "Camry",
+        "build" => "LE"
+      },
+      "maintenance_plan" => %{
+        "basis" => "user_entered",
+        "interval_months" => 6,
+        "interval_miles" => 5000
+      }
     }
 
     event = %{

@@ -33,21 +33,39 @@ defmodule DigitalOilStickerWeb.Components.DateSelect do
       <div class="grid grid-cols-3 gap-2">
         <div>
           <label for={"#{@id}-month"} class="mb-1 block text-xs font-medium">Month</label>
-          <select id={"#{@id}-month"} name="service_date[month]" class="w-full min-h-11 rounded border px-2 py-2" aria-describedby={"#{@id}-error"}>
+          <select
+            id={"#{@id}-month"}
+            name="service_date[month]"
+            class="w-full min-h-11 rounded border px-2 py-2"
+            aria-describedby={"#{@id}-error"}
+          >
             <option value="">Month</option>
-            {Phoenix.HTML.Form.options_for_select(Enum.with_index(@months, 1) |> Enum.map(fn {m, i} -> {m, i} end), @month)}
+            {Phoenix.HTML.Form.options_for_select(
+              Enum.with_index(@months, 1) |> Enum.map(fn {m, i} -> {m, i} end),
+              @month
+            )}
           </select>
         </div>
         <div>
           <label for={"#{@id}-day"} class="mb-1 block text-xs font-medium">Day</label>
-          <select id={"#{@id}-day"} name="service_date[day]" class="w-full min-h-11 rounded border px-2 py-2" aria-describedby={"#{@id}-error"}>
+          <select
+            id={"#{@id}-day"}
+            name="service_date[day]"
+            class="w-full min-h-11 rounded border px-2 py-2"
+            aria-describedby={"#{@id}-error"}
+          >
             <option value="">Day</option>
             {Phoenix.HTML.Form.options_for_select(1..@day_options, @day)}
           </select>
         </div>
         <div>
           <label for={"#{@id}-year"} class="mb-1 block text-xs font-medium">Year</label>
-          <select id={"#{@id}-year"} name="service_date[year]" class="w-full min-h-11 rounded border px-2 py-2" aria-describedby={"#{@id}-error"}>
+          <select
+            id={"#{@id}-year"}
+            name="service_date[year]"
+            class="w-full min-h-11 rounded border px-2 py-2"
+            aria-describedby={"#{@id}-error"}
+          >
             <option value="">Year</option>
             {Phoenix.HTML.Form.options_for_select(Enum.to_list(@max_year..@min_year//-1), @year)}
           </select>
@@ -56,7 +74,9 @@ defmodule DigitalOilStickerWeb.Components.DateSelect do
       <p :if={@errors != []} id={"#{@id}-error"} role="alert" class="mt-2 text-sm text-red-700">
         {Enum.join(@errors, " ")}
       </p>
-      <p :if={@announce} role="status" aria-live="polite" class="mt-1 text-xs text-zinc-600">{@announce}</p>
+      <p :if={@announce} role="status" aria-live="polite" class="mt-1 text-xs text-zinc-600">
+        {@announce}
+      </p>
     </fieldset>
     """
   end
@@ -79,15 +99,25 @@ defmodule DigitalOilStickerWeb.Components.DateSelect do
         {:incomplete, Copy.date_incomplete()}
 
       day > :calendar.last_day_of_the_month(year, month) ->
-        {:cleared_day, Copy.day_cleared(Enum.at(@months, month - 1), year, :calendar.last_day_of_the_month(year, month))}
+        {:cleared_day,
+         Copy.day_cleared(
+           Enum.at(@months, month - 1),
+           year,
+           :calendar.last_day_of_the_month(year, month)
+         )}
 
       true ->
         date = Date.new!(year, month, day)
 
         cond do
-          Date.after?(date, today) -> {:error, [Copy.date_future()]}
-          is_integer(model_year) and year < model_year -> {:error, [Copy.date_before_model_year()]}
-          true -> {:ok, date}
+          Date.after?(date, today) ->
+            {:error, [Copy.date_future()]}
+
+          is_integer(model_year) and year < model_year ->
+            {:error, [Copy.date_before_model_year()]}
+
+          true ->
+            {:ok, date}
         end
     end
   end

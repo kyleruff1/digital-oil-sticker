@@ -35,6 +35,10 @@ defmodule DigitalOilStickerWeb.Layouts do
     default: [],
     doc: "writes this browser refused; rendered persistently and never auto-dismissed"
 
+  attr :read_only, :boolean,
+    default: false,
+    doc: "this browser holds records from a newer app version; mutations are off"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -43,6 +47,21 @@ defmodule DigitalOilStickerWeb.Layouts do
          each LiveView's own container, so navigation re-mounts it and
          hydration is per-mount by construction (INV-24 / ADR-0004). --%>
     <div id="local-store" phx-hook="LocalStore" aria-hidden="true"></div>
+
+    <%!-- This browser holds data written by a newer version of the app, so
+         mutations are disabled to avoid overwriting fields this build does not
+         understand. Without this banner the user just finds the save buttons
+         inert with no explanation and no way out (INV-24.2, INV-25). --%>
+    <div
+      :if={@read_only}
+      id="read-only-notice"
+      role="alert"
+      data-test="read-only"
+      class="border-b-2 border-sky-500 bg-sky-50 px-4 py-3 text-sm text-sky-900"
+    >
+      <p>{DigitalOilStickerWeb.Copy.read_only_banner()}</p>
+      <.link navigate={~p"/settings/storage"} class="btn btn-sm mt-2">Export a file</.link>
+    </div>
 
     <%!-- A write the browser refused. Deliberately not dismissible and not on a
          timer: the entry is on screen but is not stored, and the user has to be
@@ -74,9 +93,13 @@ defmodule DigitalOilStickerWeb.Layouts do
       <nav class="w-full sm:w-auto sm:flex-none" aria-label="Main menu">
         <ul class="flex flex-wrap items-center gap-x-2 gap-y-1 px-1">
           <li><.link navigate={~p"/vehicle"} class="btn btn-ghost btn-sm">Vehicle</.link></li>
-          <li><.link navigate={~p"/service/new"} class="btn btn-ghost btn-sm">Log oil change</.link></li>
+          <li>
+            <.link navigate={~p"/service/new"} class="btn btn-ghost btn-sm">Log oil change</.link>
+          </li>
           <li><.link navigate={~p"/history"} class="btn btn-ghost btn-sm">History</.link></li>
-          <li><.link navigate={~p"/settings/storage"} class="btn btn-ghost btn-sm">Storage</.link></li>
+          <li>
+            <.link navigate={~p"/settings/storage"} class="btn btn-ghost btn-sm">Storage</.link>
+          </li>
           <li><.theme_toggle /></li>
         </ul>
       </nav>

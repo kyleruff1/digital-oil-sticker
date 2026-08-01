@@ -76,7 +76,9 @@ defmodule DigitalOilSticker.Catalog.OilModelTest do
       other_codes = MapSet.new(others, & &1.code)
 
       assert MapSet.disjoint?(suggested_codes, other_codes)
-      assert MapSet.union(suggested_codes, other_codes) == MapSet.new(OilModel.grades(), & &1.code)
+
+      assert MapSet.union(suggested_codes, other_codes) ==
+               MapSet.new(OilModel.grades(), & &1.code)
     end
 
     test "an unknown class borrows no other class's grades" do
@@ -104,7 +106,9 @@ defmodule DigitalOilSticker.Catalog.OilModelTest do
     end
 
     test "every rule carries the reasoning that produced it" do
-      for stock <- OilModel.base_stocks(), class <- OilModel.engine_classes(), class.engine_oil == "applicable" do
+      for stock <- OilModel.base_stocks(),
+          class <- OilModel.engine_classes(),
+          class.engine_oil == "applicable" do
         {:ok, rule} = OilModel.interval(class.code, stock.code, "normal")
         assert String.length(rule.reasoning) > 20
       end
