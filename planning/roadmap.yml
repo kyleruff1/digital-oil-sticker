@@ -94,6 +94,9 @@ milestones:
   - id: M08
     title: "M08 — Post-MVP multi-vehicle and catalog operations"
     description: "Post-MVP multi-vehicle garage and signed catalog operations."
+  - id: M09
+    title: "M09 — Hosted browser platform and anonymous client storage"
+    description: "Browser-first delivery: Fly.io hosting, anonymous IndexedDB client storage, and the LiveView hydration protocol (pivot 2026-08-01)."
 fields:
   - name: "Priority"
     type: SINGLE_SELECT
@@ -1271,3 +1274,168 @@ issues:
     risk: 
     target: Post-MVP
     sequence: 907
+  - id: DOS-M09-000
+    title: "DOS-M09-000 — Hosted browser platform and anonymous client storage"
+    type: epic
+    variant: standard
+    milestone: M09
+    parent: 
+    blocked_by: DOS-M02-000, DOS-M04-000
+    labels: kind:epic
+    body: planning/issues/DOS-M09-000.md
+    status: Backlog
+    priority: P1 High
+    workstream: Architecture
+    risk: 
+    target: MVP
+    sequence: 1000
+  - id: DOS-M09-001
+    title: "DOS-M09-001 — Design the anonymous client storage schema, version line, and migration path"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: 
+    labels: kind:task, quality:privacy
+    body: planning/issues/DOS-M09-001.md
+    status: Backlog
+    priority: P1 High
+    workstream: Domain Rules
+    risk: High
+    target: MVP
+    sequence: 1001
+  - id: DOS-M09-002
+    title: "DOS-M09-002 — Implement the LiveView hydration protocol between the JS hook and socket assigns"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: DOS-M09-001
+    labels: kind:feature, quality:privacy
+    body: planning/issues/DOS-M09-002.md
+    status: Backlog
+    priority: P1 High
+    workstream: LiveView UI
+    risk: High
+    target: MVP
+    sequence: 1002
+  - id: DOS-M09-003
+    title: "DOS-M09-003 — Specify and build pre-hydration, storage-denied, quota, and eviction states"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: DOS-M09-001, DOS-M09-002
+    labels: kind:feature, needs:design, quality:accessibility
+    body: planning/issues/DOS-M09-003.md
+    status: Backlog
+    priority: P1 High
+    workstream: UX
+    risk: 
+    target: MVP
+    sequence: 1003
+  - id: DOS-M09-004
+    title: "DOS-M09-004 — Build the read-only, impersonal server-side catalog query layer"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: 
+    labels: kind:feature, quality:privacy
+    body: planning/issues/DOS-M09-004.md
+    status: Backlog
+    priority: P1 High
+    workstream: Domain Rules
+    risk: 
+    target: MVP
+    sequence: 1004
+  - id: DOS-M09-005
+    title: "DOS-M09-005 — Establish the Fly.io deployment pipeline"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: 
+    labels: kind:task
+    body: planning/issues/DOS-M09-005.md
+    status: Backlog
+    priority: P1 High
+    workstream: DevOps/Release
+    risk: 
+    target: MVP
+    sequence: 1005
+  - id: DOS-M09-006
+    title: "DOS-M09-006 — Configure custom domain, TLS, and the Fly/Netlify content boundary"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: DOS-M09-005
+    labels: kind:task, platform:netlify
+    body: planning/issues/DOS-M09-006.md
+    status: Backlog
+    priority: P1 High
+    workstream: DevOps/Release
+    risk: 
+    target: MVP
+    sequence: 1006
+  - id: DOS-M09-007
+    title: "DOS-M09-007 — Harden the internet-facing application"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: DOS-M09-005
+    labels: kind:task, quality:security, quality:privacy
+    body: planning/issues/DOS-M09-007.md
+    status: Backlog
+    priority: P1 High
+    workstream: DevOps/Release
+    risk: High
+    target: MVP
+    sequence: 1007
+  - id: DOS-M09-008
+    title: "DOS-M09-008 — Define the browser support matrix and storage-behavior conformance suite"
+    type: child
+    variant: standard
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: DOS-M09-002, DOS-M09-003, DOS-M09-004
+    labels: kind:task, needs:qa
+    body: planning/issues/DOS-M09-008.md
+    status: Backlog
+    priority: P1 High
+    workstream: QA
+    risk: 
+    target: MVP
+    sequence: 1008
+  - id: DOS-M09-009
+    title: "DOS-M09-009 — Decide PWA and Web Push with a dated written go/no-go"
+    type: child
+    variant: spike
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: DOS-M09-003
+    labels: kind:spike, needs:decision
+    body: planning/issues/DOS-M09-009.md
+    status: Backlog
+    priority: P2 Normal
+    workstream: Architecture
+    risk: 
+    target: MVP
+    sequence: 1009
+  - id: DOS-M09-010
+    title: "DOS-M09-010 — Re-review source redistribution rights for hosted network serving"
+    type: child
+    variant: data
+    milestone: M09
+    parent: DOS-M09-000
+    blocked_by: 
+    labels: kind:task, needs:license, needs:data-validation
+    body: planning/issues/DOS-M09-010.md
+    status: Backlog
+    priority: P0 Critical
+    workstream: vPIC/Data
+    risk: High
+    target: Gate
+    sequence: 1010

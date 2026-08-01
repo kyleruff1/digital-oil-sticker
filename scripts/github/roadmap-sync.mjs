@@ -31,7 +31,9 @@ function requireValid(catalog) {
     for (const p of problems) console.error(`  - ${p}`)
     process.exit(1)
   }
-  console.log(`validate: OK — ${catalog.issues.length} issues (9 epics, 68 children), 18 labels, 9 milestones, DAG acyclic, hashes match`)
+  const epics = catalog.issues.filter(i => i.type === 'epic').length
+  const children = catalog.issues.length - epics
+  console.log(`validate: OK — ${catalog.issues.length} issues (${epics} epics, ${children} children), ${catalog.labels.length} labels, ${catalog.milestones.length} milestones, DAG acyclic, hashes match`)
 }
 
 function checkAuth() {

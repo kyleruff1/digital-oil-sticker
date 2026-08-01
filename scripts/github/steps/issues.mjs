@@ -2,7 +2,7 @@ import { apiJson, apiList } from '../lib/gh.mjs'
 import { saveState } from '../lib/state.mjs'
 import { readTextLF, sha256 } from '../lib/util.mjs'
 
-const MARKER_RE = /<!-- roadmap-id: (DOS-M0[0-8]-\d{3}) -->/
+const MARKER_RE = /<!-- roadmap-id: (DOS-M\d{2}-\d{3}) -->/
 
 // Managed-issue identity is the roadmap-id body marker, discovered via the
 // paginated REST issue list (never the Search API, which lags and rate-limits

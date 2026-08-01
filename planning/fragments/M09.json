@@ -1,0 +1,139 @@
+{
+  "milestone": "M09",
+  "milestoneTitle": "M09 — Hosted browser platform and anonymous client storage",
+  "issues": [
+    {
+      "id": "DOS-M09-000",
+      "title": "DOS-M09-000 — Hosted browser platform and anonymous client storage",
+      "type": "epic",
+      "variant": "standard",
+      "labels": ["kind:epic"],
+      "workstream": "Architecture",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-001",
+      "title": "DOS-M09-001 — Design the anonymous client storage schema, version line, and migration path",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "quality:privacy"],
+      "workstream": "Domain Rules",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": "High",
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-002",
+      "title": "DOS-M09-002 — Implement the LiveView hydration protocol between the JS hook and socket assigns",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "quality:privacy"],
+      "workstream": "LiveView UI",
+      "blockedBy": ["DOS-M09-001"],
+      "priorityOverride": null,
+      "riskOverride": "High",
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-003",
+      "title": "DOS-M09-003 — Specify and build pre-hydration, storage-denied, quota, and eviction states",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "needs:design", "quality:accessibility"],
+      "workstream": "UX",
+      "blockedBy": ["DOS-M09-001", "DOS-M09-002"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-004",
+      "title": "DOS-M09-004 — Build the read-only, impersonal server-side catalog query layer",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:feature", "quality:privacy"],
+      "workstream": "Domain Rules",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-005",
+      "title": "DOS-M09-005 — Establish the Fly.io deployment pipeline",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task"],
+      "workstream": "DevOps/Release",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-006",
+      "title": "DOS-M09-006 — Configure custom domain, TLS, and the Fly/Netlify content boundary",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "platform:netlify"],
+      "workstream": "DevOps/Release",
+      "blockedBy": ["DOS-M09-005"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-007",
+      "title": "DOS-M09-007 — Harden the internet-facing application",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "quality:security", "quality:privacy"],
+      "workstream": "DevOps/Release",
+      "blockedBy": ["DOS-M09-005"],
+      "priorityOverride": null,
+      "riskOverride": "High",
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-008",
+      "title": "DOS-M09-008 — Define the browser support matrix and storage-behavior conformance suite",
+      "type": "child",
+      "variant": "standard",
+      "labels": ["kind:task", "needs:qa"],
+      "workstream": "QA",
+      "blockedBy": ["DOS-M09-002", "DOS-M09-003", "DOS-M09-004"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-009",
+      "title": "DOS-M09-009 — Decide PWA and Web Push with a dated written go/no-go",
+      "type": "child",
+      "variant": "spike",
+      "labels": ["kind:spike", "needs:decision"],
+      "workstream": "Architecture",
+      "blockedBy": ["DOS-M09-003"],
+      "priorityOverride": "P2 Normal",
+      "riskOverride": null,
+      "targetOverride": null
+    },
+    {
+      "id": "DOS-M09-010",
+      "title": "DOS-M09-010 — Re-review source redistribution rights for hosted network serving",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:license", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": [],
+      "priorityOverride": "P0 Critical",
+      "riskOverride": "High",
+      "targetOverride": "Gate",
+      "note": "Gate: every source was cleared for offline bundle redistribution, not hosted network serving. Blocks production claims served from the hosted app."
+    }
+  ]
+}

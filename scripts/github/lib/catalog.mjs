@@ -6,8 +6,9 @@ export const ROADMAP_PATH = 'planning/roadmap.yml'
 export const HASHES_PATH = 'planning/hashes.json'
 export const MAX_BODY_BYTES = 60_000
 
-export const EXPECTED_CHILD_COUNTS = { M00: 6, M01: 6, M02: 8, M03: 10, M04: 10, M05: 7, M06: 7, M07: 7, M08: 7 }
-export const EXPECTED_TOTAL = 77
+// Pivot 2026-08-01 added M09 (browser platform): 10 children + 1 epic.
+export const EXPECTED_CHILD_COUNTS = { M00: 6, M01: 6, M02: 8, M03: 10, M04: 10, M05: 7, M06: 7, M07: 7, M08: 7, M09: 10 }
+export const EXPECTED_TOTAL = 88
 
 export const H2_SECTIONS = [
   'Outcome',
@@ -42,7 +43,9 @@ const H3_SPIKE = [
   'Success and failure criteria',
   'Mandatory ADR and follow-ups',
 ]
-const H3_TESTPLAN = ['Automated', 'Manual/device matrix']
+// Hosted browser issues (M09) exercise a browser matrix rather than a device
+// matrix; either heading satisfies the manual-testing requirement.
+const H3_MANUAL_MATRIX = ['Manual/device matrix', 'Manual/browser matrix']
 
 export const PRIORITIES = ['P0 Critical', 'P1 High', 'P2 Normal', 'P3 Low']
 export const RISKS = ['Low', 'Medium', 'High']
@@ -105,7 +108,10 @@ export function validateCatalog(catalog) {
   const epicByMilestone = new Map()
 
   if (catalog.labels.length !== 18) p(`expected 18 managed labels, found ${catalog.labels.length}`)
-  if (catalog.milestones.length !== 9) p(`expected 9 milestones, found ${catalog.milestones.length}`)
+  const expectedMilestones = Object.keys(EXPECTED_CHILD_COUNTS).length
+  if (catalog.milestones.length !== expectedMilestones) {
+    p(`expected ${expectedMilestones} milestones, found ${catalog.milestones.length}`)
+  }
 
   for (const issue of catalog.issues) {
     if (issue.type === 'epic') {
@@ -117,7 +123,7 @@ export function validateCatalog(catalog) {
   const counts = {}
   for (const issue of catalog.issues) {
     const where = issue.id ?? '(missing id)'
-    if (!/^DOS-M0[0-8]-\d{3}$/.test(issue.id ?? '')) { p(`${where}: malformed roadmap id`); continue }
+    if (!/^DOS-M\d{2}-\d{3}$/.test(issue.id ?? '')) { p(`${where}: malformed roadmap id`); continue }
     if (ids.has(issue.id)) p(`${where}: duplicate roadmap id`)
     ids.add(issue.id)
     counts[issue.milestone] = counts[issue.milestone] ?? { epic: 0, child: 0 }
@@ -134,7 +140,7 @@ export function validateCatalog(catalog) {
     for (const l of issue.labels) if (!labelNames.has(l)) p(`${where}: unmanaged label ${l}`)
     if (issue.type === 'epic' && (issue.labels.length !== 1 || issue.labels[0] !== 'kind:epic')) p(`${where}: epic labels must be exactly [kind:epic]`)
     if (issue.type === 'child' && issue.labels.filter(l => l.startsWith('kind:')).length !== 1) p(`${where}: child needs exactly one kind:* label`)
-    for (const b of issue.blockedBy) if (!/^DOS-M0[0-8]-\d{3}$/.test(b)) p(`${where}: malformed blocker ${b}`)
+    for (const b of issue.blockedBy) if (!/^DOS-M\d{2}-\d{3}$/.test(b)) p(`${where}: malformed blocker ${b}`)
     if (issue.blockedBy.includes(issue.id)) p(`${where}: blocks itself`)
     if (!PRIORITIES.includes(issue.priority)) p(`${where}: bad priority "${issue.priority}"`)
     if (issue.risk !== '' && !RISKS.includes(issue.risk)) p(`${where}: bad risk "${issue.risk}"`)
@@ -181,7 +187,10 @@ export function validateCatalog(catalog) {
         const wanted = issue.variant === 'spike' ? H3_SPIKE : H3_STANDARD
         for (const h of wanted) if (!tech.h3.includes(h)) p(`${where}: missing "### ${h}"`)
         if (issue.variant === 'data' && !tech.h3.includes('Data change specifics')) p(`${where}: data issue missing "### Data change specifics"`)
-        for (const h of H3_TESTPLAN) if (!test.h3.includes(h)) p(`${where}: missing "### ${h}" under Test plan`)
+        if (!test.h3.includes('Automated')) p(`${where}: missing "### Automated" under Test plan`)
+        if (!H3_MANUAL_MATRIX.some(h => test.h3.includes(h))) {
+          p(`${where}: Test plan needs one of ${H3_MANUAL_MATRIX.map(h => `"### ${h}"`).join(' or ')}`)
+        }
       }
       const fr = secs.find(s => s.title === 'Functional requirements')
       const ac = secs.find(s => s.title === 'Acceptance criteria')

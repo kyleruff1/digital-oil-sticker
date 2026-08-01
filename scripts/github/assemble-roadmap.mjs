@@ -49,6 +49,7 @@ const MILESTONES = [
   ['M06', 'M06 — Forecasting and local reminders', 'Usage forecasting and on-device local notifications.'],
   ['M07', 'M07 — Hardening, beta, and release', 'Hardening, closed beta, and store release.'],
   ['M08', 'M08 — Post-MVP multi-vehicle and catalog operations', 'Post-MVP multi-vehicle garage and signed catalog operations.'],
+  ['M09', 'M09 — Hosted browser platform and anonymous client storage', 'Browser-first delivery: Fly.io hosting, anonymous IndexedDB client storage, and the LiveView hydration protocol (pivot 2026-08-01).'],
 ]
 
 // Section 12 epic-level DAG.
@@ -56,6 +57,9 @@ const EPIC_DAG = {
   M00: [], M01: ['M00'], M02: ['M00'], M03: ['M00'],
   M04: ['M01', 'M03'], M05: ['M02', 'M04'], M06: ['M05'],
   M07: ['M03', 'M06'], M08: ['M07'],
+  // Pivot 2026-08-01: browser delivery depends on the frozen UX contract and
+  // the catalog/domain work; it does not depend on the deferred native track.
+  M09: ['M02', 'M04'],
 }
 
 // Section 12 metadata defaults. The two M03 source-rights/data-contract gates
