@@ -1,0 +1,48 @@
+# Fly.io configuration — skeleton deployment (DOS-M09-005 owns hardening this).
+# Constitution 2.0.0 / ADR-0004: this host serves the Phoenix LiveView app and
+# the read-only catalog. It stores NO personal records; the user's garage lives
+# in their browser (INV-23) and is hydrated per INV-24.
+
+app = "digital-oil-sticker"
+primary_region = "iad"
+
+[build]
+
+[env]
+  PHX_HOST = "digital-oil-sticker.fly.dev"
+  PORT = "8080"
+  # Catalog database on the mounted volume. Personal data is never written here.
+  DATABASE_PATH = "/data/digital_oil_sticker.db"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 200
+    soft_limit = 100
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "15s"
+  method = "GET"
+  path = "/health"
+
+# SQLite lives on a persistent volume. NOTE (finding for DOS-M09-005): Fly runs
+# `release_command` on a temporary machine with no volume mounted, so SQLite
+# migrations must NOT run there — they belong at application boot. No
+# release_command is set until that path is implemented and tested.
+[[mounts]]
+  source = "digital_oil_sticker_data"
+  destination = "/data"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

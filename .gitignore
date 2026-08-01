@@ -10,3 +10,10 @@ MOTOCRAFT-OIL-CHANGE-STICKERS-STATIC-CLING_MOT-1T_800x600__70559.1547570380.webp
 install.sh
 *.zip
 spikes/m00-003-mob-device/digital_oil_sticker/
+
+# Phoenix app build artifacts
+app/_build/
+app/deps/
+app/*.db
+app/*.db-*
+app/priv/static/assets/
