@@ -1,25 +1,30 @@
-# Fly.io configuration — skeleton deployment (DOS-M09-005 owns hardening this).
-# Constitution 2.0.0 / ADR-0004: this host serves the Phoenix LiveView app and
-# the read-only catalog. It stores NO personal records; the user's garage lives
-# in their browser (INV-23) and is hydrated per INV-24.
+# Fly.io configuration (ADR-0004 posture, owner-approved 2026-08-01).
+# This host serves the Phoenix LiveView app and the READ-ONLY catalog baked
+# into the image. It stores NO personal records; the user's garage lives in
+# their browser (INV-23) and is hydrated per INV-24.
+#
+# No [[mounts]] and no release_command: the catalog is a build artifact
+# shipped inside the image (chmod 0444), not state — there is nothing to
+# migrate at deploy time. Always-on (no scale-to-zero): a cold start that
+# drops live LiveView sockets is worse than the ~$3-5/mo it saves.
 
 app = "digital-oil-sticker"
-primary_region = "iad"
+primary_region = "ord"
 
 [build]
 
 [env]
   PHX_HOST = "digital-oil-sticker.fly.dev"
   PORT = "8080"
-  # Catalog database on the mounted volume. Personal data is never written here.
-  DATABASE_PATH = "/data/digital_oil_sticker.db"
+  # CATALOG_DATABASE_PATH deliberately unset: runtime.exs resolves the baked
+  # artifact via Application.app_dir/2, which survives release version bumps.
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = "off"
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 1
   processes = ["app"]
 
   [http_service.concurrency]
@@ -33,14 +38,6 @@ primary_region = "iad"
   grace_period = "15s"
   method = "GET"
   path = "/health"
-
-# SQLite lives on a persistent volume. NOTE (finding for DOS-M09-005): Fly runs
-# `release_command` on a temporary machine with no volume mounted, so SQLite
-# migrations must NOT run there — they belong at application boot. No
-# release_command is set until that path is implemented and tested.
-[[mounts]]
-  source = "digital_oil_sticker_data"
-  destination = "/data"
 
 [[vm]]
   memory = "512mb"

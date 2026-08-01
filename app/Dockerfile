@@ -97,6 +97,16 @@ ENV MIX_ENV="prod"
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/digital_oil_sticker ./
 
+# The catalog artifact is read-only data baked into the image: root-owned and
+# 0444 so the nobody-running app cannot write it (fourth write-prevention
+# layer after read_only: true, mode: :readonly, and PRAGMA query_only).
+USER root
+RUN set -eux; \
+    catalog="$(find /app/lib -path '*/priv/catalog/catalog.sqlite3' | head -1)"; \
+    test -n "$catalog"; \
+    chown root:root "$catalog"; \
+    chmod 0444 "$catalog"
+
 USER nobody
 
 # If using an environment that doesn't automatically reap zombie processes, it is

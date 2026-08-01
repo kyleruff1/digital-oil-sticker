@@ -3,7 +3,7 @@ import Config
 # Read-only catalog. In dev the artifact is the fixture catalog built by
 # tools/catalog (see mix dos.catalog.fixture); no write path exists.
 config :digital_oil_sticker, DigitalOilSticker.CatalogRepo,
-  database: Path.expand("../priv/catalog/catalog.sqlite3", __DIR__),
+  database: Path.expand("../priv/catalog/catalog-fixture-a.sqlite3", __DIR__),
   mode: :readonly,
   journal_mode: nil,
   after_connect: {Exqlite, :query!, ["PRAGMA query_only = ON", []]},

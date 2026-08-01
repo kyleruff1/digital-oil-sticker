@@ -8,7 +8,7 @@ import Config
 # Read-only fixture catalog. No sandbox: a sandbox is a transaction wrapper
 # for writes, and a read-only connection holds none.
 config :digital_oil_sticker, DigitalOilSticker.CatalogRepo,
-  database: Path.expand("../priv/catalog/catalog.sqlite3", __DIR__),
+  database: Path.expand("../priv/catalog/catalog-fixture-a.sqlite3", __DIR__),
   mode: :readonly,
   journal_mode: nil,
   after_connect: {Exqlite, :query!, ["PRAGMA query_only = ON", []]},

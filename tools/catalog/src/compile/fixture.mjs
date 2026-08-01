@@ -144,7 +144,7 @@ export function buildFixtures({ repoRoot, outDir }) {
     feature_oil_products: 'enabled_fixture_only', feature_filters: 'absent',
   })
 
-  const outA = join(outDir, 'catalog.sqlite3')
+  const outA = join(outDir, 'catalog-fixture-a.sqlite3')
   const a = buildCatalog({ outPath: outA, metadata: meta('fixture-a'), rows: { ...commonRows, vehicle_configurations: dedupedConfigs } })
   // fixture-b: one configuration removed (the first) — the removed-reference case.
   const outB = join(outDir, 'catalog-fixture-b.sqlite3')
