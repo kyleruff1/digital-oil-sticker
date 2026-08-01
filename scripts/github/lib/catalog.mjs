@@ -146,7 +146,7 @@ export function validateCatalog(catalog) {
     if (issue.risk !== '' && !RISKS.includes(issue.risk)) p(`${where}: bad risk "${issue.risk}"`)
     if (!TARGETS.includes(issue.target)) p(`${where}: bad target "${issue.target}"`)
     if (!WORKSTREAMS.includes(issue.workstream)) p(`${where}: bad workstream "${issue.workstream}"`)
-    if (issue.status !== 'Backlog') p(`${where}: status must start as Backlog`)
+    if (!STATUS_OPTIONS.includes(issue.status)) p(`${where}: bad status "${issue.status}"`)
     if ('estimate' in issue || 'assignee' in issue || 'start_date' in issue || 'target_date' in issue || 'due_on' in issue) {
       p(`${where}: estimates, assignees, and dates must not be set at bootstrap`)
     }

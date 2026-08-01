@@ -52,17 +52,25 @@ export function applyIssues(catalog, state, milestoneNumbers) {
     const have = remote.get(issue.id)
     if (have) {
       const remoteSha = sha256((have.body ?? '').replace(/\r\n/g, '\n'))
-      if (remoteSha === localSha && have.title === issue.title && have.state === 'open') {
+      // This synchronizer manages issue CONTENT, not lifecycle. A closed issue
+      // whose title and body still match its specification is satisfied work,
+      // not divergence — never reopen or re-create it.
+      if (remoteSha === localSha && have.title === issue.title) {
         state.issues[issue.id] = {
           ...state.issues[issue.id],
           number: have.number, databaseId: have.id, nodeId: have.node_id, url: have.html_url,
-          bodySha256: localSha, verified: { ...(state.issues[issue.id]?.verified ?? {}), created: true },
+          bodySha256: localSha, remoteState: have.state,
+          verified: { ...(state.issues[issue.id]?.verified ?? {}), created: true },
         }
         saveState(state, 'issues')
         skipped++
         continue
       }
-      divergent.push(`${issue.id} (#${have.number}): remote title/body/state differs from managed specification`)
+      const diffs = [
+        have.title !== issue.title ? 'title' : null,
+        remoteSha !== localSha ? 'body' : null,
+      ].filter(Boolean).join(' + ')
+      divergent.push(`${issue.id} (#${have.number}): remote ${diffs} differs from managed specification`)
       continue
     }
 

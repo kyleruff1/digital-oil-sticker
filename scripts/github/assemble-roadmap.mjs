@@ -104,7 +104,11 @@ for (const [idx, ms] of milestoneIds.entries()) {
       blockedBy,
       labels: issue.labels,
       body: `planning/issues/${issue.id}.md`,
-      status: 'Backlog',
+      // Backlog is the bootstrap default; a fragment may record a deliberate
+      // lifecycle state (Done for completed gates, Blocked for work deferred
+      // by an approved change-control decision) so the committed catalog stays
+      // the source of truth for what the Project should show.
+      status: issue.statusOverride ?? 'Backlog',
       workstream: issue.workstream,
       sequence: (idx + 1) * 100 + position,
       ...d,

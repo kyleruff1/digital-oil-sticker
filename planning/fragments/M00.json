@@ -7,7 +7,9 @@
       "title": "DOS-M00-000 — Freeze the feasible product architecture before feature development",
       "type": "epic",
       "variant": "standard",
-      "labels": ["kind:epic"],
+      "labels": [
+        "kind:epic"
+      ],
       "workstream": "Architecture",
       "blockedBy": [],
       "priorityOverride": null,
@@ -19,45 +21,75 @@
       "title": "DOS-M00-001 — Ratify product invariants, terminology, and measurable non-functional targets",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:task", "needs:decision"],
+      "labels": [
+        "kind:task",
+        "needs:decision"
+      ],
       "workstream": "Product",
       "blockedBy": [],
       "priorityOverride": null,
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": null,
+      "statusOverride": "Done"
     },
     {
       "id": "DOS-M00-002",
       "title": "DOS-M00-002 — Ratify and prove the on-device Mob/LiveView architecture and Netlify boundary",
       "type": "child",
       "variant": "spike",
-      "labels": ["kind:spike", "platform:ios", "platform:android", "platform:netlify", "needs:decision"],
+      "labels": [
+        "kind:spike",
+        "platform:ios",
+        "platform:android",
+        "platform:netlify",
+        "needs:decision"
+      ],
       "workstream": "Architecture",
-      "blockedBy": ["DOS-M00-001"],
+      "blockedBy": [
+        "DOS-M00-001"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": null,
+      "statusOverride": "Ready"
     },
     {
       "id": "DOS-M00-003",
       "title": "DOS-M00-003 — Prove Mob 0.7.20 on physical iOS and Android devices",
       "type": "child",
       "variant": "spike",
-      "labels": ["kind:spike", "platform:ios", "platform:android", "needs:decision"],
+      "labels": [
+        "kind:spike",
+        "platform:ios",
+        "platform:android",
+        "needs:decision"
+      ],
       "workstream": "Mob/iOS/Android",
-      "blockedBy": ["DOS-M00-001"],
-      "priorityOverride": null,
+      "blockedBy": [
+        "DOS-M00-001"
+      ],
+      "priorityOverride": "P3 Low",
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": "Post-MVP",
+      "statusOverride": "Blocked"
     },
     {
       "id": "DOS-M00-004",
       "title": "DOS-M00-004 — Prove two on-device Ecto/SQLite repositories and their migration strategy",
       "type": "child",
       "variant": "spike",
-      "labels": ["kind:spike", "platform:ios", "platform:android", "needs:decision"],
+      "labels": [
+        "kind:spike",
+        "platform:ios",
+        "platform:android",
+        "needs:decision"
+      ],
       "workstream": "Architecture",
-      "blockedBy": ["DOS-M00-001", "DOS-M00-002", "DOS-M00-003"],
+      "blockedBy": [
+        "DOS-M00-001",
+        "DOS-M00-002",
+        "DOS-M00-003"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
@@ -67,24 +99,41 @@
       "title": "DOS-M00-005 — Prove `mob_notify` local reminders and define truthful delivery fallbacks",
       "type": "child",
       "variant": "spike",
-      "labels": ["kind:spike", "platform:ios", "platform:android", "needs:decision"],
+      "labels": [
+        "kind:spike",
+        "platform:ios",
+        "platform:android",
+        "needs:decision"
+      ],
       "workstream": "Notifications",
-      "blockedBy": ["DOS-M00-001", "DOS-M00-002", "DOS-M00-003"],
-      "priorityOverride": null,
+      "blockedBy": [
+        "DOS-M00-001",
+        "DOS-M00-002",
+        "DOS-M00-003"
+      ],
+      "priorityOverride": "P3 Low",
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": "Post-MVP",
+      "statusOverride": "Blocked"
     },
     {
       "id": "DOS-M00-006",
       "title": "DOS-M00-006 — Prove vehicle and maintenance-data boundaries with a representative source slice",
       "type": "child",
       "variant": "spike",
-      "labels": ["kind:spike", "needs:decision", "needs:data-validation"],
+      "labels": [
+        "kind:spike",
+        "needs:decision",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M00-001"],
+      "blockedBy": [
+        "DOS-M00-001"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": null,
+      "statusOverride": "Done"
     }
   ]
 }

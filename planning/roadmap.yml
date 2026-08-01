@@ -143,7 +143,7 @@ issues:
     blocked_by: 
     labels: kind:task, needs:decision
     body: planning/issues/DOS-M00-001.md
-    status: Backlog
+    status: Done
     priority: P0 Critical
     workstream: Product
     risk: High
@@ -158,7 +158,7 @@ issues:
     blocked_by: DOS-M00-001
     labels: kind:spike, platform:ios, platform:android, platform:netlify, needs:decision
     body: planning/issues/DOS-M00-002.md
-    status: Backlog
+    status: Ready
     priority: P0 Critical
     workstream: Architecture
     risk: High
@@ -173,11 +173,11 @@ issues:
     blocked_by: DOS-M00-001
     labels: kind:spike, platform:ios, platform:android, needs:decision
     body: planning/issues/DOS-M00-003.md
-    status: Backlog
-    priority: P0 Critical
+    status: Blocked
+    priority: P3 Low
     workstream: Mob/iOS/Android
     risk: High
-    target: Gate
+    target: Post-MVP
     sequence: 103
   - id: DOS-M00-004
     title: "DOS-M00-004 — Prove two on-device Ecto/SQLite repositories and their migration strategy"
@@ -203,11 +203,11 @@ issues:
     blocked_by: DOS-M00-001, DOS-M00-002, DOS-M00-003
     labels: kind:spike, platform:ios, platform:android, needs:decision
     body: planning/issues/DOS-M00-005.md
-    status: Backlog
-    priority: P0 Critical
+    status: Blocked
+    priority: P3 Low
     workstream: Notifications
     risk: High
-    target: Gate
+    target: Post-MVP
     sequence: 105
   - id: DOS-M00-006
     title: "DOS-M00-006 — Prove vehicle and maintenance-data boundaries with a representative source slice"
@@ -218,7 +218,7 @@ issues:
     blocked_by: DOS-M00-001
     labels: kind:spike, needs:decision, needs:data-validation
     body: planning/issues/DOS-M00-006.md
-    status: Backlog
+    status: Done
     priority: P0 Critical
     workstream: vPIC/Data
     risk: High
@@ -1013,11 +1013,11 @@ issues:
     blocked_by: DOS-M06-003, DOS-M06-005
     labels: kind:feature, platform:ios, platform:android
     body: planning/issues/DOS-M06-006.md
-    status: Backlog
-    priority: P1 High
+    status: Blocked
+    priority: P3 Low
     workstream: Notifications
     risk: 
-    target: MVP
+    target: Post-MVP
     sequence: 706
   - id: DOS-M06-007
     title: "DOS-M06-007 — Complete the reminder control center and end-to-end reliability gate"
@@ -1223,7 +1223,7 @@ issues:
     blocked_by: DOS-M06-005, DOS-M06-006, DOS-M08-001, DOS-M08-002, DOS-M08-003
     labels: kind:feature, platform:ios, platform:android
     body: planning/issues/DOS-M08-004.md
-    status: Backlog
+    status: Blocked
     priority: P3 Low
     workstream: Notifications
     risk: 
@@ -1268,7 +1268,7 @@ issues:
     blocked_by: DOS-M08-001, DOS-M08-003, DOS-M08-004, DOS-M08-005, DOS-M08-006
     labels: kind:feature, platform:ios, platform:android, quality:security
     body: planning/issues/DOS-M08-007.md
-    status: Backlog
+    status: Blocked
     priority: P3 Low
     workstream: Mob/iOS/Android
     risk: 

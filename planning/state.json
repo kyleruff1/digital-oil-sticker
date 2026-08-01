@@ -105,6 +105,10 @@
     "M08": {
       "number": 9,
       "title": "M08 — Post-MVP multi-vehicle and catalog operations"
+    },
+    "M09": {
+      "number": 10,
+      "title": "M09 — Hosted browser platform and anonymous client storage"
     }
   },
   "fields": {
@@ -236,7 +240,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eLs"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eLs",
+      "remoteState": "open"
     },
     "DOS-M00-001": {
       "number": 2,
@@ -256,7 +261,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eLw"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eLw",
+      "remoteState": "closed"
     },
     "DOS-M00-002": {
       "number": 3,
@@ -277,7 +283,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eL0"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eL0",
+      "remoteState": "open"
     },
     "DOS-M00-003": {
       "number": 4,
@@ -298,7 +305,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eL8"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eL8",
+      "remoteState": "open"
     },
     "DOS-M00-004": {
       "number": 5,
@@ -319,7 +327,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eMA"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eMA",
+      "remoteState": "open"
     },
     "DOS-M00-005": {
       "number": 6,
@@ -340,7 +349,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eME"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eME",
+      "remoteState": "open"
     },
     "DOS-M00-006": {
       "number": 7,
@@ -361,7 +371,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eMI"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eMI",
+      "remoteState": "closed"
     },
     "DOS-M01-000": {
       "number": 8,
@@ -381,7 +392,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eOo"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eOo",
+      "remoteState": "open"
     },
     "DOS-M01-001": {
       "number": 9,
@@ -401,7 +413,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eO0"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eO0",
+      "remoteState": "open"
     },
     "DOS-M01-002": {
       "number": 10,
@@ -421,7 +434,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eO8"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eO8",
+      "remoteState": "open"
     },
     "DOS-M01-003": {
       "number": 11,
@@ -441,7 +455,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePA"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePA",
+      "remoteState": "open"
     },
     "DOS-M01-004": {
       "number": 12,
@@ -461,7 +476,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePE"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePE",
+      "remoteState": "open"
     },
     "DOS-M01-005": {
       "number": 13,
@@ -481,7 +497,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePI"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePI",
+      "remoteState": "open"
     },
     "DOS-M01-006": {
       "number": 14,
@@ -501,7 +518,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePQ"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePQ",
+      "remoteState": "open"
     },
     "DOS-M02-000": {
       "number": 15,
@@ -521,7 +539,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUU"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUU",
+      "remoteState": "open"
     },
     "DOS-M02-001": {
       "number": 16,
@@ -541,7 +560,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUs"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUs",
+      "remoteState": "open"
     },
     "DOS-M02-002": {
       "number": 17,
@@ -561,7 +581,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUw"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUw",
+      "remoteState": "open"
     },
     "DOS-M02-003": {
       "number": 18,
@@ -581,7 +602,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU0"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU0",
+      "remoteState": "open"
     },
     "DOS-M02-004": {
       "number": 19,
@@ -601,7 +623,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU4"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU4",
+      "remoteState": "open"
     },
     "DOS-M02-005": {
       "number": 20,
@@ -621,7 +644,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU8"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU8",
+      "remoteState": "open"
     },
     "DOS-M02-006": {
       "number": 21,
@@ -641,7 +665,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eVA"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eVA",
+      "remoteState": "open"
     },
     "DOS-M02-007": {
       "number": 22,
@@ -661,7 +686,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eVE"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eVE",
+      "remoteState": "open"
     },
     "DOS-M02-008": {
       "number": 23,
@@ -681,7 +707,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eVQ"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eVQ",
+      "remoteState": "open"
     },
     "DOS-M03-000": {
       "number": 24,
@@ -701,7 +728,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ec4"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ec4",
+      "remoteState": "open"
     },
     "DOS-M03-001": {
       "number": 25,
@@ -721,7 +749,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edE"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edE",
+      "remoteState": "open"
     },
     "DOS-M03-002": {
       "number": 26,
@@ -741,7 +770,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edI"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edI",
+      "remoteState": "open"
     },
     "DOS-M03-003": {
       "number": 27,
@@ -761,7 +791,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edM"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edM",
+      "remoteState": "open"
     },
     "DOS-M03-004": {
       "number": 28,
@@ -781,7 +812,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edQ"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edQ",
+      "remoteState": "open"
     },
     "DOS-M03-005": {
       "number": 29,
@@ -801,7 +833,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edU"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edU",
+      "remoteState": "open"
     },
     "DOS-M03-006": {
       "number": 30,
@@ -821,7 +854,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edY"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edY",
+      "remoteState": "open"
     },
     "DOS-M03-007": {
       "number": 31,
@@ -841,7 +875,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edg"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edg",
+      "remoteState": "open"
     },
     "DOS-M03-008": {
       "number": 32,
@@ -861,7 +896,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edo"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edo",
+      "remoteState": "open"
     },
     "DOS-M03-009": {
       "number": 33,
@@ -881,7 +917,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edw"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edw",
+      "remoteState": "open"
     },
     "DOS-M03-010": {
       "number": 34,
@@ -901,7 +938,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ed0"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ed0",
+      "remoteState": "open"
     },
     "DOS-M04-000": {
       "number": 35,
@@ -921,7 +959,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04elo"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04elo",
+      "remoteState": "open"
     },
     "DOS-M04-001": {
       "number": 36,
@@ -941,7 +980,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emE"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emE",
+      "remoteState": "open"
     },
     "DOS-M04-002": {
       "number": 37,
@@ -961,7 +1001,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emI"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emI",
+      "remoteState": "open"
     },
     "DOS-M04-003": {
       "number": 38,
@@ -981,7 +1022,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emQ"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emQ",
+      "remoteState": "open"
     },
     "DOS-M04-004": {
       "number": 39,
@@ -1001,7 +1043,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emU"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emU",
+      "remoteState": "open"
     },
     "DOS-M04-005": {
       "number": 40,
@@ -1021,7 +1064,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emY"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emY",
+      "remoteState": "open"
     },
     "DOS-M04-006": {
       "number": 41,
@@ -1041,7 +1085,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emc"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emc",
+      "remoteState": "open"
     },
     "DOS-M04-007": {
       "number": 42,
@@ -1061,7 +1106,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emo"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emo",
+      "remoteState": "open"
     },
     "DOS-M04-008": {
       "number": 43,
@@ -1081,7 +1127,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ems"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ems",
+      "remoteState": "open"
     },
     "DOS-M04-009": {
       "number": 44,
@@ -1101,7 +1148,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04em4"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04em4",
+      "remoteState": "open"
     },
     "DOS-M04-010": {
       "number": 45,
@@ -1121,7 +1169,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04em8"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04em8",
+      "remoteState": "open"
     },
     "DOS-M05-000": {
       "number": 46,
@@ -1141,7 +1190,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evo"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evo",
+      "remoteState": "open"
     },
     "DOS-M05-001": {
       "number": 47,
@@ -1161,7 +1211,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evs"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evs",
+      "remoteState": "open"
     },
     "DOS-M05-002": {
       "number": 48,
@@ -1181,7 +1232,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evw"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evw",
+      "remoteState": "open"
     },
     "DOS-M05-003": {
       "number": 49,
@@ -1201,7 +1253,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev0"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev0",
+      "remoteState": "open"
     },
     "DOS-M05-004": {
       "number": 50,
@@ -1221,7 +1274,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev4"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev4",
+      "remoteState": "open"
     },
     "DOS-M05-005": {
       "number": 51,
@@ -1241,7 +1295,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev8"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev8",
+      "remoteState": "open"
     },
     "DOS-M05-006": {
       "number": 52,
@@ -1261,7 +1316,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ewA"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ewA",
+      "remoteState": "open"
     },
     "DOS-M05-007": {
       "number": 53,
@@ -1281,7 +1337,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ewE"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ewE",
+      "remoteState": "open"
     },
     "DOS-M06-000": {
       "number": 54,
@@ -1301,7 +1358,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2A"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2A",
+      "remoteState": "open"
     },
     "DOS-M06-001": {
       "number": 55,
@@ -1321,7 +1379,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2I"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2I",
+      "remoteState": "open"
     },
     "DOS-M06-002": {
       "number": 56,
@@ -1341,7 +1400,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2M"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2M",
+      "remoteState": "open"
     },
     "DOS-M06-003": {
       "number": 57,
@@ -1361,7 +1421,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2Q"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2Q",
+      "remoteState": "open"
     },
     "DOS-M06-004": {
       "number": 58,
@@ -1381,7 +1442,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2U"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2U",
+      "remoteState": "open"
     },
     "DOS-M06-005": {
       "number": 59,
@@ -1401,7 +1463,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2Y"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2Y",
+      "remoteState": "open"
     },
     "DOS-M06-006": {
       "number": 60,
@@ -1421,7 +1484,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2c"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2c",
+      "remoteState": "open"
     },
     "DOS-M06-007": {
       "number": 61,
@@ -1441,7 +1505,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2g"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2g",
+      "remoteState": "open"
     },
     "DOS-M07-000": {
       "number": 62,
@@ -1461,7 +1526,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e8w"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e8w",
+      "remoteState": "open"
     },
     "DOS-M07-001": {
       "number": 63,
@@ -1481,7 +1547,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9M"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9M",
+      "remoteState": "open"
     },
     "DOS-M07-002": {
       "number": 64,
@@ -1501,7 +1568,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9Q"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9Q",
+      "remoteState": "open"
     },
     "DOS-M07-003": {
       "number": 65,
@@ -1521,7 +1589,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9U"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9U",
+      "remoteState": "open"
     },
     "DOS-M07-004": {
       "number": 66,
@@ -1541,7 +1610,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9Y"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9Y",
+      "remoteState": "open"
     },
     "DOS-M07-005": {
       "number": 67,
@@ -1561,7 +1631,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9c"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9c",
+      "remoteState": "open"
     },
     "DOS-M07-006": {
       "number": 68,
@@ -1581,7 +1652,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9g"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9g",
+      "remoteState": "open"
     },
     "DOS-M07-007": {
       "number": 69,
@@ -1601,7 +1673,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9o"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9o",
+      "remoteState": "open"
     },
     "DOS-M08-000": {
       "number": 70,
@@ -1621,7 +1694,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fCs"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fCs",
+      "remoteState": "open"
     },
     "DOS-M08-001": {
       "number": 71,
@@ -1641,7 +1715,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDQ"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDQ",
+      "remoteState": "open"
     },
     "DOS-M08-002": {
       "number": 72,
@@ -1661,7 +1736,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDU"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDU",
+      "remoteState": "open"
     },
     "DOS-M08-003": {
       "number": 73,
@@ -1681,7 +1757,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDY"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDY",
+      "remoteState": "open"
     },
     "DOS-M08-004": {
       "number": 74,
@@ -1701,7 +1778,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDc"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDc",
+      "remoteState": "open"
     },
     "DOS-M08-005": {
       "number": 75,
@@ -1721,7 +1799,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDg"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDg",
+      "remoteState": "open"
     },
     "DOS-M08-006": {
       "number": 76,
@@ -1741,7 +1820,8 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDk"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDk",
+      "remoteState": "open"
     },
     "DOS-M08-007": {
       "number": 77,
@@ -1761,9 +1841,241 @@
           "Sequence"
         ]
       },
-      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDo"
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDo",
+      "remoteState": "open"
+    },
+    "DOS-M09-000": {
+      "number": 78,
+      "databaseId": 5035853262,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkFzg",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/78",
+      "bodySha256": "aa1c5209194da3e49e3c0af83e8e564d299c35f690d1e795fa50f4491ce91eef",
+      "verified": {
+        "created": true,
+        "subIssues": 10,
+        "blockedBy": 2,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040Kw"
+    },
+    "DOS-M09-001": {
+      "number": 79,
+      "databaseId": 5035853405,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkGXQ",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/79",
+      "bodySha256": "584585c5e59e5aa0c68ba7f15174c56510558d9f849fc0bc41b3d98bc3570d32",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Risk",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040LI"
+    },
+    "DOS-M09-002": {
+      "number": 80,
+      "databaseId": 5035853525,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkG1Q",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/80",
+      "bodySha256": "8aeb2c05640cc26ac9a092bab9999b8aace991f06a3c39d56f3afa0eb10956d6",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Risk",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040LQ"
+    },
+    "DOS-M09-003": {
+      "number": 81,
+      "databaseId": 5035853666,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkHYg",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/81",
+      "bodySha256": "e9d6a139f7a28c56aced4864383fab317575925bbb37546ca8488b21b0fb5136",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 2,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040LU"
+    },
+    "DOS-M09-004": {
+      "number": 82,
+      "databaseId": 5035853795,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkH4w",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/82",
+      "bodySha256": "f620592a74eeb11159b3a2d5af47e159cfc4c1dcc9824d5d72b2673621a2760b",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040LY"
+    },
+    "DOS-M09-005": {
+      "number": 83,
+      "databaseId": 5035853907,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkIUw",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/83",
+      "bodySha256": "d782c0dc3f75361bc8b96bed780fa7764572bb5b5976062bb65b1f566d56228e",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040Lc"
+    },
+    "DOS-M09-006": {
+      "number": 84,
+      "databaseId": 5035854165,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkJVQ",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/84",
+      "bodySha256": "1552f4653ef9a1bd24def2fa2faccfeeaf34cfb86d49101b2e53265ccd323305",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040Lk"
+    },
+    "DOS-M09-007": {
+      "number": 85,
+      "databaseId": 5035854310,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkJ5g",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/85",
+      "bodySha256": "1b3d07e9894e5bfea4fef5f56525175c46fc4d2961e630405eee98f32602e9ac",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Risk",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040Lo"
+    },
+    "DOS-M09-008": {
+      "number": 86,
+      "databaseId": 5035854423,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkKVw",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/86",
+      "bodySha256": "d80158042703c0605a34e6163e97c59a973e3dfef6e0ebda5f812bbd890046f6",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 3,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040Lw"
+    },
+    "DOS-M09-009": {
+      "number": 87,
+      "databaseId": 5035854599,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkLBw",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/87",
+      "bodySha256": "8eede578aa556257e1883dd026816b1eca6bb08ae8edcd132dd5152da1f380e7",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040L0"
+    },
+    "DOS-M09-010": {
+      "number": 88,
+      "databaseId": 5035854811,
+      "nodeId": "I_kwDOTp4BU88AAAABLCkL2w",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/88",
+      "bodySha256": "eeb045e4b89c83c40d7842940cd0e1129133676bcca45affb3996db92f7efdfb",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Risk",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "remoteState": "open",
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040L8"
     }
   },
   "lastStep": "project-items",
-  "updatedAt": "2026-08-01T05:17:16.419Z"
+  "updatedAt": "2026-08-01T07:17:03.998Z"
 }

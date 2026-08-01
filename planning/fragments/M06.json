@@ -7,7 +7,9 @@
       "title": "DOS-M06-000 — Usage Forecasting and On-Device Local Notifications",
       "type": "epic",
       "variant": "standard",
-      "labels": ["kind:epic"],
+      "labels": [
+        "kind:epic"
+      ],
       "workstream": "Notifications",
       "blockedBy": [],
       "priorityOverride": null,
@@ -19,9 +21,15 @@
       "title": "DOS-M06-001 — Specify and version the deterministic usage-forecast policy",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:docs", "needs:decision"],
+      "labels": [
+        "kind:docs",
+        "needs:decision"
+      ],
       "workstream": "Domain Rules",
-      "blockedBy": ["DOS-M05-003", "DOS-M05-004"],
+      "blockedBy": [
+        "DOS-M05-003",
+        "DOS-M05-004"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
@@ -31,9 +39,15 @@
       "title": "DOS-M06-002 — Capture typical usage and recurring odometer samples",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:feature"],
+      "labels": [
+        "kind:feature"
+      ],
       "workstream": "LiveView UI",
-      "blockedBy": ["DOS-M05-001", "DOS-M05-004", "DOS-M06-001"],
+      "blockedBy": [
+        "DOS-M05-001",
+        "DOS-M05-004",
+        "DOS-M06-001"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
@@ -43,9 +57,16 @@
       "title": "DOS-M06-003 — Implement the pure forecast engine and transactional recomputation",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:feature"],
+      "labels": [
+        "kind:feature"
+      ],
       "workstream": "Domain Rules",
-      "blockedBy": ["DOS-M05-001", "DOS-M05-004", "DOS-M06-001", "DOS-M06-002"],
+      "blockedBy": [
+        "DOS-M05-001",
+        "DOS-M05-004",
+        "DOS-M06-001",
+        "DOS-M06-002"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
@@ -55,9 +76,16 @@
       "title": "DOS-M06-004 — Present forecast, confidence, uncertainty, and OLM/manual warnings",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:feature"],
+      "labels": [
+        "kind:feature"
+      ],
       "workstream": "LiveView UI",
-      "blockedBy": ["DOS-M05-005", "DOS-M06-001", "DOS-M06-002", "DOS-M06-003"],
+      "blockedBy": [
+        "DOS-M05-005",
+        "DOS-M06-001",
+        "DOS-M06-002",
+        "DOS-M06-003"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
@@ -67,9 +95,19 @@
       "title": "DOS-M06-005 — Define the desired-reminder plan and integrate `mob_notify`",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:feature", "platform:ios", "platform:android"],
+      "labels": [
+        "kind:feature",
+        "platform:ios",
+        "platform:android"
+      ],
       "workstream": "Notifications",
-      "blockedBy": ["DOS-M05-001", "DOS-M05-006", "DOS-M06-001", "DOS-M06-003", "DOS-M06-004"],
+      "blockedBy": [
+        "DOS-M05-001",
+        "DOS-M05-006",
+        "DOS-M06-001",
+        "DOS-M06-003",
+        "DOS-M06-004"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
@@ -79,21 +117,38 @@
       "title": "DOS-M06-006 — Reconcile local notifications across edits, DST, lifecycle, and killed-app states",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:feature", "platform:ios", "platform:android"],
+      "labels": [
+        "kind:feature",
+        "platform:ios",
+        "platform:android"
+      ],
       "workstream": "Notifications",
-      "blockedBy": ["DOS-M06-003", "DOS-M06-005"],
-      "priorityOverride": null,
+      "blockedBy": [
+        "DOS-M06-003",
+        "DOS-M06-005"
+      ],
+      "priorityOverride": "P3 Low",
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": "Post-MVP",
+      "statusOverride": "Blocked"
     },
     {
       "id": "DOS-M06-007",
       "title": "DOS-M06-007 — Complete the reminder control center and end-to-end reliability gate",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:feature", "platform:ios", "platform:android", "needs:qa"],
+      "labels": [
+        "kind:feature",
+        "platform:ios",
+        "platform:android",
+        "needs:qa"
+      ],
       "workstream": "Notifications",
-      "blockedBy": ["DOS-M06-004", "DOS-M06-005", "DOS-M06-006"],
+      "blockedBy": [
+        "DOS-M06-004",
+        "DOS-M06-005",
+        "DOS-M06-006"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null

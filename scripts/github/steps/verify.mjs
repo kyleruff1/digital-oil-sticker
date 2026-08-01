@@ -49,7 +49,8 @@ export function verifyAll(catalog, state) {
     const have = remoteIssues.get(issue.id)
     if (!have) { bad.push(`issue missing: ${issue.id}`); continue }
     if (have.title !== issue.title) bad.push(`${issue.id}: title differs`)
-    if (have.state !== 'open') bad.push(`${issue.id}: state ${have.state}`)
+    // Closed is legitimate for completed work; the synchronizer verifies
+    // content and relationships, not lifecycle state.
     if (sha256((have.body ?? '').replace(/\r\n/g, '\n')) !== sha256(readTextLF(issue.body))) bad.push(`${issue.id}: body hash differs`)
     if ([...have.labels].sort().join(',') !== [...issue.labels].sort().join(',')) bad.push(`${issue.id}: labels [${have.labels.join(', ')}]`)
     if (have.milestone !== catalog.milestones.find(m => m.id === issue.milestone)?.title) bad.push(`${issue.id}: milestone "${have.milestone}"`)
