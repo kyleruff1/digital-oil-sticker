@@ -13,6 +13,10 @@ defmodule DigitalOilSticker.Application do
       # artifact, not state — there is nothing to migrate at boot, and no
       # user repo exists on the server (INV-23).
       DigitalOilSticker.CatalogRepo,
+      # Boot-time metadata read (fails closed on missing/incompatible catalog)
+      # and the read-through result cache.
+      DigitalOilSticker.Catalog.Metadata,
+      DigitalOilSticker.Catalog.Cache,
       {DNSCluster, query: Application.get_env(:digital_oil_sticker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DigitalOilSticker.PubSub},
       # Start a worker by calling: DigitalOilSticker.Worker.start_link(arg)
