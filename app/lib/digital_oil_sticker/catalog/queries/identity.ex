@@ -81,6 +81,7 @@ defmodule DigitalOilSticker.Catalog.Queries.Identity do
           completeness_code: c.completeness_code,
           support_status: c.support_status,
           engine_oil_service: c.engine_oil_service,
+          engine_class_code: c.engine_class_code,
           source_id: c.source_id
         },
         order_by: [asc: c.configuration_key]
@@ -113,6 +114,7 @@ defmodule DigitalOilSticker.Catalog.Queries.Identity do
         completeness_code: c.completeness_code,
         support_status: c.support_status,
         engine_oil_service: c.engine_oil_service,
+        engine_class_code: c.engine_class_code,
         source_id: c.source_id
       }
     )

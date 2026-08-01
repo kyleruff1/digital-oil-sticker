@@ -12,7 +12,15 @@ The product distinguishes three record kinds and never blurs them:
 
 Permitted match statuses: `verified_match` · `partial_match` · `insufficient_data` · `conflict` · `not_applicable`.
 
-**Hard rules:** missing information is never converted into compatibility (tests must prove absent requirements cannot yield `verified_match`). Every derived result carries `algorithm_version`. **Oil browsing is separate from vehicle compatibility** — a user may browse or record any brand without the app claiming it fits the selected vehicle.
+**Hard rules:** missing information is never converted into compatibility (tests must prove absent requirements cannot yield `verified_match`). Every derived result carries `algorithm_version`. **Recording what oil went in is separate from vehicle compatibility** — a user may record any oil without the app claiming it fits the selected vehicle.
+
+### A fourth record kind: our own model (amended 2026-08-01, [ADR-0005](../architecture/ADR-0005-own-oil-model.md))
+
+Our oil model is none of the three above. It is not a manufacturer requirement, not a product claim, and not a match between them — it is an interval **we** estimate from standard viscosity grades, published base-stock ranges, and an engine class we derive ourselves.
+
+It therefore gets its own result status, `our_model`, which sits **outside** the INV-11 support ladder. An estimate we produced must never read as a vehicle whose data we hold: `our_model` never appears as `schedule_supported` or `full_product_supported` and never upgrades a vehicle's support status.
+
+**Oil brand and family were dropped.** Products from different brands share the chemistry that determines interval, so a brand list added redundancy without adding a fact the app could stand behind — and it was the one part of the catalog needing the heaviest acquisition and redistribution review. What the user records now is a base stock and a viscosity grade. Brand may still be typed into notes; it is never a structured field and never enters a recommendation.
 
 ## Claim language
 
@@ -24,6 +32,9 @@ Permitted match statuses: `verified_match` · `partial_match` · `insufficient_d
 | "API approved" | "Listed as API service category SP as of [date]" |
 | "Works with your vehicle" | "Matches viscosity and service-category fields; capacity/filter not verified" |
 | "Change your oil on [date]" | "Estimated due date based on Your interval" |
+| "Your car needs 5W-30" | "Commonly used on [engine class] engines" |
+| "Recommended interval" (unattributed) | "Estimated due date — Our estimate, not manufacturer guidance" |
+| "Synthetic lasts 10,000 miles" (as a due date) | "Full synthetic: published 7,500–10,000 mi" (as model reasoning) |
 | "Guaranteed compatible" | "Exact configuration verified against [source]" |
 | "Safe for your warranty" | Do not make this claim |
 
@@ -39,7 +50,19 @@ Objective product claims imply the publisher possesses substantiation (FTC Adver
 
 ## Interval rules
 
-While licensed schedule data is absent, the only interval is the user's own — labeled **"Your interval"**, never presented as manufacturer guidance. When manufacturer schedules are added:
+Two intervals can exist today: the user's own, labeled **"Your interval"**, and our own model's, labeled **"Our estimate"**. Neither is ever presented as manufacturer guidance, and every surface that shows one names which it is.
+
+### Rules specific to our own model
+
+- Every rendered interval carries the basis sentence: this is our model, not the vehicle maker's, and a maker's schedule would replace it.
+- No modelled interval may exceed the published high of its base stock's range. Asserted by test across the full cross product.
+- A combination we hold no rule for resolves to the **lowest** published interval for that base stock, never an extrapolation, and the UI says a specific rule was unavailable.
+- Severe service only ever shortens.
+- The engine class is derived by us and labeled as such ("We classify this vehicle as: …"), never as a manufacturer statement about the engine.
+- A factor we cannot observe across the corpus is omitted rather than applied to the minority of rows that happen to record it (see ADR-0005 on forced induction).
+- The class code and model version are snapshotted onto the vehicle record at setup, so revising the model never silently changes an interval a user has already been shown.
+
+When manufacturer schedules are added:
 
 - Store normal and severe-service intervals separately; preserve every applicability condition.
 - Record whether the interval is time-based, distance-based, oil-life-monitor-based, or a combination; never collapse "12 months or 10,000 miles, whichever occurs first" into one field.
@@ -49,4 +72,6 @@ While licensed schedule data is absent, the only interval is the user's own — 
 - If configuration resolution is incomplete, continue using "Your interval."
 - Treat an oil-life monitor as a separate scheduling mode.
 
-**Interval precedence:** 1. user-selected stricter interval → 2. exact manufacturer schedule → 3. user-entered interval → 4. no estimate.
+**Interval precedence (amended 2026-08-01):** mileage and time resolve independently and **the shortest wins**, with the basis always named — 1. exact manufacturer schedule → 2. the user's own interval → 3. our own model → 4. no estimate. Ties credit the manufacturer, because that is the source we could cite. Nothing ever lengthens an interval: if our model would allow more miles than the user asked for, the user's number stands. A vehicle with no engine oil service yields no interval at all rather than falling back to the user's number.
+
+Implemented by `DigitalOilSticker.IntervalPolicy`; asserted by `test/digital_oil_sticker/interval_policy_test.exs`.

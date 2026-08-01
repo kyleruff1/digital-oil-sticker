@@ -70,6 +70,77 @@ CREATE TABLE models (
 ) STRICT;
 CREATE INDEX models_make_normalized_idx ON models (make_id, normalized_name);
 
+-- OUR OWN oil model (replaces the brand/product catalog entirely).
+-- Grades follow SAE J300; base-stock interval characteristics and severe-service
+-- definitions follow published industry guidance; engine classes are derived by
+-- us from EPA/DOE configuration fields. Every interval here is OUR model and is
+-- overridden by any sourced manufacturer schedule (shorter always wins).
+CREATE TABLE oil_model_metadata (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE oil_grades (
+  code      TEXT PRIMARY KEY,
+  winter    INTEGER NOT NULL,
+  operating INTEGER NOT NULL,
+  common    INTEGER NOT NULL CHECK (common IN (0, 1)),
+  notes     TEXT
+) STRICT;
+
+CREATE TABLE oil_base_stocks (
+  code                 TEXT PRIMARY KEY,
+  display_name         TEXT NOT NULL,
+  published_miles_low  INTEGER NOT NULL,
+  published_miles_high INTEGER NOT NULL,
+  published_months_cap INTEGER NOT NULL,
+  reasoning            TEXT NOT NULL,
+  CHECK (published_miles_low <= published_miles_high)
+) STRICT;
+
+CREATE TABLE engine_classes (
+  code            TEXT PRIMARY KEY,
+  display_name    TEXT NOT NULL,
+  engine_oil      TEXT NOT NULL CHECK (engine_oil IN ('applicable', 'not_applicable')),
+  interval_factor REAL,
+  requires_service_category TEXT,
+  reasoning       TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE engine_class_grades (
+  engine_class_code TEXT NOT NULL REFERENCES engine_classes(code),
+  grade_code        TEXT NOT NULL REFERENCES oil_grades(code),
+  rank              INTEGER NOT NULL,
+  PRIMARY KEY (engine_class_code, grade_code)
+) STRICT;
+
+CREATE TABLE service_conditions (
+  code         TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  factor       REAL NOT NULL,
+  reasoning    TEXT NOT NULL,
+  questions    TEXT
+) STRICT;
+
+-- The derived model: one row per (engine class x base stock x condition).
+-- miles_low is the safety fallback used for any combination without an
+-- explicit rule; miles_recommended never exceeds the published range.
+CREATE TABLE interval_rules (
+  id                    TEXT PRIMARY KEY,
+  engine_class_code     TEXT NOT NULL REFERENCES engine_classes(code),
+  base_stock_code       TEXT NOT NULL REFERENCES oil_base_stocks(code),
+  service_condition     TEXT NOT NULL REFERENCES service_conditions(code),
+  miles_low             INTEGER NOT NULL,
+  miles_recommended     INTEGER NOT NULL,
+  months_cap            INTEGER NOT NULL,
+  model_version         TEXT NOT NULL,
+  reasoning             TEXT NOT NULL,
+  UNIQUE (engine_class_code, base_stock_code, service_condition),
+  CHECK (miles_low <= miles_recommended)
+) STRICT;
+CREATE INDEX interval_rules_lookup_idx
+  ON interval_rules (engine_class_code, base_stock_code, service_condition);
+
 CREATE TABLE vehicle_configurations (
   configuration_key      TEXT PRIMARY KEY,
   model_year             INTEGER NOT NULL CHECK (model_year BETWEEN 1900 AND 2100),
@@ -98,6 +169,8 @@ CREATE TABLE vehicle_configurations (
   support_status         TEXT NOT NULL CHECK (support_status IN
     ('identity_only','schedule_supported','full_product_supported','not_applicable','unsupported')),
   engine_oil_service     TEXT CHECK (engine_oil_service IN ('applicable','not_applicable')),
+  -- Our own derived classification (never a manufacturer assertion).
+  engine_class_code      TEXT REFERENCES engine_classes(code),
   crosswalk_status       TEXT CHECK (crosswalk_status IN
     ('exact','qualified','ambiguous','rejected','manual_review')),
   search_text            TEXT NOT NULL,
@@ -121,48 +194,6 @@ CREATE TABLE aliases (
   UNIQUE (entity_type, normalized_alias)
 ) STRICT;
 CREATE INDEX aliases_lookup_idx ON aliases (entity_type, normalized_alias);
-
--- Independent oil product list (manufacturer publications; factual fields only;
--- EOLCS contributes zero rows pending its separately-reviewed acquisition basis).
-CREATE TABLE oil_brands (
-  id               TEXT PRIMARY KEY,
-  display_name     TEXT NOT NULL,
-  normalized_name  TEXT NOT NULL UNIQUE,
-  market           TEXT NOT NULL DEFAULT 'US',
-  source_id        TEXT NOT NULL REFERENCES data_sources(id),
-  source_observed_at TEXT
-) STRICT;
-
-CREATE TABLE oil_products (
-  id                  TEXT PRIMARY KEY,
-  brand_id            TEXT NOT NULL REFERENCES oil_brands(id),
-  product_family      TEXT NOT NULL,
-  product_variant     TEXT,
-  display_name        TEXT NOT NULL,
-  normalized_name     TEXT NOT NULL,
-  product_url         TEXT,
-  data_sheet_url      TEXT,
-  source_observed_at  TEXT,
-  source_type         TEXT,
-  verification_status TEXT NOT NULL CHECK (verification_status IN
-    ('unverified','manufacturer_published','independently_verified')),
-  source_id           TEXT NOT NULL REFERENCES data_sources(id),
-  UNIQUE (brand_id, normalized_name)
-) STRICT;
-
-CREATE TABLE oil_product_claims (
-  id           TEXT PRIMARY KEY,
-  product_id   TEXT NOT NULL REFERENCES oil_products(id),
-  claim_type   TEXT NOT NULL CHECK (claim_type IN
-    ('sae_viscosity_grade','api_service_category','ilsac_specification','oem_specification')),
-  claim_code   TEXT NOT NULL,
-  claim_source TEXT NOT NULL,
-  observed_at  TEXT NOT NULL,
-  verification_status TEXT NOT NULL CHECK (verification_status IN
-    ('unverified','manufacturer_published','independently_verified')),
-  source_id    TEXT NOT NULL REFERENCES data_sources(id),
-  UNIQUE (product_id, claim_type, claim_code)
-) STRICT;
 
 -- Created with full DDL and ZERO rows in build 1: no licensed schedule /
 -- requirement / filter source exists yet. Their absence is the honest

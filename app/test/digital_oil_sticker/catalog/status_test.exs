@@ -88,19 +88,37 @@ defmodule DigitalOilSticker.Catalog.StatusTest do
     assert Enum.any?(result.qualifiers, &(&1.code == :configuration_not_in_data_version))
   end
 
-  test "every facade result carries a status from the exact five-member set" do
+  test "every facade result carries a status from the closed set" do
     {:ok, years_sel} = Selector.validate(:list_years, %{})
     {:ok, makes_sel} = Selector.validate(:list_makes, %{"year" => 2024})
-    {:ok, brands_sel} = Selector.validate(:list_oil_brands, %{})
+    {:ok, stocks_sel} = Selector.validate(:list_oil_base_stocks, %{})
 
     for {:ok, result} <- [
           Catalog.list_years(years_sel),
           Catalog.list_makes(makes_sel),
-          Catalog.list_oil_brands(brands_sel)
+          Catalog.list_oil_base_stocks(stocks_sel)
         ] do
-      assert result.status in [:identity_only, :schedule_supported, :full_product_supported, :not_applicable, :unsupported]
+      assert result.status in [
+               :identity_only,
+               :schedule_supported,
+               :full_product_supported,
+               :not_applicable,
+               :unsupported,
+               :our_model
+             ]
+
       assert is_binary(result.data_version)
       assert is_binary(result.schema_version)
     end
+  end
+
+  test "our own model never reports a SOURCED support status" do
+    # :our_model is deliberately outside the INV-11 ladder: an interval we
+    # estimated must never read as a vehicle whose data we hold.
+    {:ok, sel} = Selector.validate(:list_oil_base_stocks, %{})
+    {:ok, result} = Catalog.list_oil_base_stocks(sel)
+
+    assert result.status == :our_model
+    refute result.status in [:schedule_supported, :full_product_supported]
   end
 end

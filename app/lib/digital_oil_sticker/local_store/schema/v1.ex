@@ -39,12 +39,17 @@ defmodule DigitalOilSticker.LocalStore.Schema.V1 do
 
   @uuid_v4 ~r/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
 
+  # `engine_class_code` is our own classification of the vehicle, snapshotted
+  # at setup so the interval a user sees does not silently change when we
+  # revise the model. `oil_brand`/`oil_family` are legacy: brand was dropped
+  # in favour of base stock + grade, but records written before that keep
+  # rendering rather than sliding into `__unknown__`.
   @vehicle_keys ~w(vehicle_id nickname configuration_key catalog_data_version model_year
-                   display_snapshot support_status vin_last6 archived maintenance_plan
-                   created_at updated_at)
+                   display_snapshot support_status engine_class_code oil_model_version
+                   vin_last6 archived maintenance_plan created_at updated_at)
   @event_keys ~w(event_id vehicle_id performed_at odometer_m odometer_input_value input_unit
-                 oil_brand oil_family oil_viscosity filter_text notes provenance_mode
-                 correction_of created_at updated_at)
+                 oil_base_stock oil_viscosity oil_brand oil_family filter_text notes
+                 provenance_mode correction_of created_at updated_at)
   @reading_keys ~w(reading_id vehicle_id observed_at odometer_m input_unit source source_ref
                    valid superseded_by created_at updated_at)
   @usage_keys ~w(usage_id vehicle_id baseline_distance_per_week unit severe_answers

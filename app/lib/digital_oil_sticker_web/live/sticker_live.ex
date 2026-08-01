@@ -2,9 +2,12 @@ defmodule DigitalOilStickerWeb.StickerLive do
   @moduledoc """
   The front page: permanently the last-configured vehicle's sticker.
   DATE = estimated due date, MILEAGE = due odometer, GRADE = the oil grade
-  recorded at the last change. All due values derive ONLY from the user's
-  own interval ("Your interval") applied to the last logged change — never a
-  manufacturer claim (no licensed schedule data exists; INV-20/21).
+  recorded at the last change.
+
+  Due values come from `DigitalOilSticker.IntervalPolicy`: the user's own
+  interval, our own oil model, or whichever of the two is shorter. Neither is
+  a manufacturer claim, and the line under the sticker always says which one
+  produced the numbers (INV-20/21).
 
   Pre-hydration renders the sticker frame with skeleton viewports and zero
   empty-garage words (INV-24.3). More detail lives behind the menu.
@@ -14,7 +17,8 @@ defmodule DigitalOilStickerWeb.StickerLive do
   alias DigitalOilStickerWeb.Layouts
 
   import DigitalOilStickerWeb.Components.Sticker
-  alias DigitalOilSticker.Units
+  alias DigitalOilSticker.Catalog.OilModel
+  alias DigitalOilSticker.{IntervalPolicy, Units}
   alias DigitalOilStickerWeb.Copy
 
   @impl true
@@ -102,7 +106,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
     else
       last = last_event(garage, vehicle["vehicle_id"])
       plan = vehicle["maintenance_plan"] || %{}
-      due = due_values(last, plan)
+      due = due_values(last, plan, vehicle)
 
       %{
         mode: :sticker,
@@ -127,40 +131,87 @@ defmodule DigitalOilStickerWeb.StickerLive do
     |> List.first()
   end
 
-  # DATE/MILEAGE: last change + "Your interval" (user-entered only — the only
-  # honest basis while no licensed schedule exists).
-  defp due_values(nil, _plan), do: %{date: nil, mileage: nil, qualifier: "No oil change recorded yet."}
+  # DATE/MILEAGE come from the last change plus the resolved interval. With no
+  # change recorded there is nothing to count from, so we say that rather than
+  # showing a due date measured from nothing.
+  defp due_values(nil, _plan, _vehicle), do: %{date: nil, mileage: nil, qualifier: "No oil change recorded yet."}
 
-  defp due_values(event, plan) do
-    months = plan["interval_months"]
-    miles = plan["interval_miles"]
+  defp due_values(event, plan, vehicle) do
     unit = event["input_unit"] || "mi"
 
-    date =
-      with m when is_integer(m) <- months,
-           {:ok, performed} <- Date.from_iso8601(String.slice(event["performed_at"] || "", 0, 10)) do
-        performed |> shift_months(m) |> Calendar.strftime("%b %d, %Y")
-      else
-        _ -> nil
-      end
+    case IntervalPolicy.for_vehicle(plan, model_interval(vehicle, event)) do
+      :not_applicable ->
+        %{date: nil, mileage: nil, qualifier: Copy.not_applicable_ev()}
 
-    mileage =
-      with mi when is_integer(mi) <- miles,
-           m when is_integer(m) <- event["odometer_m"] do
-        due_m = m + round(mi * 1609.344)
-        "#{format_int(round(Units.from_metres(due_m, String.to_existing_atom(unit))))} #{unit}"
-      else
-        _ -> nil
-      end
-
-    qualifier =
-      cond do
-        date || mileage -> "#{Copy.estimated_due_date()} — based on #{Copy.your_interval()}, not manufacturer guidance."
-        true -> "Set #{Copy.your_interval()} on the vehicle page to see a due estimate."
-      end
-
-    %{date: date, mileage: mileage, qualifier: qualifier}
+      resolved ->
+        %{
+          date: due_date(event, resolved.months),
+          mileage: due_mileage(event, resolved.miles, unit),
+          qualifier: qualifier(resolved)
+        }
+    end
   end
+
+  # Our model needs to know what went in last time; without a base stock we
+  # cannot pick a rule, and guessing one would be inventing the input.
+  defp model_interval(vehicle, event) do
+    case event["oil_base_stock"] do
+      stock when is_binary(stock) ->
+        OilModel.interval(vehicle["engine_class_code"], stock, service_condition(vehicle))
+
+      _ ->
+        nil
+    end
+  end
+
+  defp service_condition(vehicle) do
+    case get_in(vehicle, ["maintenance_plan", "service_condition"]) do
+      "severe" -> "severe"
+      _ -> "normal"
+    end
+  end
+
+  defp due_date(event, months) do
+    with m when is_integer(m) <- months,
+         {:ok, performed} <- Date.from_iso8601(String.slice(event["performed_at"] || "", 0, 10)) do
+      performed |> shift_months(m) |> Calendar.strftime("%b %d, %Y")
+    else
+      _ -> nil
+    end
+  end
+
+  defp due_mileage(event, miles, unit) do
+    with mi when is_integer(mi) <- miles,
+         m when is_integer(m) <- event["odometer_m"] do
+      due_m = m + round(mi * 1609.344)
+      "#{format_int(round(Units.from_metres(due_m, String.to_existing_atom(unit))))} #{unit}"
+    else
+      _ -> nil
+    end
+  end
+
+  # The sticker never shows a number without saying whose interval it is.
+  defp qualifier(%{basis: :none}),
+    do: "Record what type of oil went in, or set #{Copy.your_interval()}, to see a due estimate."
+
+  defp qualifier(%{basis: :user}),
+    do: "#{Copy.estimated_due_date()} — based on #{Copy.your_interval()}, not manufacturer guidance."
+
+  defp qualifier(%{basis: :our_model}),
+    do: "#{Copy.estimated_due_date()} — #{Copy.our_model_label()}, not manufacturer guidance."
+
+  defp qualifier(%{basis: :manufacturer}),
+    do: "#{Copy.estimated_due_date()} — from your vehicle maker's own schedule."
+
+  defp qualifier(%{miles_basis: miles_basis, months_basis: months_basis}),
+    do:
+      "#{Copy.estimated_due_date()} — mileage from #{basis_name(miles_basis)}, " <>
+        "date from #{basis_name(months_basis)}. Whichever comes first."
+
+  defp basis_name(:user), do: Copy.your_interval()
+  defp basis_name(:our_model), do: Copy.our_model_label()
+  defp basis_name(:manufacturer), do: "your vehicle maker"
+  defp basis_name(:none), do: "no source"
 
   defp grade_of(nil), do: nil
   defp grade_of(event), do: event["oil_viscosity"]

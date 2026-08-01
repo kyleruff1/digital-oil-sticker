@@ -12,7 +12,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
 
   import DigitalOilStickerWeb.Components.CascadeSelect
   alias DigitalOilSticker.Catalog
-  alias DigitalOilSticker.Catalog.Selector
+  alias DigitalOilSticker.Catalog.{OilModel, Selector}
   alias DigitalOilStickerWeb.Components.Badges
   alias DigitalOilStickerWeb.Copy
   alias DigitalOilStickerWeb.LocalStore.Session
@@ -68,6 +68,11 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
         "model_year" => config.model_year,
         "display_snapshot" => display_snapshot(socket, config),
         "support_status" => to_string(result.status),
+        # Snapshot our classification and the model version that produced it,
+        # so a later revision of the model never silently changes an interval
+        # the user has already been shown.
+        "engine_class_code" => config.engine_class_code,
+        "oil_model_version" => OilModel.model_version(),
         "archived" => false,
         "maintenance_plan" => nil,
         "created_at" => now,
@@ -141,11 +146,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
             <Badges.support_badge status={selected_status(assigns)} />
             <Badges.precision_badge :if={selected_config(assigns) && is_nil(selected_config(assigns).trim)} />
           </p>
-          <p class="mt-2 text-xs text-zinc-500">
-            Recommendations depend on exact configuration. {Copy.source_unavailable()} means no
-            licensed schedule exists for this selection yet — you can still record oil changes
-            and set {Copy.your_interval()}.
-          </p>
+          <p class="mt-2 text-xs text-zinc-500">{confirm_note(assigns)}</p>
           <button phx-click="confirm" class="btn btn-primary mt-4" data-test="confirm-vehicle">
             Save this vehicle
           </button>
@@ -259,6 +260,18 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
     |> case do
       [] -> "#{config.model_year} — #{Copy.not_specified()}"
       parts -> Enum.join(parts, " · ")
+    end
+  end
+
+  # The note under the badge has to agree with the badge. A vehicle with no
+  # engine oil service must not be told it can log oil changes.
+  defp confirm_note(assigns) do
+    if selected_status(assigns) == :not_applicable do
+      "This vehicle has no engine oil service, so there is no oil change to record or estimate."
+    else
+      "No licensed manufacturer schedule exists for this selection yet — #{Copy.source_unavailable()}. " <>
+        "You will get #{Copy.our_model_label()} for when the oil is due, and you can set " <>
+        "#{Copy.your_interval()} instead at any time."
     end
   end
 

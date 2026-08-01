@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import { buildCatalog, writeManifest, sourceDateEpoch } from './build.mjs'
 import { normalizeKey, nullify, makeId, modelId, configurationKey, uuidv5 } from '../normalize/keys.mjs'
 import { bulkRowsInWindow, WINDOW_START, WINDOW_END } from '../sources/fueleconomy.mjs'
+import { loadScience, oilModelRows, classifyEngine } from './oil_model.mjs'
 
 const VPIC_LIMITATION_SENTENCE =
   'vPIC does not guarantee complete trims or engines and supplies no oil schedules, fluids, or filters.'
@@ -188,13 +189,36 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
     })
   }
 
+  // Classify every configuration into our own engine class.
+  const science = loadScience(toolsRoot)
+  const classCounts = {}
+  for (const c of configs.values()) {
+    c.engine_class_code = classifyEngine(c)
+    classCounts[c.engine_class_code] = (classCounts[c.engine_class_code] ?? 0) + 1
+    const ec = science.engine_classes.find(e => e.code === c.engine_class_code)
+
+    // engine_oil_service follows the class. 'applicable' is asserted only for
+    // classes where we actually identified the fuel — the unknown-engine
+    // fallback stays NULL rather than claiming an engine we cannot see.
+    c.engine_oil_service =
+      ec?.engine_oil === 'not_applicable' ? 'not_applicable'
+      : c.engine_class_code === 'gas_other' ? null
+      : 'applicable'
+
+    // support_status is the INV-11 ladder over SOURCED data, and our own oil
+    // model is not a source. Having an interval we estimated must never read
+    // as holding this vehicle's manufacturer schedule, so the only thing the
+    // classification may change here is knowing there is no engine oil at all.
+    c.support_status = ec?.engine_oil === 'not_applicable' ? 'not_applicable' : 'identity_only'
+  }
+
   const rows = {
+    ...oilModelRows(science),
     data_sources: [srcVpic, srcFeg],
     makes: [...makesMap.values()],
     models: [...modelsMap.values()],
     vehicle_configurations: [...configs.values()],
     aliases,
-    oil_brands: [], oil_products: [], oil_product_claims: [],
   }
 
   const metadata = {
@@ -203,9 +227,11 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
     window_start_year: String(WINDOW_START), window_end_year: String(WINDOW_END), market: 'US',
     search_normalization_version: '1',
     feature_identity: 'enabled', feature_configurations: 'enabled',
-    feature_schedules: 'absent', feature_oil_requirements: 'absent',
-    feature_oil_products: 'withheld', feature_filters: 'absent',
+    feature_schedules: 'own_model', feature_oil_requirements: 'absent',
+    feature_oil_model: 'enabled', feature_oil_model_version: science.model_version, feature_filters: 'absent',
   }
+
+  assertNoUnsourcedSupportClaim(rows.vehicle_configurations)
 
   const outPath = join(appRoot, 'priv', 'catalog', 'catalog.sqlite3')
   const result = buildCatalog({ outPath, metadata, rows })
@@ -222,6 +248,8 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
     junk_rows_skipped: junkSkipped.length,
     bev_not_applicable: [...configs.values()].filter(c => c.support_status === 'not_applicable').length,
     by_completeness: countBy([...configs.values()], c => c.completeness_code),
+    by_engine_class: classCounts,
+    oil_model_version: science.model_version,
   }
   const distDir = join(toolsRoot, 'dist')
   mkdirSync(distDir, { recursive: true })
@@ -236,7 +264,7 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
       { key: 'vpic_api', retrieved_at: latestRetrieved },
       { key: 'fueleconomy_gov_bulk', retrieved_at: fegMeta?.retrieved_at, raw_sha256: fegMeta?.sha256 },
     ],
-    features: { schedules: 'absent', oil_requirements: 'absent', oil_products: 'withheld', filters: 'absent' },
+    features: { schedules: 'own_model', oil_requirements: 'absent', oil_products: 'dropped', filters: 'absent' },
     limitation: VPIC_LIMITATION_SENTENCE,
   })
 
@@ -279,4 +307,21 @@ function countBy(list, fun) {
     out[k] = (out[k] ?? 0) + 1
   }
   return out
+}
+
+// Quality gate: our own oil model must never raise a vehicle's INV-11 support
+// status. `support_status` describes SOURCED coverage, and an interval we
+// estimated is not a source. Fails the build rather than shipping a badge that
+// implies we hold a manufacturer schedule we do not have. (ADR-0005)
+function assertNoUnsourcedSupportClaim(configs) {
+  const sourced = ['schedule_supported', 'full_product_supported']
+  const offenders = configs.filter(c => sourced.includes(c.support_status))
+
+  if (offenders.length) {
+    throw new Error(
+      `${offenders.length} configuration(s) claim a sourced support status with no sourced schedule ` +
+        `(e.g. ${offenders[0].configuration_key} => ${offenders[0].support_status}). ` +
+        'Our own oil model must not upgrade support_status — see ADR-0005.'
+    )
+  }
 }

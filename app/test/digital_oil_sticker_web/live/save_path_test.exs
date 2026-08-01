@@ -113,4 +113,50 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     assert saved["maintenance_plan"]["interval_miles"] == 5000
     assert saved["maintenance_plan"]["basis"] == "user_entered"
   end
+
+  test "a staged write is visible immediately to a view that stays on the page", %{conn: conn} do
+    # The bug this guards: stage_mutation/3 pushed the write to the browser but
+    # left assigns.garage untouched, so anything that saved without navigating
+    # away kept rendering the pre-save state. Toggling severe service is that
+    # case — it must change the estimate on screen, not on the next reload.
+    {:ok, view, _html} = live(conn, ~p"/vehicle")
+
+    vehicle = %{
+      "vehicle_id" => "11111111-1111-4111-8111-111111111111",
+      "archived" => false,
+      "model_year" => 2020,
+      "display_snapshot" => %{"year" => 2020, "make" => "Toyota", "model" => "Camry", "build" => "LE"},
+      "support_status" => "identity_only",
+      "engine_class_code" => "gas_direct_injection",
+      "maintenance_plan" => nil
+    }
+
+    render_hook(view, "local_store:hydrate", %{
+      "envelope" => "dos_local",
+      "schema_version" => 1,
+      "seq" => 1,
+      "tab_id" => "t",
+      "generated_at" => "2026-08-01T00:00:00Z",
+      "data" => %{
+        "meta" => nil,
+        "vehicles" => [vehicle],
+        "events" => [],
+        "readings" => [],
+        "usage" => [],
+        "reminders" => [],
+        "prefs" => nil
+      },
+      "storage" => %{"mode" => "idb", "boot_hint" => "has_data"}
+    })
+
+    {:ok, normal} = DigitalOilSticker.Catalog.OilModel.interval("gas_direct_injection", "full_synthetic", "normal")
+    {:ok, severe} = DigitalOilSticker.Catalog.OilModel.interval("gas_direct_injection", "full_synthetic", "severe")
+
+    assert render(view) =~ "#{normal.months_cap} months"
+
+    html = render_click(view, "set_condition", %{"condition" => "severe"})
+
+    assert html =~ "#{severe.months_cap} months"
+    refute severe.months_cap == normal.months_cap
+  end
 end

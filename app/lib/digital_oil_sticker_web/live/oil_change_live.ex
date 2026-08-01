@@ -1,18 +1,21 @@
 defmodule DigitalOilStickerWeb.OilChangeLive do
   @moduledoc """
-  Record an oil change: three-dropdown date, odometer + unit, oil brand →
-  family (catalog browsing path when available, always with the user-entered
-  fallback), viscosity (GRADE), filter, notes. One idempotent staged
-  mutation per submission; duplicates warn with an explicit proceed choice;
-  the record renders as SAVING until the browser acknowledges the write.
+  Record an oil change: three-dropdown date, odometer + unit, the type of oil
+  (base stock + viscosity grade from our own model), filter, notes. One
+  idempotent staged mutation per submission; duplicates warn with an explicit
+  proceed choice; the record renders as SAVING until the browser
+  acknowledges the write.
+
+  Brand is not asked for. Different brands sell the same chemistry, so the
+  answer added redundancy without adding a fact worth storing — what changes
+  the interval is the base stock and the grade.
   """
   use DigitalOilStickerWeb, :live_view
 
   alias DigitalOilStickerWeb.Layouts
 
-  import DigitalOilStickerWeb.Components.{DateSelect, OdometerInput, ProductSelect}
-  alias DigitalOilSticker.Catalog
-  alias DigitalOilSticker.Catalog.Selector
+  import DigitalOilStickerWeb.Components.{DateSelect, OdometerInput, OilTypeSelect}
+  alias DigitalOilSticker.Catalog.OilModel
   alias DigitalOilSticker.{Clock, Units}
   alias DigitalOilStickerWeb.Copy
   alias DigitalOilStickerWeb.LocalStore.Session
@@ -30,12 +33,11 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
      |> assign(:year, nil)
      |> assign(:odo_value, nil)
      |> assign(:odo_unit, "mi")
-     |> assign(:oil_brand_id, nil)
-     |> assign(:oil_family_id, nil)
-     |> assign(:manual?, false)
-     |> assign(:manual_brand, nil)
-     |> assign(:manual_family, nil)
-     |> assign(:viscosity, nil)
+     |> assign(:base_stock, nil)
+     |> assign(:grade, nil)
+     |> assign(:show_all_grades?, false)
+     |> assign(:manual_grade?, false)
+     |> assign(:manual_grade, nil)
      |> assign(:filter_text, nil)
      |> assign(:notes, "")
      |> assign(:date_errors, [])
@@ -43,8 +45,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
      |> assign(:odo_errors, [])
      |> assign(:duplicate_pending, nil)
      |> assign(:submitted_token, nil)
-     |> load_oil_brands()
-     |> assign(:oil_families, [])}
+     |> assign(:base_stocks, OilModel.base_stocks())}
   end
 
   @impl true
@@ -61,18 +62,17 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
         :ok -> {day, nil}
       end
 
-    manual? = oil["brand_id"] == "__manual__" or socket.assigns.oil_brands == []
-    brand_id = if manual?, do: nil, else: presence(oil["brand_id"])
+    {grade, show_all?, manual_grade?} = grade_choice(oil["grade"], socket.assigns)
 
     socket =
       socket
       |> assign(month: month, day: day, year: year, date_announce: announce, date_errors: [])
       |> assign(odo_value: presence(odo["value"]), odo_unit: odo["unit"] || socket.assigns.odo_unit, odo_errors: [])
-      |> assign(manual?: manual?, manual_brand: presence(oil["manual_brand"]), manual_family: presence(oil["manual_family"]))
-      |> assign(viscosity: presence(params["viscosity"]), filter_text: presence(params["filter"]))
+      |> assign(base_stock: presence(oil["base_stock"]))
+      |> assign(grade: grade, show_all_grades?: show_all?, manual_grade?: manual_grade?)
+      |> assign(manual_grade: presence(oil["manual_grade"]))
+      |> assign(filter_text: presence(params["filter"]))
       |> assign(notes: String.slice(params["notes"] || "", 0, @notes_limit))
-      |> maybe_load_families(brand_id)
-      |> assign(oil_family_id: if(manual?, do: nil, else: presence(oil["family_id"])))
 
     {:noreply, socket}
   end
@@ -107,7 +107,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     today = Clock.today()
     model_year = vehicle && vehicle["model_year"]
 
-    with {:vehicle, %{} = vehicle} <- {:vehicle, vehicle},
+    with {:vehicle, vehicle} when is_map(vehicle) <- {:vehicle, vehicle},
          {:date, {:ok, date}} <-
            {:date, validate(socket.assigns.month, socket.assigns.day, socket.assigns.year, model_year, today)},
          {:odo, {:ok, metres}} <-
@@ -140,14 +140,10 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
     a = socket.assigns
 
-    {brand_name, family_name, provenance} =
-      if a.manual? or a.oil_brand_id == nil do
-        {a.manual_brand, a.manual_family, "manual"}
-      else
-        brand = Enum.find(a.oil_brands, &(&1.id == a.oil_brand_id))
-        family = Enum.find(a.oil_families, &(&1.id == a.oil_family_id))
-        {brand && brand.display_name, family && family.product_family, "catalog"}
-      end
+    # Provenance is about the GRADE: one we list is "catalog", one the user
+    # typed is "manual". Base stock is always a choice from our fixed list.
+    {grade, provenance} =
+      if a.manual_grade?, do: {a.manual_grade, "manual"}, else: {a.grade, "catalog"}
 
     %{
       "event_id" => Ecto.UUID.generate(),
@@ -156,9 +152,8 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
       "odometer_m" => metres,
       "odometer_input_value" => a.odo_value,
       "input_unit" => a.odo_unit,
-      "oil_brand" => brand_name,
-      "oil_family" => family_name,
-      "oil_viscosity" => a.viscosity,
+      "oil_base_stock" => a.base_stock,
+      "oil_viscosity" => grade,
       "filter_text" => a.filter_text,
       "notes" => a.notes,
       "provenance_mode" => provenance,
@@ -208,34 +203,44 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
   defp active_vehicle(garage), do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
 
-  defp load_oil_brands(socket) do
-    case Selector.validate(:list_oil_brands, %{"page_size" => 200}) do
-      {:ok, sel} ->
-        case Catalog.list_oil_brands(sel) do
-          {:ok, %{status: :identity_only, data: brands}} -> assign(socket, :oil_brands, brands)
-          _ -> assign(socket, :oil_brands, [])
-        end
+  # Grades filtered to the vehicle's engine class, with the rest one control
+  # away. An unclassified vehicle gets no suggestions rather than another
+  # class's list, so the grouping never implies a fact we do not have.
+  #
+  # Derived at render, not at mount: the garage arrives from the browser after
+  # the LiveView has already mounted, so anything computed from it at mount is
+  # computed from an empty garage.
+  defp grade_assigns(assigns) do
+    class_code =
+      case active_vehicle(assigns.garage) do
+        %{"engine_class_code" => code} -> code
+        _ -> nil
+      end
 
-      _ ->
-        assign(socket, :oil_brands, [])
+    {suggested, others} = OilModel.grade_choices(class_code)
+
+    assigns
+    |> assign(:engine_class_name, class_display_name(class_code))
+    |> assign(:suggested_grades, suggested)
+    |> assign(:other_grades, others)
+  end
+
+  defp class_display_name(nil), do: nil
+
+  defp class_display_name(code) do
+    case OilModel.engine_class(code) do
+      %{display_name: name} -> name
+      _ -> nil
     end
   end
 
-  defp maybe_load_families(socket, nil), do: assign(socket, oil_brand_id: nil, oil_families: [])
+  # "__all__" and "__manual__" are UI affordances, not grades: they switch the
+  # control and never become a stored value.
+  defp grade_choice("__all__", assigns), do: {assigns.grade, true, false}
+  defp grade_choice("__manual__", assigns), do: {assigns.grade, assigns.show_all_grades?, true}
 
-  defp maybe_load_families(%{assigns: %{oil_brand_id: same}} = socket, same), do: socket
-
-  defp maybe_load_families(socket, brand_id) do
-    families =
-      with {:ok, sel} <- Selector.validate(:list_oil_families, %{"oil_brand_id" => brand_id, "page_size" => 200}),
-           {:ok, %{data: rows}} <- Catalog.list_oil_families(sel) do
-        rows
-      else
-        _ -> []
-      end
-
-    assign(socket, oil_brand_id: brand_id, oil_families: families, oil_family_id: nil)
-  end
+  defp grade_choice(value, assigns),
+    do: {presence(value), assigns.show_all_grades?, assigns.manual_grade?}
 
   defp validate_day_clear(month, day, year) do
     if is_integer(month) and is_integer(day) and is_integer(year) and
@@ -265,7 +270,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :notes_limit, @notes_limit)
+    assigns = assigns |> assign(:notes_limit, @notes_limit) |> grade_assigns()
     ~H"""
     <Layouts.app flash={@flash}>
       <div class="mx-auto max-w-xl">
@@ -288,29 +293,19 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
           <.odometer_input id="oil-odometer" value={@odo_value} unit={@odo_unit} errors={@odo_errors} />
 
-          <.product_select
-            brands={@oil_brands}
-            families={@oil_families}
-            brand_id={@oil_brand_id}
-            family_id={@oil_family_id}
-            manual?={@manual?}
-            manual_brand={@manual_brand}
-            manual_family={@manual_family}
+          <.oil_type_select
+            base_stocks={@base_stocks}
+            base_stock={@base_stock}
+            suggested_grades={@suggested_grades}
+            other_grades={@other_grades}
+            grade={@grade}
+            show_all_grades?={@show_all_grades?}
+            manual_grade?={@manual_grade?}
+            manual_grade={@manual_grade}
+            engine_class_name={@engine_class_name}
           />
 
           <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label for="oil-viscosity" class="mb-1 block text-sm font-semibold">Grade (viscosity)</label>
-              <input
-                type="text"
-                id="oil-viscosity"
-                name="viscosity"
-                value={@viscosity}
-                placeholder="e.g. 5W-30"
-                maxlength="20"
-                class="w-full min-h-11 rounded border px-3 py-2"
-              />
-            </div>
             <div>
               <label for="oil-filter" class="mb-1 block text-sm font-semibold">Filter (optional)</label>
               <input

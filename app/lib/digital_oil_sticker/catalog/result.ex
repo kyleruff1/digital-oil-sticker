@@ -20,7 +20,19 @@ defmodule DigitalOilSticker.Catalog.Result do
     total: nil
   ]
 
-  @type status :: :identity_only | :schedule_supported | :full_product_supported | :not_applicable | :unsupported
+  @typedoc """
+  INV-11 statuses describe how well SOURCED data covers a vehicle.
+  `:our_model` is separate on purpose: it means the answer came from our own
+  oil model, which is not a manufacturer claim and never upgrades a vehicle's
+  support status.
+  """
+  @type status ::
+          :identity_only
+          | :schedule_supported
+          | :full_product_supported
+          | :not_applicable
+          | :unsupported
+          | :our_model
   @type t :: %__MODULE__{}
 
   def new(status, data, opts \\ []) do

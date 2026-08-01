@@ -3,7 +3,7 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
   use ExUnit.Case, async: true
 
   alias DigitalOilSticker.Catalog
-  alias DigitalOilSticker.Catalog.{RateLimit, Selector}
+  alias DigitalOilSticker.Catalog.{OilModel, RateLimit, Selector}
   alias DigitalOilStickerWeb.CatalogEvents
 
   test "the full cascade resolves real fixture data: years → makes → models → configurations" do
@@ -31,11 +31,71 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
     assert hd(configs.data).completeness_code == "identity_only"
   end
 
-  test "browsing oil brands works and is labeled browsing-only (fixture synthetic row)" do
-    {:ok, sel} = Selector.validate(:list_oil_brands, %{})
-    {:ok, result} = Catalog.list_oil_brands(sel)
-    assert Enum.any?(result.data, &(&1.display_name == "ACME SYNTHETIC FIXTURE"))
-    assert Enum.any?(result.qualifiers, &(&1.code == :browsing_only_no_fitment_meaning))
+  test "oil grades are suggested per engine class and always labeled as our own model" do
+    {:ok, sel} = Selector.validate(:list_oil_grades, %{"engine_class_code" => "gas_direct_injection"})
+    {:ok, result} = Catalog.list_oil_grades(sel)
+
+    assert result.status == :our_model
+    assert Enum.any?(result.data.suggested, &(&1.code == "0W-20"))
+    # Suggestions and the rest partition the model — nothing is dropped.
+    assert result.total == length(OilModel.grades())
+    assert Enum.any?(result.qualifiers, &(&1.code == :our_own_model))
+  end
+
+  test "an unknown engine class suggests nothing rather than another class's grades" do
+    {:ok, sel} = Selector.validate(:list_oil_grades, %{})
+    {:ok, result} = Catalog.list_oil_grades(sel)
+
+    assert result.data.suggested == []
+    assert length(result.data.others) == length(OilModel.grades())
+  end
+
+  test "an engine class outside the model is rejected, not passed through" do
+    assert {:error, :invalid_selector} =
+             Selector.validate(:list_oil_grades, %{"engine_class_code" => "gas_turbocharged"})
+  end
+
+  test "the interval for a direct-injection engine is shorter than the base stock's published high" do
+    {:ok, sel} =
+      Selector.validate(:get_oil_interval, %{
+        "engine_class_code" => "gas_direct_injection",
+        "base_stock_code" => "full_synthetic"
+      })
+
+    {:ok, result} = Catalog.get_oil_interval(sel)
+    stock = OilModel.base_stock("full_synthetic")
+
+    assert result.status == :our_model
+    assert result.data.miles_recommended < stock.published_miles_high
+    assert result.data.miles_recommended >= result.data.miles_low
+    assert Enum.any?(result.qualifiers, &(&1.code == :our_own_model))
+  end
+
+  test "severe service never lengthens an interval" do
+    for stock <- OilModel.base_stocks(), class <- OilModel.engine_classes(), class.engine_oil == "applicable" do
+      {:ok, normal} = OilModel.interval(class.code, stock.code, "normal")
+      {:ok, severe} = OilModel.interval(class.code, stock.code, "severe")
+
+      assert severe.miles_recommended <= normal.miles_recommended
+      assert severe.months_cap <= normal.months_cap
+    end
+  end
+
+  test "no modelled interval ever exceeds its base stock's published range" do
+    for stock <- OilModel.base_stocks(), class <- OilModel.engine_classes(), class.engine_oil == "applicable" do
+      {:ok, rule} = OilModel.interval(class.code, stock.code, "normal")
+      assert rule.miles_recommended <= stock.published_miles_high
+    end
+  end
+
+  test "a vehicle with no engine oil service gets no interval at all" do
+    {:ok, sel} =
+      Selector.validate(:get_oil_interval, %{
+        "engine_class_code" => "bev",
+        "base_stock_code" => "full_synthetic"
+      })
+
+    assert {:ok, %{status: :not_applicable, data: nil}} = Catalog.get_oil_interval(sel)
   end
 
   test "search_oils (recommendation path) never lists products without a resolved requirement" do
@@ -97,14 +157,17 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
     drain(b, n - 1, now)
   end
 
+  # Telemetry handlers are global, so count only the spans this test's own
+  # process emitted — otherwise a concurrent async module's queries land here.
   defp attach_query_counter do
     ref = :counters.new(1, [])
+    test_pid = self()
 
     :telemetry.attach(
       "test-query-counter-#{inspect(self())}",
       [:dos, :catalog, :query, :stop],
-      fn _, _, _, _ -> :counters.add(ref, 1, 1) end,
-      nil
+      fn _, _, _, pid -> if self() == pid, do: :counters.add(ref, 1, 1) end,
+      test_pid
     )
 
     on_exit(fn -> :telemetry.detach("test-query-counter-#{inspect(self())}") end)

@@ -31,9 +31,12 @@ export function buildCatalog({ outPath, metadata, rows }) {
   const metaStmt = db.prepare('INSERT INTO catalog_metadata (key, value) VALUES (?, ?)')
   for (const key of Object.keys(metadata).sort()) metaStmt.run(key, String(metadata[key]))
 
+  // Referenced tables first: vehicle_configurations points at engine_classes.
   const insertOrder = [
-    'data_sources', 'makes', 'models', 'vehicle_configurations', 'aliases',
-    'oil_brands', 'oil_products', 'oil_product_claims',
+    'data_sources',
+    'oil_model_metadata', 'oil_grades', 'oil_base_stocks', 'engine_classes',
+    'engine_class_grades', 'service_conditions', 'interval_rules',
+    'makes', 'models', 'vehicle_configurations', 'aliases',
     'maintenance_schedules', 'oil_requirements',
     'filter_brands', 'filter_products', 'filter_fitments',
   ]

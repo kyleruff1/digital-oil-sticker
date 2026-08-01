@@ -1,25 +1,51 @@
 {
   "manifest_version": 1,
-  "kind": "bootstrap-interim",
-  "catalog_version": "2026.08.0-bootstrap",
+  "kind": "production",
+  "catalog_version": "2026.08.0",
   "schema_version": "1",
-  "built_at": "2026-08-01T00:00:00Z",
-  "payload_sha256": "b687344e98692a8e86a0ffb1878fb23a7f5d60721e9f19557b36d2e785912171",
-  "size": 401408,
+  "built_at": "2026-08-01T19:58:18.442Z",
+  "window": [
+    1997,
+    2026
+  ],
+  "market": "US",
+  "payload_sha256": "c978c2cd2825144181c42d836a98986c17c1d064d6ccb1f63f7130747029cec6",
+  "size": 20561920,
   "counts": {
-    "data_sources": 1,
-    "makes": 8,
-    "models": 226,
-    "vehicle_configurations": 235,
-    "aliases": 0,
-    "oil_brands": 0,
-    "oil_products": 0,
-    "oil_product_claims": 0,
+    "data_sources": 2,
+    "oil_model_metadata": 5,
+    "oil_grades": 14,
+    "oil_base_stocks": 4,
+    "engine_classes": 9,
+    "engine_class_grades": 25,
+    "service_conditions": 2,
+    "interval_rules": 56,
+    "makes": 73,
+    "models": 1300,
+    "vehicle_configurations": 33273,
+    "aliases": 1,
     "maintenance_schedules": 0,
     "oil_requirements": 0,
     "filter_brands": 0,
     "filter_products": 0,
     "filter_fitments": 0
   },
-  "note": "Interim 8-make slice; superseded by the full 73-make production build."
+  "sources": [
+    {
+      "key": "vpic_api",
+      "retrieved_at": "2026-08-01T19:58:18.442Z"
+    },
+    {
+      "key": "fueleconomy_gov_bulk",
+      "retrieved_at": "2026-08-01T18:30:53.184Z",
+      "raw_sha256": "e2e39dc0bb58b2feb70aa393d60b3a05ade47c005a6e6611491949bdab620fc4"
+    }
+  ],
+  "features": {
+    "schedules": "own_model",
+    "oil_requirements": "absent",
+    "oil_products": "dropped",
+    "filters": "absent"
+  },
+  "limitation": "vPIC does not guarantee complete trims or engines and supplies no oil schedules, fluids, or filters."
 }

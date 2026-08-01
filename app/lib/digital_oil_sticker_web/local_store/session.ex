@@ -105,6 +105,7 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       socket
       |> assign(:pending_writes, pending)
       |> assign(:seq, seq)
+      |> assign(:garage, apply_upserts(socket.assigns.garage, upserts))
       |> Phoenix.LiveView.push_event("local_store:put", payload)
 
     {socket, mutation_id}
@@ -153,6 +154,45 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       %{"store" => store} = m -> {store, Map.fetch!(m, value_key)}
     end)
   end
+
+  # A staged write is reflected in `garage` immediately, so a LiveView that
+  # stays on the page after saving shows what the user just did instead of the
+  # pre-save state. This is optimistic on purpose: the record still renders as
+  # SAVING until the browser acks, and a failed ack surfaces as "Not saved to
+  # this browser" rather than being silently rolled back (INV-24).
+  defp apply_upserts(garage, upserts) do
+    Enum.reduce(to_pairs(upserts, "record"), garage, fn {store, record}, acc ->
+      case store_key(store) do
+        {:list, field, id_key} ->
+          Map.update!(acc, field, &upsert_by(&1, record, id_key))
+
+        {:singleton, field} ->
+          Map.put(acc, field, record)
+
+        :unknown ->
+          acc
+      end
+    end)
+  end
+
+  defp upsert_by(list, record, id_key) do
+    id = Map.get(record, id_key)
+
+    if Enum.any?(list, &(Map.get(&1, id_key) == id)) do
+      Enum.map(list, fn existing -> if Map.get(existing, id_key) == id, do: record, else: existing end)
+    else
+      list ++ [record]
+    end
+  end
+
+  defp store_key("vehicles"), do: {:list, :vehicles, "vehicle_id"}
+  defp store_key("events"), do: {:list, :events, "event_id"}
+  defp store_key("readings"), do: {:list, :readings, "reading_id"}
+  defp store_key("usage"), do: {:list, :usage, "usage_id"}
+  defp store_key("reminders"), do: {:list, :reminders, "reminder_id"}
+  defp store_key("prefs"), do: {:singleton, :prefs}
+  defp store_key("meta"), do: {:singleton, :meta}
+  defp store_key(_), do: :unknown
 
   defp mark_unsaved(socket, mutation_id) do
     pending =

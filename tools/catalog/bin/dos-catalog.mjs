@@ -26,7 +26,7 @@ else if (cmd === 'fixture') {
   const { buildFixtures } = await import('../src/compile/fixture.mjs')
   const repoRoot = join(ROOT, '..', '..')
   const outDir = join(repoRoot, 'app', 'priv', 'catalog')
-  const r = buildFixtures({ repoRoot, outDir })
+  const r = buildFixtures({ repoRoot, toolsRoot: ROOT, outDir })
   console.log(`fixture-a sha=${r.a.sha256.slice(0, 12)} rows=${JSON.stringify(r.a.counts)}`)
   console.log(`fixture-b sha=${r.b.sha256.slice(0, 12)} (removed ${r.removed.slice(0, 12)}…)`)
 } else if (cmd === 'compile') {

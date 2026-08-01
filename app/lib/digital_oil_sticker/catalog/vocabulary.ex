@@ -19,10 +19,15 @@ defmodule DigitalOilSticker.Catalog.Vocabulary do
     model_id: {:catalog_id, :model},
     configuration_key: {:catalog_id, :vehicle_configuration},
     requirement_id: {:catalog_id, :oil_requirement},
-    oil_brand_id: {:catalog_id, :oil_brand},
-    oil_product_id: {:catalog_id, :oil_product},
     filter_product_id: {:catalog_id, :filter_product},
     condition: {:enum, [:normal, :severe, :flexible]},
+    # Our own oil model. These are closed sets held in the catalog artifact,
+    # so validation is a membership test against the loaded model rather than
+    # a shape test — an unknown code is rejected, never passed through.
+    engine_class_code: {:catalog_code, :engine_class},
+    base_stock_code: {:catalog_code, :oil_base_stock},
+    grade_code: {:catalog_code, :oil_grade},
+    service_condition: {:catalog_code, :service_condition},
     entity_type: {:enum, [:configuration, :schedule, :requirement, :oil_product, :filter_fitment]},
     entity_key: {:catalog_id, :any},
     cursor: {:cursor},
@@ -40,8 +45,12 @@ defmodule DigitalOilSticker.Catalog.Vocabulary do
     get_schedules: %{required: [:configuration_key], optional: [:condition]},
     get_lubricant_requirements: %{required: [:configuration_key], optional: []},
     search_oils: %{required: [:requirement_id], optional: [:cursor, :page_size]},
-    list_oil_brands: %{required: [], optional: [:cursor, :page_size]},
-    list_oil_families: %{required: [:oil_brand_id], optional: [:cursor, :page_size]},
+    list_oil_grades: %{required: [], optional: [:engine_class_code]},
+    list_oil_base_stocks: %{required: [], optional: []},
+    get_oil_interval: %{
+      required: [:base_stock_code],
+      optional: [:engine_class_code, :service_condition]
+    },
     list_compatible_filters: %{required: [:configuration_key], optional: [:cursor, :page_size]},
     get_provenance: %{required: [:entity_type, :entity_key], optional: []}
   }
@@ -57,8 +66,9 @@ defmodule DigitalOilSticker.Catalog.Vocabulary do
     "catalog:resolve_products" => ["requirement_id", "cursor", "page_size"],
     "catalog:resolve_filters" => ["configuration_key", "cursor", "page_size"],
     "catalog:page" => ["cursor", "page_size"],
-    "catalog:list_oil_brands" => ["cursor", "page_size"],
-    "catalog:list_oil_families" => ["oil_brand_id", "cursor", "page_size"]
+    "catalog:list_oil_grades" => ["engine_class_code"],
+    "catalog:select_base_stock" => ["base_stock_code", "engine_class_code", "service_condition"],
+    "catalog:select_service_condition" => ["service_condition", "base_stock_code", "engine_class_code"]
   }
 
   def field_specs, do: @field_specs

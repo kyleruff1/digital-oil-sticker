@@ -1,0 +1,153 @@
+{
+  "model_version": "1.0.0",
+  "authored_by": "Digital Oil Sticker (our own model — NOT manufacturer guidance)",
+  "authored_at": "2026-08-01",
+  "basis_statement": "Grades follow the SAE J300 engine-oil viscosity classification. Base-stock interval characteristics and severe-service definitions follow widely published industry guidance. Engine classes are derived by us from EPA/DOE configuration fields. Every interval here is OUR model, is labeled as such in the UI, and is overridden by any sourced manufacturer schedule (shorter always wins).",
+  "safety_rule": "For any combination we do not have an explicit rule for, use the LOWEST interval of the applicable published range. Never extrapolate upward.",
+
+  "oil_grades": [
+    {"code": "0W-8",   "winter": 0,  "operating": 8,  "common": false, "notes": "Ultra-low viscosity; specific late-model hybrids only."},
+    {"code": "0W-16",  "winter": 0,  "operating": 16, "common": true,  "notes": "Late-model fuel-economy engines; only where specified."},
+    {"code": "0W-20",  "winter": 0,  "operating": 20, "common": true,  "notes": "Very common on 2010+ gasoline engines."},
+    {"code": "0W-30",  "winter": 0,  "operating": 30, "common": true,  "notes": "Cold-climate alternative where 5W-30 is specified."},
+    {"code": "0W-40",  "winter": 0,  "operating": 40, "common": true,  "notes": "Performance and some European specifications."},
+    {"code": "5W-20",  "winter": 5,  "operating": 20, "common": true,  "notes": "Common on 2000s-2010s domestic gasoline engines."},
+    {"code": "5W-30",  "winter": 5,  "operating": 30, "common": true,  "notes": "The most widely specified grade across eras."},
+    {"code": "5W-40",  "winter": 5,  "operating": 40, "common": true,  "notes": "Light-duty diesel and European performance specs."},
+    {"code": "5W-50",  "winter": 5,  "operating": 50, "common": false, "notes": "High-performance applications."},
+    {"code": "10W-30", "winter": 10, "operating": 30, "common": true,  "notes": "Older gasoline engines and warm climates."},
+    {"code": "10W-40", "winter": 10, "operating": 40, "common": true,  "notes": "Older/high-mileage engines."},
+    {"code": "10W-60", "winter": 10, "operating": 60, "common": false, "notes": "Specific high-performance engines only."},
+    {"code": "15W-40", "winter": 15, "operating": 40, "common": true,  "notes": "Diesel; warm climates."},
+    {"code": "20W-50", "winter": 20, "operating": 50, "common": false, "notes": "Warm climates, older/high-wear engines."}
+  ],
+
+  "base_stocks": [
+    {
+      "code": "conventional",
+      "display_name": "Conventional",
+      "published_miles_low": 3000, "published_miles_high": 5000,
+      "published_months_cap": 6,
+      "reasoning": "Mineral base oils oxidize and shear sooner than synthetics; published general guidance clusters at 3,000-5,000 miles with a roughly 6-month time cap."
+    },
+    {
+      "code": "synthetic_blend",
+      "display_name": "Synthetic blend",
+      "published_miles_low": 5000, "published_miles_high": 7500,
+      "published_months_cap": 6,
+      "reasoning": "Partial synthetic content improves oxidation resistance over conventional but does not reach full-synthetic stability."
+    },
+    {
+      "code": "full_synthetic",
+      "display_name": "Full synthetic",
+      "published_miles_low": 7500, "published_miles_high": 10000,
+      "published_months_cap": 12,
+      "reasoning": "Engineered base stocks resist thermal breakdown and oxidation longest; published guidance clusters at 7,500-10,000 miles, with some OEM specifications extending further — we do not extend beyond the published range without a sourced schedule."
+    },
+    {
+      "code": "high_mileage",
+      "display_name": "High mileage",
+      "published_miles_low": 5000, "published_miles_high": 7500,
+      "published_months_cap": 6,
+      "reasoning": "High-mileage oils are an additive package (seal conditioners, anti-wear) layered on a conventional or synthetic base. The additives address leaks and wear, NOT drain interval, so we treat the interval as blend-equivalent unless the user selects a full-synthetic high-mileage product."
+    }
+  ],
+
+  "engine_classes": [
+    {
+      "code": "bev",
+      "display_name": "Battery electric",
+      "engine_oil": "not_applicable",
+      "typical_grades": [],
+      "interval_factor": null,
+      "reasoning": "No internal-combustion engine and therefore no engine oil service."
+    },
+    {
+      "code": "fcv",
+      "display_name": "Hydrogen fuel cell",
+      "engine_oil": "not_applicable",
+      "typical_grades": [],
+      "interval_factor": null,
+      "reasoning": "Fuel-cell drivetrain has no engine oil service."
+    },
+    {
+      "code": "diesel_light",
+      "display_name": "Light-duty diesel",
+      "engine_oil": "applicable",
+      "typical_grades": ["5W-40", "15W-40", "5W-30", "0W-40"],
+      "interval_factor": 1.0,
+      "requires_service_category": "API C-series (diesel)",
+      "reasoning": "Diesel oils carry soot and require diesel-rated service categories. Interval follows the base-stock range but the service category is not interchangeable with gasoline oils."
+    },
+    {
+      "code": "hybrid_gas",
+      "display_name": "Gasoline hybrid",
+      "engine_oil": "applicable",
+      "typical_grades": ["0W-16", "0W-20", "5W-20", "5W-30"],
+      "interval_factor": 1.0,
+      "reasoning": "Total engine run time is lower than a comparable conventional drivetrain, but frequent cold starts and short engine-on cycles offset the benefit. We hold the base-stock interval and lean on the time cap."
+    },
+    {
+      "code": "gas_direct_injection",
+      "display_name": "Gasoline, direct injection",
+      "engine_oil": "applicable",
+      "typical_grades": ["0W-20", "5W-30", "0W-30", "5W-20"],
+      "interval_factor": 0.8,
+      "reasoning": "Direct-injection engines are prone to fuel dilution of the oil, which lowers effective viscosity and shortens useful oil life. We shorten the interval by 20% and prefer synthetic."
+    },
+    {
+      "code": "gas_small",
+      "display_name": "Gasoline, small displacement",
+      "engine_oil": "applicable",
+      "typical_grades": ["0W-16", "0W-20", "5W-20", "5W-30"],
+      "interval_factor": 1.0,
+      "reasoning": "Small-displacement port-injected gasoline engines hold less oil but run lower loads; the base-stock range applies."
+    },
+    {
+      "code": "gas_mid",
+      "display_name": "Gasoline, mid displacement",
+      "engine_oil": "applicable",
+      "typical_grades": ["0W-20", "5W-20", "5W-30", "10W-30"],
+      "interval_factor": 1.0,
+      "reasoning": "Mainstream port-injected gasoline engines; the base-stock range applies."
+    },
+    {
+      "code": "gas_large",
+      "display_name": "Gasoline, large displacement",
+      "engine_oil": "applicable",
+      "typical_grades": ["5W-20", "5W-30", "0W-40", "10W-30"],
+      "interval_factor": 1.0,
+      "reasoning": "Larger sumps dilute contamination, but these engines are more often used for towing and hauling. We hold the base range rather than extending it."
+    },
+    {
+      "code": "gas_other",
+      "display_name": "Other combustion engine",
+      "engine_oil": "applicable",
+      "typical_grades": ["5W-30"],
+      "interval_factor": 0.8,
+      "reasoning": "Fallback for engines we cannot classify (natural gas, rotary, incomplete data). Per the safety rule we shorten the interval and suggest the most common grade only as a starting point."
+    }
+  ],
+
+  "service_conditions": [
+    {
+      "code": "normal",
+      "display_name": "Normal service",
+      "factor": 1.0,
+      "reasoning": "Mostly longer trips at steady speeds in moderate conditions."
+    },
+    {
+      "code": "severe",
+      "display_name": "Severe service",
+      "factor": 0.5,
+      "reasoning": "Published severe-service definitions consistently include frequent short trips (especially in cold weather), extended idling and stop-and-go traffic, towing or hauling, dusty conditions, and sustained extreme temperatures. Industry guidance roughly halves the interval.",
+      "questions": [
+        "Most trips under about 10 miles",
+        "Frequent stop-and-go or extended idling",
+        "Towing, hauling, or carrying heavy loads",
+        "Dusty, sandy, or road-salted conditions",
+        "Sustained very hot or very cold temperatures"
+      ]
+    }
+  ]
+}

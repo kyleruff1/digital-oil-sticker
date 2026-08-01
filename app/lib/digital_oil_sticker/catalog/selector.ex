@@ -5,7 +5,7 @@ defmodule DigitalOilSticker.Catalog.Selector do
   wrong types — it never strips, never coerces, never substitutes defaults
   (beyond the declared page_size default), and never echoes offending input.
   """
-  alias DigitalOilSticker.Catalog.{Vocabulary, Metadata}
+  alias DigitalOilSticker.Catalog.{Metadata, OilModel, Vocabulary}
 
   @enforce_keys [:function]
   defstruct [
@@ -15,9 +15,11 @@ defmodule DigitalOilSticker.Catalog.Selector do
     :model_id,
     :configuration_key,
     :requirement_id,
-    :oil_brand_id,
-    :oil_product_id,
     :filter_product_id,
+    :engine_class_code,
+    :base_stock_code,
+    :grade_code,
+    :service_condition,
     :condition,
     :entity_type,
     :entity_key,
@@ -87,6 +89,12 @@ defmodule DigitalOilSticker.Catalog.Selector do
     if Regex.match?(@id_re, v), do: {:ok, v}, else: :error
   end
 
+  # Membership in a closed set loaded from the catalog artifact. Unknown code
+  # is an error, so a stale client can never widen the vocabulary.
+  defp check_type({:catalog_code, kind}, v) when is_binary(v) do
+    if v in catalog_codes(kind), do: {:ok, v}, else: :error
+  end
+
   defp check_type({:enum, values}, v) when is_binary(v) do
     # Fixed small enums: match against precomputed strings, never String.to_atom.
     case Enum.find(values, fn a -> Atom.to_string(a) == v end) do
@@ -97,4 +105,9 @@ defmodule DigitalOilSticker.Catalog.Selector do
 
   defp check_type({:cursor}, v) when is_binary(v) and byte_size(v) <= 512, do: {:ok, v}
   defp check_type(_spec, _v), do: :error
+
+  defp catalog_codes(:engine_class), do: Enum.map(OilModel.engine_classes(), & &1.code)
+  defp catalog_codes(:oil_base_stock), do: Enum.map(OilModel.base_stocks(), & &1.code)
+  defp catalog_codes(:oil_grade), do: Enum.map(OilModel.grades(), & &1.code)
+  defp catalog_codes(:service_condition), do: Enum.map(OilModel.service_conditions(), & &1.code)
 end

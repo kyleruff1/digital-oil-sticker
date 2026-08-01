@@ -103,6 +103,45 @@ defmodule DigitalOilStickerWeb.Copy do
   def not_listed_enter_myself, do: "Not listed — enter it myself"
   def no_longer_listed, do: "No longer listed in the catalog."
 
+  # --- Our own oil model -------------------------------------------------------
+  # These strings exist so an interval can never render without saying whose
+  # model produced it. Nothing here may be phrased as manufacturer guidance.
+  def our_model_label, do: "Our estimate"
+
+  def our_model_basis do
+    "This interval comes from our own model, not from your vehicle's maker. " <>
+      "We build it from standard viscosity grades, published oil-life ranges " <>
+      "for each type of oil, and an engine class we work out ourselves. If we " <>
+      "ever hold your maker's own schedule, it replaces this, and whichever " <>
+      "interval is shorter is the one we show."
+  end
+
+  def lowest_published_used do
+    "We have no specific rule for this combination, so we use the lowest " <>
+      "published interval for this type of oil rather than estimating upward."
+  end
+
+  def grade_suggested_for(class_name), do: "Commonly used on #{class_name} engines"
+  def grade_show_all, do: "Show every grade we list"
+  def grade_not_listed, do: "Not listed — enter the grade myself"
+  def engine_class_line(class_name), do: "We classify this vehicle as: #{class_name}"
+
+  def interval_summary(miles, months) do
+    "#{format_int(miles)} miles or #{months} months, whichever comes first."
+  end
+
+  def miles_range(low, high), do: "#{format_int(low)}–#{format_int(high)} miles typical"
+
+  def severe_service_prompt, do: "Does any of this describe how the vehicle is driven?"
+
+  def severe_service_effect do
+    "Answering yes shortens the interval — published severe-service guidance " <>
+      "roughly halves it."
+  end
+
+  def interval_overridden, do: "You set this interval yourself, so we use yours."
+  def override_interval_label, do: "Set my own interval instead"
+
   # --- Oil change form ---------------------------------------------------------
   def date_incomplete, do: "Choose a month, a day, and a year."
   def date_future, do: "A service date in the future can't be recorded."
@@ -123,5 +162,14 @@ defmodule DigitalOilStickerWeb.Copy do
       "sponsored, approved, or endorsed by vehicle manufacturers, lubricant " <>
       "manufacturers, filter manufacturers, NHTSA, EPA, DOE, SAE International, " <>
       "or the American Petroleum Institute."
+  end
+
+  # Thousands separators without pulling in a formatting dependency.
+  defp format_int(n) when is_integer(n) do
+    n
+    |> Integer.to_string()
+    |> String.reverse()
+    |> String.replace(~r/(\d{3})(?=\d)/, "\\1,")
+    |> String.reverse()
   end
 end

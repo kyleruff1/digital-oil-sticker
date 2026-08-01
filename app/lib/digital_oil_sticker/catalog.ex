@@ -9,7 +9,16 @@ defmodule DigitalOilSticker.Catalog do
   Pipeline per call: (rate limiting is tier-1, applied by the caller against
   its own socket bucket) → cache → query → status derivation → result.
   """
-  alias DigitalOilSticker.Catalog.{Cache, Metadata, Result, Selector, SourceGate, Status, Telemetry}
+  alias DigitalOilSticker.Catalog.{
+    Cache,
+    Metadata,
+    OilModel,
+    Result,
+    Selector,
+    SourceGate,
+    Status,
+    Telemetry
+  }
   alias DigitalOilSticker.Catalog.Queries.{Identity, Products, Provenance, Service}
 
   @type error :: {:error, :invalid_selector | :rate_limited | :catalog_unavailable | :stale_cursor}
@@ -124,36 +133,77 @@ defmodule DigitalOilSticker.Catalog do
 
   def search_oils(_), do: {:error, :invalid_selector}
 
-  @doc "BROWSING path: plain-text brand identification for the log form. No compatibility meaning."
-  @spec list_oil_brands(Selector.t()) :: {:ok, Result.t()} | error
-  def list_oil_brands(%Selector{function: :list_oil_brands} = sel) do
-    call(:list_oil_brands, sel, fn s ->
-      if SourceGate.cleared?(:oil_products) do
-        with {:ok, rows, cursor} <- Products.brands_page(s) do
-          {:ok, Result.new(:identity_only, rows, cursor: cursor, qualifiers: [%{code: :browsing_only_no_fitment_meaning}])}
-        end
-      else
-        {:ok, Result.new(:unsupported, [], qualifiers: [%{code: :source_not_cleared_for_web_serving, fact_domain: :oil_products}])}
+  @doc """
+  Our own oil model's grades, split into the ones typical for this engine
+  class and the rest. Not a manufacturer specification and not a product
+  list — see `DigitalOilSticker.Catalog.OilModel`.
+  """
+  @spec list_oil_grades(Selector.t()) :: {:ok, Result.t()} | error
+  def list_oil_grades(%Selector{function: :list_oil_grades} = sel) do
+    call(:list_oil_grades, sel, fn s ->
+      {suggested, others} = OilModel.grade_choices(s.engine_class_code)
+
+      {:ok,
+       Result.new(:our_model, %{suggested: suggested, others: others},
+         total_known?: true,
+         total: length(suggested) + length(others),
+         qualifiers: [our_model_qualifier()]
+       )}
+    end)
+  end
+
+  def list_oil_grades(_), do: {:error, :invalid_selector}
+
+  @spec list_oil_base_stocks(Selector.t()) :: {:ok, Result.t()} | error
+  def list_oil_base_stocks(%Selector{function: :list_oil_base_stocks} = sel) do
+    call(:list_oil_base_stocks, sel, fn _s ->
+      stocks = OilModel.base_stocks()
+
+      {:ok,
+       Result.new(:our_model, stocks,
+         total_known?: true,
+         total: length(stocks),
+         qualifiers: [our_model_qualifier()]
+       )}
+    end)
+  end
+
+  def list_oil_base_stocks(_), do: {:error, :invalid_selector}
+
+  @doc """
+  The interval OUR model gives for (engine class, base stock, service
+  condition). Never a manufacturer schedule: when one exists for the vehicle
+  it outranks this, and whichever is shorter wins.
+
+  A combination we hold no rule for resolves to the lowest published interval
+  for that base stock (`basis: :fallback_lowest_published`) rather than an
+  extrapolation.
+  """
+  @spec get_oil_interval(Selector.t()) :: {:ok, Result.t()} | error
+  def get_oil_interval(%Selector{function: :get_oil_interval} = sel) do
+    call(:get_oil_interval, sel, fn s ->
+      condition = s.service_condition || "normal"
+
+      case OilModel.interval(s.engine_class_code, s.base_stock_code, condition) do
+        {:ok, interval} ->
+          qualifiers =
+            [our_model_qualifier()] ++
+              if interval.basis == :fallback_lowest_published,
+                do: [%{code: :lowest_published_interval_used}],
+                else: []
+
+          {:ok, Result.new(:our_model, interval, qualifiers: qualifiers)}
+
+        :not_applicable ->
+          {:ok, Result.new(:not_applicable, nil, qualifiers: [%{code: :no_engine_oil_service}])}
+
+        {:error, :unknown_base_stock} ->
+          {:ok, Result.new(:unsupported, nil, qualifiers: [%{code: :base_stock_not_in_model}])}
       end
     end)
   end
 
-  def list_oil_brands(_), do: {:error, :invalid_selector}
-
-  @spec list_oil_families(Selector.t()) :: {:ok, Result.t()} | error
-  def list_oil_families(%Selector{function: :list_oil_families} = sel) do
-    call(:list_oil_families, sel, fn s ->
-      if SourceGate.cleared?(:oil_products) do
-        with {:ok, rows, cursor} <- Products.families_page(s) do
-          {:ok, Result.new(:identity_only, rows, cursor: cursor, qualifiers: [%{code: :browsing_only_no_fitment_meaning}])}
-        end
-      else
-        {:ok, Result.new(:unsupported, [], qualifiers: [%{code: :source_not_cleared_for_web_serving, fact_domain: :oil_products}])}
-      end
-    end)
-  end
-
-  def list_oil_families(_), do: {:error, :invalid_selector}
+  def get_oil_interval(_), do: {:error, :invalid_selector}
 
   @spec list_compatible_filters(Selector.t()) :: {:ok, Result.t()} | error
   def list_compatible_filters(%Selector{function: :list_compatible_filters} = sel) do
@@ -209,4 +259,10 @@ defmodule DigitalOilSticker.Catalog do
   defp config_status(_), do: :identity_only
 
   defp qualifiers_for_identity(_sel), do: []
+
+  # Every oil-model result carries this so no caller can render an interval
+  # without the sentence that says whose model it is.
+  defp our_model_qualifier do
+    %{code: :our_own_model, model_version: OilModel.model_version(), basis: OilModel.basis_statement()}
+  end
 end

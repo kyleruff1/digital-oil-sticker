@@ -16,6 +16,10 @@ defmodule DigitalOilSticker.Application do
       # Boot-time metadata read (fails closed on missing/incompatible catalog)
       # and the read-through result cache.
       DigitalOilSticker.Catalog.Metadata,
+      # Our own oil model (grades, base stocks, engine classes, interval
+      # rules) — small enough to hold in memory, and read at boot so a
+      # catalog without it fails loudly instead of showing no intervals.
+      DigitalOilSticker.Catalog.OilModel,
       DigitalOilSticker.Catalog.Cache,
       {DNSCluster, query: Application.get_env(:digital_oil_sticker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DigitalOilSticker.PubSub},

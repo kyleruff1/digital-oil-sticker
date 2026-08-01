@@ -1,16 +1,27 @@
 defmodule DigitalOilStickerWeb.VehicleProfileLive do
   @moduledoc """
-  The active vehicle's profile: display snapshot, support status, and
-  "Your interval" (the only interval basis while no licensed schedule
-  exists — clearly labeled, never presented as manufacturer guidance).
+  The active vehicle's profile: display snapshot, support status, how we
+  classify the engine, the interval our own model gives it, and the controls
+  that change that answer — severe service, and a manual override.
+
+  Everything on this page that produces a number says where the number came
+  from. Our model is labeled as ours; a user override is labeled as theirs.
+  Neither is presented as manufacturer guidance (INV-20/21).
   """
   use DigitalOilStickerWeb, :live_view
 
   alias DigitalOilStickerWeb.Layouts
 
+  alias DigitalOilSticker.Catalog.OilModel
   alias DigitalOilStickerWeb.Components.Badges
   alias DigitalOilStickerWeb.Copy
   alias DigitalOilStickerWeb.LocalStore.Session
+
+  # The base stock the estimate on this page is quoted against when the user
+  # has not logged a change yet. Full synthetic is the most common purchase
+  # and the longest interval, so quoting it here and letting the real logged
+  # value shorten it later never surprises someone with a shorter number.
+  @default_base_stock "full_synthetic"
 
   @impl true
   def mount(_params, _session, socket) do
@@ -19,7 +30,9 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
      |> assign(:page_title, "Your vehicle")
      |> assign(:interval_months, nil)
      |> assign(:interval_miles, nil)
-     |> assign(:interval_errors, [])}
+     |> assign(:interval_errors, [])
+     |> assign(:override?, false)
+     |> assign(:base_stocks, OilModel.base_stocks())}
   end
 
   @impl true
@@ -29,6 +42,24 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
      |> assign(:interval_months, parse_int(params["interval"]["months"]))
      |> assign(:interval_miles, parse_int(params["interval"]["miles"]))
      |> assign(:interval_errors, [])}
+  end
+
+  def handle_event("toggle_override", _params, socket) do
+    {:noreply, assign(socket, :override?, not socket.assigns.override?)}
+  end
+
+  # Severe service is a property of how the vehicle is driven, so it is stored
+  # on the vehicle rather than asked again at every oil change.
+  def handle_event("set_condition", %{"condition" => condition}, socket)
+      when condition in ["normal", "severe"] do
+    case active_vehicle(socket.assigns.garage) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "Set up a vehicle first.")}
+
+      vehicle ->
+        plan = Map.put(vehicle["maintenance_plan"] || %{}, "service_condition", condition)
+        {:noreply, save_plan(socket, vehicle, plan, navigate: false)}
+    end
   end
 
   def handle_event("interval_save", _params, socket) do
@@ -50,24 +81,42 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
         {:noreply, assign(socket, :interval_errors, ["Intervals must be positive."])}
 
       true ->
-        updated =
-          vehicle
-          |> Map.put("maintenance_plan", %{
+        plan =
+          (vehicle["maintenance_plan"] || %{})
+          |> Map.merge(%{
             "basis" => "user_entered",
             "interval_months" => months,
             "interval_miles" => miles,
             "set_at" => DateTime.utc_now() |> DateTime.to_iso8601()
           })
-          |> Map.put("updated_at", DateTime.utc_now() |> DateTime.to_iso8601())
 
-        {socket, _id} = Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => updated}], [])
-        {:noreply, socket |> put_flash(:info, Copy.saving()) |> push_navigate(to: ~p"/")}
+        {:noreply, save_plan(socket, vehicle, plan, navigate: true)}
     end
+  end
+
+  defp save_plan(socket, vehicle, plan, opts) do
+    updated =
+      vehicle
+      |> Map.put("maintenance_plan", plan)
+      |> Map.put("updated_at", DateTime.utc_now() |> DateTime.to_iso8601())
+
+    {socket, _id} = Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => updated}], [])
+    socket = put_flash(socket, :info, Copy.saving())
+
+    if opts[:navigate], do: push_navigate(socket, to: ~p"/"), else: socket
   end
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :vehicle, active_vehicle(assigns.garage))
+    vehicle = active_vehicle(assigns.garage)
+
+    assigns =
+      assigns
+      |> assign(:vehicle, vehicle)
+      |> assign(:engine_class, vehicle && OilModel.engine_class(vehicle["engine_class_code"]))
+      |> assign(:condition, condition_of(vehicle))
+      |> assign(:estimate, estimate_for(vehicle))
+      |> assign(:severe_questions, severe_questions())
 
     ~H"""
     <Layouts.app flash={@flash}>
@@ -85,26 +134,108 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
         <div :if={@vehicle} class="mt-6 space-y-6">
           <section class="rounded border p-4">
-            <h2 class="font-semibold">
-              {snapshot_line(@vehicle)}
-            </h2>
+            <h2 class="font-semibold">{snapshot_line(@vehicle)}</h2>
             <p class="mt-2 flex flex-wrap gap-2">
               <Badges.support_badge status={support_atom(@vehicle["support_status"])} />
               <Badges.precision_badge :if={@vehicle["display_snapshot"]["build"] =~ Copy.not_specified()} />
             </p>
+            <p :if={@engine_class} class="mt-2 text-xs text-zinc-500">
+              {Copy.engine_class_line(@engine_class.display_name)} — {@engine_class.reasoning}
+            </p>
             <p class="mt-2 text-xs text-zinc-500">
               Schedule: {Copy.source_unavailable()} — no licensed manufacturer schedule exists for
-              this selection yet. Your records and estimates use {Copy.your_interval()} below.
+              this selection yet.
             </p>
+          </section>
+
+          <section :if={@estimate == :not_applicable} class="rounded border p-4">
+            <h2 class="font-semibold">{Copy.not_applicable_ev()}</h2>
+            <p class="mt-1 text-sm text-zinc-600">{@engine_class && @engine_class.reasoning}</p>
+          </section>
+
+          <section :if={is_map(@estimate)} class="rounded border p-4">
+            <h2 class="font-semibold">{Copy.our_model_label()}</h2>
+            <p class="mt-1 text-lg">
+              {Copy.interval_summary(@estimate.miles_recommended, @estimate.months_cap)}
+            </p>
+            <p class="mt-1 text-xs text-zinc-500">{@estimate.reasoning}</p>
+            <p :if={@estimate.basis == :fallback_lowest_published} class="mt-2 text-xs text-amber-700">
+              {Copy.lowest_published_used()}
+            </p>
+            <p class="mt-3 text-xs leading-relaxed text-zinc-500">{Copy.our_model_basis()}</p>
+
+            <details class="mt-3">
+              <summary class="cursor-pointer text-sm font-medium">Every interval we model for this engine</summary>
+              <table class="mt-2 w-full text-left text-xs">
+                <thead>
+                  <tr>
+                    <th scope="col" class="py-1 pr-2">Type of oil</th>
+                    <th scope="col" class="py-1 pr-2">Normal</th>
+                    <th scope="col" class="py-1">Severe</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr :for={row <- interval_rows(@vehicle)} class="border-t">
+                    <th scope="row" class="py-1 pr-2 font-normal">{row.base_stock}</th>
+                    <td class="py-1 pr-2">{row.normal}</td>
+                    <td class="py-1">{row.severe}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </details>
+          </section>
+
+          <section :if={is_map(@estimate)} class="rounded border p-4">
+            <h2 class="font-semibold">{Copy.severe_service_prompt()}</h2>
+            <ul class="mt-2 list-disc pl-5 text-sm text-zinc-600">
+              <li :for={question <- @severe_questions}>{question}</li>
+            </ul>
+            <p class="mt-2 text-xs text-zinc-500">{Copy.severe_service_effect()}</p>
+            <div class="mt-3 flex gap-2">
+              <button
+                type="button"
+                phx-click="set_condition"
+                phx-value-condition="severe"
+                aria-pressed={to_string(@condition == "severe")}
+                class={["btn btn-sm", @condition == "severe" && "btn-primary"]}
+              >
+                Yes, severe service
+              </button>
+              <button
+                type="button"
+                phx-click="set_condition"
+                phx-value-condition="normal"
+                aria-pressed={to_string(@condition == "normal")}
+                class={["btn btn-sm", @condition == "normal" && "btn-primary"]}
+              >
+                No, normal service
+              </button>
+            </div>
           </section>
 
           <section class="rounded border p-4">
             <h2 class="font-semibold">{Copy.your_interval()}</h2>
-            <p class="mt-1 text-xs text-zinc-500">
-              User-entered — not manufacturer guidance. The sticker's estimated due date and
-              mileage come from this interval applied to your last recorded change.
-            </p>
-            <form phx-change="interval_change" phx-submit="interval_save" class="mt-3">
+
+            <div :if={not @override? and not has_own_interval?(@vehicle)}>
+              <p class="mt-1 text-xs text-zinc-500">
+                You have not set your own interval. We are using {Copy.our_model_label()} above.
+              </p>
+              <button type="button" phx-click="toggle_override" class="btn btn-sm mt-3">
+                {Copy.override_interval_label()}
+              </button>
+            </div>
+
+            <form
+              :if={@override? or has_own_interval?(@vehicle)}
+              id="interval-form"
+              phx-change="interval_change"
+              phx-submit="interval_save"
+              class="mt-3"
+            >
+              <p class="mb-2 text-xs text-zinc-500">
+                {Copy.interval_overridden()} Whichever is shorter — yours or {Copy.our_model_label()} —
+                is what the sticker shows.
+              </p>
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label for="interval-months" class="mb-1 block text-xs font-medium">Months</label>
@@ -113,7 +244,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                     inputmode="numeric"
                     id="interval-months"
                     name="interval[months]"
-                    value={@interval_months || current_interval(@vehicle, "interval_months")}
+                    value={@interval_months || current_interval(@vehicle, "interval_months") || suggested(@estimate, :months_cap)}
                     class="w-full min-h-11 rounded border px-3 py-2"
                   />
                 </div>
@@ -124,7 +255,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                     inputmode="numeric"
                     id="interval-miles"
                     name="interval[miles]"
-                    value={@interval_miles || current_interval(@vehicle, "interval_miles")}
+                    value={@interval_miles || current_interval(@vehicle, "interval_miles") || suggested(@estimate, :miles_recommended)}
                     class="w-full min-h-11 rounded border px-3 py-2"
                   />
                 </div>
@@ -145,6 +276,48 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
   defp active_vehicle(garage), do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
 
+  defp condition_of(nil), do: "normal"
+
+  defp condition_of(vehicle) do
+    case get_in(vehicle, ["maintenance_plan", "service_condition"]) do
+      "severe" -> "severe"
+      _ -> "normal"
+    end
+  end
+
+  defp estimate_for(nil), do: nil
+
+  defp estimate_for(vehicle) do
+    case OilModel.interval(vehicle["engine_class_code"], @default_base_stock, condition_of(vehicle)) do
+      {:ok, interval} -> interval
+      :not_applicable -> :not_applicable
+      {:error, _} -> nil
+    end
+  end
+
+  defp interval_rows(vehicle) do
+    for stock <- OilModel.base_stocks() do
+      %{
+        base_stock: stock.display_name,
+        normal: cell(OilModel.interval(vehicle["engine_class_code"], stock.code, "normal")),
+        severe: cell(OilModel.interval(vehicle["engine_class_code"], stock.code, "severe"))
+      }
+    end
+  end
+
+  defp cell({:ok, %{miles_recommended: miles, months_cap: months}}), do: "#{miles} mi / #{months} mo"
+  defp cell(_), do: Copy.not_specified()
+
+  defp severe_questions do
+    case OilModel.service_condition("severe") do
+      %{questions: questions} -> questions
+      _ -> []
+    end
+  end
+
+  defp suggested(estimate, key) when is_map(estimate), do: Map.get(estimate, key)
+  defp suggested(_estimate, _key), do: nil
+
   defp snapshot_line(%{"display_snapshot" => %{"year" => y, "make" => ma, "model" => mo, "build" => b}}) do
     [y, ma, mo, b] |> Enum.reject(&is_nil/1) |> Enum.join(" ")
   end
@@ -159,6 +332,11 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
   defp current_interval(%{"maintenance_plan" => %{} = plan}, key), do: plan[key]
   defp current_interval(_, _), do: nil
+
+  defp has_own_interval?(vehicle) do
+    not is_nil(current_interval(vehicle, "interval_miles")) or
+      not is_nil(current_interval(vehicle, "interval_months"))
+  end
 
   defp parse_int(nil), do: nil
   defp parse_int(""), do: nil

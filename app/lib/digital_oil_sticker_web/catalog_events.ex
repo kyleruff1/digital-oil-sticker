@@ -17,8 +17,9 @@ defmodule DigitalOilStickerWeb.CatalogEvents do
     "catalog:resolve_requirements" => :get_lubricant_requirements,
     "catalog:resolve_products" => :search_oils,
     "catalog:resolve_filters" => :list_compatible_filters,
-    "catalog:list_oil_brands" => :list_oil_brands,
-    "catalog:list_oil_families" => :list_oil_families
+    "catalog:list_oil_grades" => :list_oil_grades,
+    "catalog:select_base_stock" => :get_oil_interval,
+    "catalog:select_service_condition" => :get_oil_interval
   }
 
   @doc """

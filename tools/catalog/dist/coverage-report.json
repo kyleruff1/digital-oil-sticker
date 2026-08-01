@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-08-01T19:58:18.442Z",
+  "limitation": "vPIC does not guarantee complete trims or engines and supplies no oil schedules, fluids, or filters.",
+  "makes": 73,
+  "models": 1300,
+  "configurations": 33273,
+  "feg_rows_in_window": 34317,
+  "feg_matched_exact": 29400,
+  "feg_unmatched": 4917,
+  "junk_rows_skipped": 0,
+  "bev_not_applicable": 1258,
+  "by_completeness": {
+    "configuration_enriched": 29400,
+    "identity_only": 3873
+  },
+  "by_engine_class": {
+    "gas_small": 5370,
+    "gas_large": 3697,
+    "gas_mid": 6698,
+    "diesel_light": 487,
+    "gas_other": 3915,
+    "hybrid_gas": 2033,
+    "bev": 1216,
+    "gas_direct_injection": 9815,
+    "fcv": 42
+  },
+  "oil_model_version": "1.0.0"
+}

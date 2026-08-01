@@ -8,13 +8,17 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { buildCatalog, writeManifest } from './build.mjs'
 import { normalizeKey, nullify, makeId, modelId, configurationKey, uuidv5 } from '../normalize/keys.mjs'
+import { loadScience, classifyEngine, oilModelRows } from './oil_model.mjs'
 
 const FIXTURE_TS = '2026-08-01T00:00:00Z' // fixed: fixtures are fully deterministic
 
 const REAL_MAKES = new Set(['TESLA', 'TOYOTA', 'BMW', 'FORD', 'HONDA', 'DODGE', 'RAM', 'PONTIAC'])
 
-export function buildFixtures({ repoRoot, outDir }) {
+export function buildFixtures({ repoRoot, toolsRoot, outDir }) {
   const spike = JSON.parse(readFileSync(join(repoRoot, 'spikes/m00-006-data-boundary/out/normalized.json'), 'utf8'))
+  // The oil model is OURS, so the fixture carries the real one — tests should
+  // exercise the same grades and interval rules production serves.
+  const science = loadScience(toolsRoot)
 
   const srcVpic = {
     id: uuidv5('source vpic-fixture'),
@@ -29,17 +33,6 @@ export function buildFixtures({ repoRoot, outDir }) {
     terms_sha256: null, evidence_ref: 'docs/data/FACTUAL_USE_AND_MARKS_POLICY.md',
     reviewed_at: FIXTURE_TS, reviewer: 'owner',
   }
-  const srcSynthetic = {
-    ...srcVpic,
-    id: uuidv5('source synthetic-fixture'),
-    source_key: 'synthetic_fixture', provider: 'Digital Oil Sticker', source_type: 'direct_observation',
-    dataset_name: 'Visibly synthetic UI fixture rows', canonical_url: 'about:fixture',
-    attribution_text: 'Synthetic fixture data — never production.',
-    web_attribution_text: null,
-    copyright_basis: 'factual_extraction', acquisition_basis: 'direct_observation',
-    redistribution_basis: 'factual_republication', claim_posture: 'unverified_product_fact',
-  }
-
   const makesMap = new Map()
   for (const m of spike.makes) {
     const display = m.name
@@ -94,32 +87,15 @@ export function buildFixtures({ repoRoot, outDir }) {
       completeness_code: 'identity_only',
       support_status: isTesla ? 'not_applicable' : 'identity_only',
       engine_oil_service: isTesla ? 'not_applicable' : null,
+      engine_class_code: null, // set below, from the same classifier production uses
       crosswalk_status: null,
       search_text: `${mo.model_year} ${make.display_name} ${display}`.toLowerCase(),
       source_id: srcVpic.id,
     })
   }
+  for (const c of configs) c.engine_class_code = classifyEngine(c)
   configs.sort((a, b) => a.configuration_key.localeCompare(b.configuration_key))
   const dedupedConfigs = [...new Map(configs.map(c => [c.configuration_key, c])).values()]
-
-  // Visibly synthetic oil rows for UI/product-select tests (never production).
-  const brandId = uuidv5('oil_brand acmesyntheticfixture')
-  const oilBrands = [{
-    id: brandId, display_name: 'ACME SYNTHETIC FIXTURE', normalized_name: 'acmesyntheticfixture',
-    market: 'US', source_id: srcSynthetic.id, source_observed_at: FIXTURE_TS,
-  }]
-  const productId = uuidv5('oil_product acme fixture full synthetic')
-  const oilProducts = [{
-    id: productId, brand_id: brandId, product_family: 'Fixture Full Synthetic', product_variant: null,
-    display_name: 'ACME SYNTHETIC FIXTURE Full Synthetic 5W-30', normalized_name: 'fixturefullsynthetic5w30',
-    product_url: 'about:fixture', data_sheet_url: null, source_observed_at: FIXTURE_TS,
-    source_type: 'direct_observation', verification_status: 'unverified', source_id: srcSynthetic.id,
-  }]
-  const oilClaims = [{
-    id: uuidv5('claim acme 5w30'), product_id: productId, claim_type: 'sae_viscosity_grade',
-    claim_code: '5W-30', claim_source: 'synthetic fixture', observed_at: FIXTURE_TS,
-    verification_status: 'unverified', source_id: srcSynthetic.id,
-  }]
 
   const aliases = [{
     id: uuidv5('alias make scion'), entity_type: 'make',
@@ -128,11 +104,11 @@ export function buildFixtures({ repoRoot, outDir }) {
   }]
 
   const commonRows = {
-    data_sources: [srcVpic, srcSynthetic],
+    data_sources: [srcVpic],
     makes: [...makesMap.values()],
     models: [...modelsMap.values()].map(({ _year, ...m }) => m),
     aliases,
-    oil_brands: oilBrands, oil_products: oilProducts, oil_product_claims: oilClaims,
+    ...oilModelRows(science),
   }
   const meta = version => ({
     schema_version: '1', catalog_version: version, data_version: version,
@@ -141,7 +117,8 @@ export function buildFixtures({ repoRoot, outDir }) {
     search_normalization_version: '1',
     feature_identity: 'enabled', feature_configurations: 'enabled',
     feature_schedules: 'absent', feature_oil_requirements: 'absent',
-    feature_oil_products: 'enabled_fixture_only', feature_filters: 'absent',
+    feature_oil_products: 'absent', feature_filters: 'absent',
+    feature_oil_model: 'enabled', oil_model_version: science.model_version,
   })
 
   const outA = join(outDir, 'catalog-fixture-a.sqlite3')
