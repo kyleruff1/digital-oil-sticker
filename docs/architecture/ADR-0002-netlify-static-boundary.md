@@ -1,6 +1,10 @@
 # ADR-0002: Netlify is a static boundary, not a runtime
 
-Status: **Proposed — pending DOS-M00-002 ratification**
+Status: **Amended — 2026-08-01 by [ADR-0004](ADR-0004-browser-first-client-and-hosting.md)**
+
+> **What still stands:** Netlify cannot host Phoenix. That constraint is unchanged and is the reason the pivot required a separate hosting decision.
+>
+> **What changed:** Netlify is no longer the product's only edge. Under ADR-0004 the Phoenix LiveView application runs on **Fly.io** at `digitaloilsticker.com`, and Netlify keeps static marketing, support, privacy, and attribution content (and, later, catalog artifacts). The "bundled offline catalog shipped in a native package" premise below no longer applies to the MVP.
 
 ## Context
 

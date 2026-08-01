@@ -40,7 +40,28 @@ Working area for the [issue #4](https://github.com/kyleruff1/digital-oil-sticker
 `BUILD SUCCESSFUL in 2m 14s` — `mix mob.deploy --native --android` produced
 `android/app/build/outputs/apk/debug/app-debug.apk` (77,264,396 bytes = **73.7 MiB**, debug, universal/all-ABI).
 The zig-compiled JNI layer, Kotlin/Compose `MobBridge.kt`, dex merge, and `assembleDebug` all completed on
-Windows 11 with the pinned toolchain. Device install still pending (phone left the tailnet mid-run).
+Windows 11 with the pinned toolchain.
+
+**Device run completed (Motorola Razr Ultra 2025, wireless adb over Tailscale, no cable):**
+
+- Streamed install succeeded in **5.7 s**; package `com.example.digital_oil_sticker`.
+- Native layer healthy: `MobNIF: mob_ui_cache_class: …/MobBridge cached OK`, then
+  `DigitalOilSticker: onCreate — handing off to BEAM`.
+- Full deploy loop verified: APK install + **OTP release push** + **1,115 BEAM files** pushed + app restart.
+- **Embedded BEAM booted and Phoenix served on device loopback** — Bandit 1.12.4 handled HTTP/1 requests in-process
+  (`Bandit.HTTP1.Handler.handle_data/3` in the on-device stack trace).
+- Device runtime is **erts-17.0**, independent of the host's OTP 28.4 — confirms Mob's decoupled-runtime claim.
+- Graceful degradation: with no EPMD reachable, `Mob.Dist` logged
+  `no EPMD on port 4369 after 10s -- skipping dist` and continued instead of crashing.
+
+**Not completed:** on-device LiveView render (blocked by defect 5 below), the lifecycle/fold/safe-area matrix,
+a release-signed build, and the entire iOS half (no Mac/Xcode).
+
+#### Defect 5 — generator omits `live_reload:`, crashing every on-device request
+`mob_new` 0.4.20 emits `code_reloader: true` in `config/dev.exs` but no `live_reload:` block. The endpoint plugs
+`Phoenix.LiveReloader` whenever `code_reloading?` is true, and the plug then calls `Access.get(false, :patterns, nil)`
+→ `FunctionClauseError` on every request. Adding `live_reload: [patterns: []]` fixes it, but the config is baked into
+the release at **native build time**, so a BEAM-only push cannot apply the fix — a full `--native` rebuild is required.
 
 **Size note vs constitution §9:** 73.7 MiB debug/universal against a ≤50 MiB per-arch *compressed release* target.
 Not yet comparable — a release build with per-ABI splits is required before judging the budget (DOS-M07-003 owns enforcement).

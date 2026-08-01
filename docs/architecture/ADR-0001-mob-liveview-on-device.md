@@ -1,6 +1,8 @@
 # ADR-0001: Mob LiveView runs the BEAM and Phoenix on-device
 
-Status: **Proposed — pending the M00 physical-device spike (DOS-M00-003)**
+Status: **Deferred — superseded for the MVP by [ADR-0004](ADR-0004-browser-first-client-and-hosting.md) (2026-08-01); retained for a future native client**
+
+> The on-device Mob/LiveView architecture below is **not** the MVP delivery path. The product pivoted to a browser-first MVP on 2026-08-01 (constitution 2.0.0, ADR-0004). This ADR is kept because the native client remains a post-MVP target over the same Elixir domain contexts, and because the DOS-M00-003 spike evidence (Android build + physical-device install/launch/BEAM boot on a Motorola Razr Ultra 2025, plus five Windows-host defects and the unreachable iOS half) is the starting point for any revival. See `spikes/m00-003-mob-device/README.md`. Revival triggers are listed in ADR-0004.
 
 ## Context
 
