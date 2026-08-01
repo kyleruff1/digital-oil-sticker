@@ -89,7 +89,7 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   def stage_mutation(socket, upserts, deletes) do
     mutation_id = generate_id()
     seq = socket.assigns.seq + 1
-    payload = Envelope.build_put(mutation_id, seq, upserts, deletes)
+    payload = Envelope.build_put(mutation_id, seq, to_pairs(upserts, "record"), to_pairs(deletes, "key"))
 
     pending =
       Map.put(socket.assigns.pending_writes, mutation_id, %{
@@ -143,6 +143,16 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   end
 
   # -- internals ---------------------------------------------------------------
+
+  # Callers may pass either {store, payload} tuples or the wire-shaped
+  # %{"store" => _, "record"/"key" => _} maps; Envelope.build_put/4 wants
+  # tuples. Normalizing here keeps every call site from having to remember.
+  defp to_pairs(list, value_key) do
+    Enum.map(list, fn
+      {store, value} when is_binary(store) -> {store, value}
+      %{"store" => store} = m -> {store, Map.fetch!(m, value_key)}
+    end)
+  end
 
   defp mark_unsaved(socket, mutation_id) do
     pending =

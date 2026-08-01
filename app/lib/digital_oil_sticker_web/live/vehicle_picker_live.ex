@@ -245,8 +245,13 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
     end
   end
 
-  defp announce(%{total_known?: true, total: n}, noun), do: "#{n} #{noun}"
-  defp announce(%{data: data}, noun), do: "#{length(data)} #{noun} shown — #{Copy.count_unknown()}"
+  defp announce(%{total_known?: true, total: n}, noun), do: "#{n} #{plural(noun, n)}"
+
+  defp announce(%{data: data}, noun),
+    do: "#{length(data)} #{plural(noun, length(data))} shown — #{Copy.count_unknown()}"
+
+  defp plural(noun, 1), do: String.trim_trailing(noun, "s")
+  defp plural(noun, _), do: noun
 
   defp config_label(config) do
     [config.trim, config.series, config.engine_descriptor, config.transmission, config.drive_type]
