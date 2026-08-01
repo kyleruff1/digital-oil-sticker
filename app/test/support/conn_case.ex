@@ -31,8 +31,9 @@ defmodule DigitalOilStickerWeb.ConnCase do
     end
   end
 
-  setup tags do
-    DigitalOilSticker.DataCase.setup_sandbox(tags)
+  setup _tags do
+    # No sandbox: the only repo is the read-only catalog fixture (no writes,
+    # no transactions to own). Tests read the shared fixture concurrently.
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

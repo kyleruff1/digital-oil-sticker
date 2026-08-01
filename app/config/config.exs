@@ -8,7 +8,7 @@
 import Config
 
 config :digital_oil_sticker,
-  ecto_repos: [DigitalOilSticker.Repo],
+  ecto_repos: [DigitalOilSticker.CatalogRepo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configure the endpoint

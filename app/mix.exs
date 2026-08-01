@@ -81,10 +81,10 @@ defmodule DigitalOilSticker.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      # No ecto.setup/migrate aliases: the only repo is the read-only catalog,
+      # which is a build artifact produced by tools/catalog — never migrated here.
+      setup: ["deps.get", "assets.setup", "assets.build"],
+      test: ["test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind digital_oil_sticker", "esbuild digital_oil_sticker"],
       "assets.deploy": [

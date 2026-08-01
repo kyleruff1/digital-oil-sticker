@@ -1,8 +1,12 @@
 import Config
 
-# Configure your database
-config :digital_oil_sticker, DigitalOilSticker.Repo,
-  database: Path.expand("../digital_oil_sticker_dev.db", __DIR__),
+# Read-only catalog. In dev the artifact is the fixture catalog built by
+# tools/catalog (see mix dos.catalog.fixture); no write path exists.
+config :digital_oil_sticker, DigitalOilSticker.CatalogRepo,
+  database: Path.expand("../priv/catalog/catalog.sqlite3", __DIR__),
+  mode: :readonly,
+  journal_mode: nil,
+  after_connect: {Exqlite, :query!, ["PRAGMA query_only = ON", []]},
   pool_size: 5,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true

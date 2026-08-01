@@ -39,16 +39,23 @@ if config_env() == :dev do
 end
 
 if config_env() == :prod do
-  database_path =
-    System.get_env("DATABASE_PATH") ||
-      raise """
-      environment variable DATABASE_PATH is missing.
-      For example: /etc/digital_oil_sticker/digital_oil_sticker.db
-      """
+  # The catalog SQLite artifact is baked into the release image (ADR-0004).
+  # It is opened read-only three ways: SQLITE_OPEN_READONLY, PRAGMA
+  # query_only, and the repo module's read_only: true. journal_mode MUST be
+  # nil — ecto_sqlite3 otherwise defaults it to :wal, and `PRAGMA
+  # journal_mode = wal` writes the file header, which fails on a read-only
+  # handle (and WAL needs a -shm file the immutable image layer cannot hold).
+  catalog_path =
+    System.get_env("CATALOG_DATABASE_PATH") ||
+      Application.app_dir(:digital_oil_sticker, "priv/catalog/catalog.sqlite3")
 
-  config :digital_oil_sticker, DigitalOilSticker.Repo,
-    database: database_path,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
+  config :digital_oil_sticker, DigitalOilSticker.CatalogRepo,
+    database: catalog_path,
+    mode: :readonly,
+    journal_mode: nil,
+    after_connect: {Exqlite, :query!, ["PRAGMA query_only = ON", []]},
+    pool_size: String.to_integer(System.get_env("CATALOG_POOL_SIZE") || "8"),
+    show_sensitive_data_on_connection_error: false
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

@@ -9,9 +9,10 @@ defmodule DigitalOilSticker.Application do
   def start(_type, _args) do
     children = [
       DigitalOilStickerWeb.Telemetry,
-      DigitalOilSticker.Repo,
-      {Ecto.Migrator,
-       repos: Application.fetch_env!(:digital_oil_sticker, :ecto_repos), skip: skip_migrations?()},
+      # Read-only catalog only. No Ecto.Migrator: the catalog is a build
+      # artifact, not state — there is nothing to migrate at boot, and no
+      # user repo exists on the server (INV-23).
+      DigitalOilSticker.CatalogRepo,
       {DNSCluster, query: Application.get_env(:digital_oil_sticker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DigitalOilSticker.PubSub},
       # Start a worker by calling: DigitalOilSticker.Worker.start_link(arg)
@@ -34,8 +35,4 @@ defmodule DigitalOilSticker.Application do
     :ok
   end
 
-  defp skip_migrations?() do
-    # By default, sqlite migrations are run when using a release
-    System.get_env("RELEASE_NAME") == nil
-  end
 end
