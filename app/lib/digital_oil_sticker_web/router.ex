@@ -17,7 +17,14 @@ defmodule DigitalOilStickerWeb.Router do
   scope "/", DigitalOilStickerWeb do
     pipe_through :browser
 
-    live "/", HomeLive, :index
+    live_session :garage, on_mount: {DigitalOilStickerWeb.LocalStoreHook, :default} do
+      live "/", StickerLive, :index
+      live "/vehicle", VehicleProfileLive, :show
+      live "/vehicle/select", VehiclePickerLive, :select
+      live "/service/new", OilChangeLive, :new
+      live "/history", HistoryLive, :index
+      live "/settings/storage", StorageStatusLive, :index
+    end
   end
 
   scope "/", DigitalOilStickerWeb do

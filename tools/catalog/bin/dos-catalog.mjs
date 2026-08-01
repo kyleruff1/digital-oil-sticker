@@ -29,8 +29,15 @@ else if (cmd === 'fixture') {
   const r = buildFixtures({ repoRoot, outDir })
   console.log(`fixture-a sha=${r.a.sha256.slice(0, 12)} rows=${JSON.stringify(r.a.counts)}`)
   console.log(`fixture-b sha=${r.b.sha256.slice(0, 12)} (removed ${r.removed.slice(0, 12)}…)`)
+} else if (cmd === 'compile') {
+  const { buildProduction } = await import('../src/compile/production.mjs')
+  const repoRoot = join(ROOT, '..', '..')
+  const dataVersion = process.argv[3] ?? '2026.08.0'
+  const { result, coverage } = buildProduction({ toolsRoot: ROOT, appRoot: join(repoRoot, 'app'), dataVersion })
+  console.log(`catalog ${dataVersion} sha=${result.sha256.slice(0, 12)} bytes=${result.size}`)
+  console.log(`coverage: ${JSON.stringify(coverage, null, 2).slice(0, 800)}`)
 } else {
-  console.error(`unknown command ${cmd} (discover | enumerate | fixture)`)
+  console.error(`unknown command ${cmd} (discover | enumerate | fixture | compile)`)
   process.exit(1)
 }
 
