@@ -43,19 +43,16 @@ defmodule DigitalOilStickerWeb.Router do
   #   pipe_through :api
   # end
 
-  # Enable LiveDashboard in development
-  if Application.compile_env(:digital_oil_sticker, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
-    import Phoenix.LiveDashboard.Router
-
-    scope "/dev" do
-      pipe_through :browser
-
-      live_dashboard "/dashboard", metrics: DigitalOilStickerWeb.Telemetry
-    end
-  end
+  # No LiveDashboard.
+  #
+  # The generator ships a `/dev/dashboard` route guarded by `dev_routes`, but
+  # `if` compiles both branches, so the guard only decides whether the route is
+  # REACHABLE — the dependency still has to be present in every environment for
+  # the router to compile. That meant a debug UI in the production release that
+  # nobody here has ever opened, alongside a request-log tap the endpoint
+  # mounted unconditionally.
+  #
+  # Removing the route removes the reason to carry the dependency at all.
+  # Metrics still exist (DigitalOilStickerWeb.Telemetry); what is gone is the
+  # web UI for reading them off a production machine.
 end

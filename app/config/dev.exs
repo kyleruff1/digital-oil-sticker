@@ -58,7 +58,8 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
 # different ports.
 
 # Enable dev routes for dashboard and mailbox
-config :digital_oil_sticker, dev_routes: true
+# No dev_routes: the only thing they gated was the LiveDashboard, which is
+# gone (see router.ex).
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"

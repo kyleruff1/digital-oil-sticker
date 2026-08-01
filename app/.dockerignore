@@ -45,6 +45,10 @@ erl_crash.dump
 /priv/static/assets/
 /priv/static/cache_manifest.json
 
-# Fixture catalogs are test/dev-only; the production artifact is catalog.sqlite3
+# Fixture catalogs are test/dev-only; the production artifact is catalog.sqlite3.
+# The manifest matters as much as the databases: it was the one that actually
+# reached the image, caught by the runtime verification step rather than by
+# anyone reading this file.
 /priv/catalog/catalog-fixture-a.sqlite3
 /priv/catalog/catalog-fixture-b.sqlite3
+/priv/catalog/catalog-fixture-manifest.json

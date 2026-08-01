@@ -64,17 +64,17 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           <dl class="text-sm">
             <div>
               <dt class="inline font-semibold">Date:</dt>
-              
+
               <dd class="inline" data-test="sticker-date-compact">{@date_value || "—"}</dd>
             </div>
             <div>
               <dt class="inline font-semibold">Mileage:</dt>
-              
+
               <dd class="inline">{@mileage_value || "—"}</dd>
             </div>
             <div>
               <dt class="inline font-semibold">Grade:</dt>
-              
+
               <dd class="inline">{@grade_value || "—"}</dd>
             </div>
           </dl>

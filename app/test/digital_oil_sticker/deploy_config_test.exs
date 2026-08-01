@@ -141,11 +141,19 @@ defmodule DigitalOilSticker.DeployConfigTest do
       end
     end
 
-    test "the live dashboard is not a production dependency" do
+    test "the live dashboard is not a dependency at all" do
       mix = File.read!(Path.expand("../../mix.exs", __DIR__))
+      router = File.read!(Path.expand("../../lib/digital_oil_sticker_web/router.ex", __DIR__))
 
-      assert mix =~ ~r/phoenix_live_dashboard.*only:\s*\[:dev, :test\]/,
-             "phoenix_live_dashboard ships to production"
+      # Scoping it to [:dev, :test] does not work: `if` compiles both branches,
+      # so the router's dev-only dashboard block still requires the module in
+      # every environment. Removing the route is what removes the dependency —
+      # and a debug UI nobody opens has no business in a production release.
+      refute mix =~ "phoenix_live_dashboard",
+             "phoenix_live_dashboard is still a dependency"
+
+      refute router =~ "live_dashboard",
+             "the router still declares a dashboard route"
     end
 
     test "no request-log tap is mounted" do

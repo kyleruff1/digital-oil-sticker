@@ -70,9 +70,12 @@ COPY lib lib
 
 # The catalog artifact IS the product. Verify it before anything is built on
 # top of it: a truncated, swapped, or stale artifact would otherwise ship and
-# stay invisible until a user got a wrong answer. Each failure mode gets its
-# own message, because "catalog check failed" is not actionable.
-RUN set -eu;     manifest="priv/catalog/catalog-manifest.json";     catalog="priv/catalog/catalog.sqlite3";     test -f "$manifest" || { echo "FAIL: $manifest is absent — the catalog build did not run"; exit 1; };     test -f "$catalog"  || { echo "FAIL: $catalog is absent — no catalog to serve"; exit 1; };     expected_sha="$(sed -n 's/.*"payload_sha256"[[:space:]]*:[[:space:]]*"\([0-9a-f]*\)".*//p' "$manifest")";     expected_size="$(sed -n 's/.*"size"[[:space:]]*:[[:space:]]*\([0-9]*\).*//p' "$manifest" | head -1)";     expected_schema="$(sed -n 's/.*"schema_version"[[:space:]]*:[[:space:]]*"\([0-9]*\)".*//p' "$manifest" | head -1)";     test -n "$expected_sha" || { echo "FAIL: manifest carries no payload_sha256"; exit 1; };     actual_size="$(wc -c < "$catalog")";     test "$actual_size" = "$expected_size" || { echo "FAIL: catalog is $actual_size bytes, manifest says $expected_size — truncated or replaced"; exit 1; };     actual_sha="$(sha256sum "$catalog" | cut -d" " -f1)";     test "$actual_sha" = "$expected_sha" || { echo "FAIL: catalog sha256 $actual_sha does not match manifest $expected_sha"; exit 1; };     case "$expected_schema" in       1) : ;;       *) echo "FAIL: catalog schema_version '"'"'$expected_schema'"'"' is outside the window this app supports"; exit 1 ;;     esac;     echo "catalog verified: sha256 $actual_sha, $actual_size bytes, schema $expected_schema"
+# stay invisible until a user got a wrong answer.
+#
+# The check lives in a script rather than inline here — see the comment in it
+# for why. Inline, its own quoting was the thing that failed.
+COPY scripts/verify_catalog.sh scripts/
+RUN sh scripts/verify_catalog.sh priv/catalog/catalog.sqlite3 priv/catalog/catalog-manifest.json
 
 # Compile the release
 RUN mix compile
@@ -84,14 +87,6 @@ RUN mix assets.deploy
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
-
-# Release identity, baked at build time so a running machine can say which
-# commit it is without shelling out to git (which is not in the runtime image,
-# and would be answering about the wrong tree anyway).
-ARG GIT_SHA=unknown
-ARG BUILD_TIMESTAMP=unknown
-ENV GIT_SHA=${GIT_SHA}
-ENV BUILD_TIMESTAMP=${BUILD_TIMESTAMP}
 
 COPY rel rel
 RUN mix release
@@ -118,7 +113,10 @@ RUN chown nobody /app
 # set runner ENV
 ENV MIX_ENV="prod"
 
-# Carried into the runtime stage: ARGs do not cross a FROM boundary.
+# Release identity, set in the RUNTIME stage only. Deliberately not in the
+# builder: these change on every commit, and anything the compile step reads
+# would invalidate its layer cache each time. The app reads them at runtime.
+# (ARGs do not cross a FROM boundary, hence the re-declaration.)
 ARG GIT_SHA=unknown
 ARG BUILD_TIMESTAMP=unknown
 ENV GIT_SHA=${GIT_SHA}
@@ -130,12 +128,17 @@ COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/digital_oil_s
 # The catalog artifact is read-only data baked into the image: root-owned and
 # 0444 so the nobody-running app cannot write it (fourth write-prevention
 # layer after read_only: true, mode: :readonly, and PRAGMA query_only).
+# Re-verified in the FINAL image, because what ships is what matters: the
+# builder-stage check proves the build context was sound, not that the release
+# carries the same bytes. --expect-no-fixtures additionally asserts that no
+# test fixture rode along.
+#
+# Then made structurally unwritable: root-owned and 0444, so the nobody-running
+# app cannot alter it. Fourth write-prevention layer, after read_only: true,
+# mode: :readonly, and PRAGMA query_only.
+COPY --from=builder /app/scripts/verify_catalog.sh /usr/local/bin/verify_catalog.sh
 USER root
-RUN set -eux; \
-    catalog="$(find /app/lib -path '*/priv/catalog/catalog.sqlite3' | head -1)"; \
-    test -n "$catalog"; \
-    chown root:root "$catalog"; \
-    chmod 0444 "$catalog"
+RUN set -eux;     catalog="$(find /app/lib -path '*/priv/catalog/catalog.sqlite3' | head -1)";     test -n "$catalog";     manifest="$(dirname "$catalog")/catalog-manifest.json";     sh /usr/local/bin/verify_catalog.sh "$catalog" "$manifest" --expect-no-fixtures;     chown root:root "$catalog";     chmod 0444 "$catalog"
 
 USER nobody
 

@@ -23,12 +23,22 @@ defmodule DigitalOilSticker.Release do
   alias DigitalOilSticker.Catalog.Metadata
   alias DigitalOilSticker.LocalStore.Envelope
 
-  # Baked at image build. `unknown` is honest rather than fatal: a local `mix
-  # phx.server` has no build arg, and refusing to boot over that would be
-  # theatre. What must never happen is a *deployed* image claiming a commit it
-  # is not — hence the build arg, not a runtime `git` call.
-  @git_sha System.get_env("GIT_SHA") || "unknown"
-  @built_at System.get_env("BUILD_TIMESTAMP") || "unknown"
+  # Read from the environment at RUNTIME, not baked as a compile-time
+  # attribute. Two reasons, and the first was found the hard way: `mix compile`
+  # runs before the Dockerfile sets these, so a compile-time attribute captured
+  # "unknown" and the deployed machine could not name its own commit — which
+  # readiness correctly refused to serve on.
+  #
+  # The second reason is why the fix is not simply "set the ENV earlier": a
+  # compile-time attribute means every commit changes a value the compile layer
+  # depends on, so every deploy would rebuild the entire application from
+  # scratch instead of reusing the cache.
+  #
+  # `unknown` is honest rather than fatal: a local `mix phx.server` has no build
+  # arg and refusing to boot over that would be theatre. A DEPLOYED machine
+  # claiming a commit it is not, however, must never happen — hence the build
+  # arg rather than a runtime `git` call, and hence the readiness check that
+  # fails when a machine on Fly reports `unknown`.
 
   @doc """
   The full release identifier. Shape is stable: callers and the release ledger
@@ -39,8 +49,8 @@ defmodule DigitalOilSticker.Release do
   def identifier do
     %{
       app_version: app_version(),
-      git_sha: @git_sha,
-      built_at: @built_at,
+      git_sha: git_sha(),
+      built_at: env("BUILD_TIMESTAMP") || "unknown",
       catalog_data_version: catalog_field(:data_version),
       catalog_schema_version: catalog_field(:schema_version),
       catalog_payload_sha256: catalog_payload_sha256(),
@@ -54,10 +64,10 @@ defmodule DigitalOilSticker.Release do
 
   @doc "True once the identity is specific enough to appear in a release ledger."
   @spec complete?() :: boolean()
-  def complete?, do: @git_sha != "unknown" and catalog_field(:data_version) != "unknown"
+  def complete?, do: git_sha() != "unknown" and catalog_field(:data_version) != "unknown"
 
   def app_version, do: to_string(Application.spec(:digital_oil_sticker, :vsn))
-  def git_sha, do: @git_sha
+  def git_sha, do: env("GIT_SHA") || "unknown"
 
   @doc """
   SHA-256 of the catalog artifact **as it exists on disk right now**, not as a
