@@ -1,0 +1,20 @@
+{
+  "name": "Digital Oil Sticker",
+  "short_name": "Oil Sticker",
+  "description": "Offline-first oil-change records and reminders.",
+  "icons": [
+    {
+      "src": "android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#159447",
+  "background_color": "#FFFFFF",
+  "display": "standalone"
+}

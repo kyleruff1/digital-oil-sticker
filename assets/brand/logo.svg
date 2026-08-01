@@ -1,63 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="logo-title logo-desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 640" role="img" aria-labelledby="logo-title logo-desc">
   <title id="logo-title">Digital Oil Sticker — Next Service Due</title>
-  <desc id="logo-desc">A green, blue, black, and white digital oil-change form with Date or Mileage and Grade fields, two crossed waving checkered flags, and a peel corner.</desc>
+  <desc id="logo-desc">A translucent green, blue, black, and white digital oil-change sticker frame with two crossed waving checkered flags and a peel corner. Live service fields are supplied separately by HTML.</desc>
 
   <defs>
+    <linearGradient id="duotone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#159447"/><stop offset=".38" stop-color="#159447"/>
+      <stop offset=".49" stop-color="#F7FAF8"/><stop offset=".51" stop-color="#F7FAF8"/>
+      <stop offset=".62" stop-color="#1769AA"/><stop offset="1" stop-color="#1769AA"/>
+    </linearGradient>
     <pattern id="flag-checkers" width="28" height="28" patternUnits="userSpaceOnUse">
       <rect width="28" height="28" fill="#FFFFFF"/>
-      <rect width="14" height="14" fill="#111111"/>
-      <rect x="14" y="14" width="14" height="14" fill="#111111"/>
+      <rect width="14" height="14" fill="#101820"/>
+      <rect x="14" y="14" width="14" height="14" fill="#101820"/>
     </pattern>
   </defs>
 
-  <!-- The canvas outside this inset border is transparent. -->
-  <rect x="36" y="36" width="1128" height="448" rx="62" fill="#FFFFFF" stroke="#111111" stroke-width="14"/>
+  <!-- A 60-unit translation creates a large alpha-transparent margin around all artwork. -->
+  <g transform="translate(60 60)">
+  <!-- The cling body is intentionally translucent so moving window imagery remains visible beneath it. -->
+  <rect x="36" y="36" width="1128" height="448" rx="62" fill="#FFFFFF" fill-opacity=".72" stroke="#F7FAF8" stroke-opacity=".94" stroke-width="30"/>
+  <rect x="36" y="36" width="1128" height="448" rx="62" fill="none" stroke="#101820" stroke-width="16"/>
+  <rect x="47" y="47" width="1106" height="426" rx="51" fill="none" stroke="url(#duotone)" stroke-width="5"/>
 
   <!-- Digital pixel mark: no droplet imagery. -->
   <g transform="translate(82 76)">
-    <rect width="48" height="48" rx="7" fill="#159447"/>
-    <rect x="59" width="48" height="48" rx="7" fill="#1769AA"/>
-    <rect y="59" width="48" height="48" rx="7" fill="#111111"/>
-    <rect x="59" y="59" width="48" height="48" rx="7" fill="#159447"/>
+    <rect width="48" height="48" rx="7" fill="#159447" stroke="#F7FAF8" stroke-width="3"/>
+    <rect x="59" width="48" height="48" rx="7" fill="#1769AA" stroke="#F7FAF8" stroke-width="3"/>
+    <rect y="59" width="48" height="48" rx="7" fill="#101820" stroke="#F7FAF8" stroke-width="3"/>
+    <rect x="59" y="59" width="48" height="48" rx="7" fill="url(#duotone)" stroke="#F7FAF8" stroke-width="3"/>
   </g>
 
   <!-- Company wordmark: black carries the visual weight. -->
   <g font-family="Arial Black, Arial, Helvetica, sans-serif">
-    <text x="228" y="116" fill="#1769AA" font-size="50" font-weight="800" letter-spacing="3">DIGITAL</text>
-    <text x="222" y="184" fill="#111111" font-size="80" font-weight="900" letter-spacing="-3">OIL STICKER</text>
+    <text x="228" y="116" fill="#1769AA" stroke="#F7FAF8" stroke-width="3" paint-order="stroke fill" font-size="50" font-weight="800" letter-spacing="3">DIGITAL</text>
+    <text x="222" y="184" fill="#101820" stroke="#F7FAF8" stroke-width="5" paint-order="stroke fill" font-size="80" font-weight="900" letter-spacing="-3">OIL STICKER</text>
   </g>
   <path d="M82 211h1031" stroke="#159447" stroke-width="11"/>
-  <path d="M82 222h1031" stroke="#111111" stroke-width="4"/>
+  <path d="M82 222h1031" stroke="#1769AA" stroke-width="4"/>
 
-  <!-- Service-due form -->
-  <g font-family="Arial, Helvetica, sans-serif" fill="#111111" text-anchor="middle">
+  <!-- Service-due heading; Date, Mileage, Grade, OR, and field boxes are intentionally HTML-owned. -->
+  <g font-family="Arial, Helvetica, sans-serif" fill="#101820" stroke="#F7FAF8" stroke-width="4" paint-order="stroke fill" text-anchor="middle">
     <text x="600" y="274" font-size="46" font-weight="900" letter-spacing="2">NEXT SERVICE DUE</text>
-    <text x="326" y="317" font-size="24" font-weight="900" letter-spacing="2">DATE</text>
-    <text x="600" y="358" font-size="26" font-weight="900">OR</text>
-    <text x="874" y="317" font-size="24" font-weight="900" letter-spacing="2">MILEAGE</text>
-
-    <rect x="128" y="332" width="398" height="69" rx="6" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
-    <rect x="674" y="332" width="398" height="69" rx="6" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
-
-    <text x="600" y="421" font-size="24" font-weight="900" letter-spacing="2">GRADE</text>
-    <rect x="442" y="434" width="316" height="32" rx="6" fill="#FFFFFF" stroke="#111111" stroke-width="8"/>
   </g>
 
   <!-- Two crossed, strongly waving checkered flags with short pole stubs. -->
   <g transform="translate(972 62) scale(.92)">
-    <path d="M23 24 96 139M147 24 67 139" fill="none" stroke="#111111" stroke-width="9" stroke-linecap="round"/>
+    <path d="M23 24 96 139M147 24 67 139" fill="none" stroke="#F7FAF8" stroke-width="17" stroke-linecap="round"/>
+    <path d="M23 24 96 139M147 24 67 139" fill="none" stroke="#101820" stroke-width="9" stroke-linecap="round"/>
     <g transform="rotate(-12 22 20)">
-      <path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#flag-checkers)" stroke="#111111" stroke-width="6" stroke-linejoin="round"/>
-      <path d="M15 52c31-24 55 27 91 2" fill="none" stroke="#111111" stroke-width="3" opacity=".45"/>
+      <path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#flag-checkers)" stroke="#F7FAF8" stroke-width="13" stroke-linejoin="round"/>
+      <path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#flag-checkers)" stroke="#101820" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M15 52c31-24 55 27 91 2" fill="none" stroke="#1769AA" stroke-width="3" opacity=".6"/>
     </g>
     <g transform="translate(170 0) scale(-1 1) rotate(-12 22 20)">
-      <path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#flag-checkers)" stroke="#111111" stroke-width="6" stroke-linejoin="round"/>
-      <path d="M15 52c31-24 55 27 91 2" fill="none" stroke="#111111" stroke-width="3" opacity=".45"/>
+      <path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#flag-checkers)" stroke="#F7FAF8" stroke-width="13" stroke-linejoin="round"/>
+      <path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#flag-checkers)" stroke="#101820" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M15 52c31-24 55 27 91 2" fill="none" stroke="#159447" stroke-width="3" opacity=".6"/>
     </g>
   </g>
 
   <!-- Decorative peel corner with blue and green backing. -->
   <path d="M1068 477c44-13 76-43 91-88v29c0 36-29 65-65 65h-26Z" fill="#1769AA"/>
   <path d="M1085 478c32-18 55-44 68-77-14 40-37 66-70 81Z" fill="#159447"/>
-  <path d="M1068 477c31-22 53-52 63-89-22 30-49 49-81 59l18 30Z" fill="#FFFFFF" stroke="#111111" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M1068 477c31-22 53-52 63-89-22 30-49 49-81 59l18 30Z" fill="#FFFFFF" fill-opacity=".82" stroke="#F7FAF8" stroke-width="15" stroke-linejoin="round"/>
+  <path d="M1068 477c31-22 53-52 63-89-22 30-49 49-81 59l18 30Z" fill="#FFFFFF" fill-opacity=".82" stroke="#101820" stroke-width="7" stroke-linejoin="round"/>
+  </g>
 </svg>
