@@ -81,10 +81,12 @@ Measured 2026-08-01 against `https://digital-oil-sticker.fly.dev` and the Fly Ma
 | Machines | `2862e40c6e0758` (young-wildflower-6563), `48ee567fd20ee8` (crimson-glitter-9495) — both `started`, both region `ord`, both on the digest above |
 | Platform checks per machine | 1 total, 1 passing: `servicecheck-00-http-8080` → `GET /health`, interval 30s |
 | `GET /health` | 200 · `{"status":"ok","version":"0.1.0"}` |
-| `GET /ready` | **404** |
-| `GET /version` | **404** |
+| `GET /ready` | **200**, six checks passing (v14) |
+| `GET /version` | **200**, full release identity (v14) |
 
-The two 404s are the single most important fact about this ledger's backfill, so they are stated plainly rather than buried: **the live release has no release-identity endpoint.** Its `/health` body is the output of the old single-action `HealthController`, not the liveness/readiness/version controller. The identity endpoint, the six-check readiness probe, the `Release` module, and the two-check `fly.toml` were committed locally at `5a63281` ("Establish the deployment pipeline: CI, release identity, readiness, rollback", 2026-08-01) but are **not pushed and not deployed**. Production runs an image built before any of it existed, and cannot be asked what it is.
+**This changed while the ledger was being written, and the change is the reason the backfill stops where it does.** Releases v1–v12 were built before the release-identity work existed and genuinely cannot be asked what they are. Release **v14** (2026-08-01) is the first that can: `/version` reports its commit, its catalog `data_version`, and a live hash of the catalog artifact on disk.
+
+Release **v13 sits between them and failed**, which is worth a line of its own because it is the ledger's first entry produced by a gate rather than by a person noticing. The image built and the catalog verified at both stages, but readiness reported `release_identified: false` — the build could not name its own commit — and the machine rotated itself out rather than serving. From v14 forward, an entry in this ledger means a machine that proved it knew what it was.
 
 ---
 
@@ -205,9 +207,9 @@ Not decisions in the sense of Q1 and Q2 — these are known gaps between what th
 
 ### 7.1 The readiness check is declared but not deployed
 
-`app/fly.toml` declares two service checks: `/ready` every 15s (readiness — rotates a machine out if the catalog is absent, altered, writable, unsupported, or unqueryable) and `/health` every 30s (liveness — checks nothing, on purpose, so one bad artifact cannot cause a restart storm). **Production runs one check**: `/health` at 30s. Both live machines report `1 total, 1 passing`, and `/ready` returns 404.
+`app/fly.toml` declares two service checks: `/ready` every 15s (readiness — rotates a machine out if the catalog is absent, altered, writable, unsupported, or unqueryable) and `/health` every 30s (liveness — checks nothing, on purpose, so one bad artifact cannot cause a restart storm). **Production now runs both**: as of release v14 each `ord` machine reports `2 total, 2 passing`.
 
-Consequence, stated plainly: **readiness gating is not in effect in production today.** A machine serving a missing or writable catalog would keep taking traffic and would keep answering `{"status":"ok"}` — the exact failure mode the two-check split was written to prevent. This closes when the branch carrying `5a63281` is pushed and deployed.
+Readiness gating is therefore in effect. It has been exercised once, by accident and successfully: v13's machine failed `release_identified` and was rotated out. What remains unrehearsed is a fault injected against an already-running machine — v13 failed at rollout, not mid-life.
 
 ### 7.2 Orphan volume `vol_4y8d01doz7gmz21r`
 

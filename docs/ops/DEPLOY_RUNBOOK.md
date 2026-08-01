@@ -28,8 +28,8 @@ Measured 2026-08-01 with the commands shown:
 | Live health config | `flyctl config show -a digital-oil-sticker` | **One** check: `GET /health`, 30 s. |
 | Repo health config | `app/fly.toml` | **Two** checks: `GET /ready` (15 s) and `GET /health` (30 s). |
 | `/health` on the live app | `curl -o /dev/null -w "%{http_code}"` | `200` |
-| `/ready` on the live app | same | **`404`** |
-| `/version` on the live app | same | **`404`** |
+| `/ready` on the live app | same | **`200`, all six checks `ok`** (measured 2026-08-01, release v14) |
+| `/version` on the live app | same | **`200`**, `git_sha` `9b6db865fd0d` (measured 2026-08-01, release v14) |
 | Deploy credential | `flyctl tokens list -a digital-oil-sticker` | Zero rows. |
 | GitHub secret | `gh secret list` | Empty. |
 | Orphan volume | `flyctl volumes list --app digital-oil-sticker` | `vol_4y8d01doz7gmz21r`, 1 GB, region `iad`, `created`, **no attached VM**. |
@@ -38,7 +38,9 @@ Measured 2026-08-01 with the commands shown:
 
 Three consequences you must hold in your head:
 
-1. **The health-endpoint work in this repository is not deployed.** `/ready` and `/version` return 404 on the live app. Every verification step in §3 will fail against the *current* release and will only start working after the first deploy that carries `HealthController` and the two-check `fly.toml`. That first deploy is therefore not a routine deploy; treat it as the rehearsal §7 says has never happened.
+1. **The health-endpoint work is deployed as of release v14 (2026-08-01).** `/ready` returns 200 with all six checks passing, `/version` reports `git_sha` matching the deployed commit, and both `ord` machines report `2 total, 2 passing`. §3's verification steps work against the live app.
+
+   Worth recording because it is the point of the readiness split: release **v13 failed**, and it failed *correctly*. The image built and the catalog verified, but `release_identified` returned false — a compile-time `GIT_SHA` attribute had captured `unknown`, because `mix compile` runs before the Dockerfile sets that ENV. Readiness refused to serve and the machine rotated itself out instead of taking traffic under a build that could not name itself. v14 carries the fix (identity read at runtime).
 
 2. **`min_machines_running = 1` but two machines are running.** That is an unrecorded posture, not a setting. It is probably better than one machine (a rolling deploy has somewhere to send traffic), but nobody decided it and nothing in `fly.toml` asks for it. **The owner must settle this**: either raise `min_machines_running` to 2 and accept the second machine's cost deliberately, or scale down to 1 and accept that a deploy takes the whole app out of rotation for the length of one machine replacement. Leaving it as is means the next `flyctl scale` or a machine-destroying incident silently changes the deploy's blast radius.
 
@@ -497,8 +499,8 @@ Everything in this section is a claim this runbook makes that **nobody has teste
 | The GitHub Actions deploy workflow works | **Never run.** No `FLY_API_TOKEN` exists (measured 2026-08-01). The workflow has never executed its deploy job once. | Provision the token, deploy a no-op commit, read the run. |
 | The workflow's `flyctl` invocations find `app/fly.toml` | **Expected to fail.** Measured: `flyctl` run from the repository root cannot resolve the app. The workflow has no `working-directory`. | The first armed run. |
 | `--build-arg GIT_SHA` actually reaches `Release.identifier/0` | **Contradicted by local measurement** (§2). Elixir did not re-read a compile-time `System.get_env/1` without a forced recompile, on Elixir 1.20.2; the image builds on 1.18 and was not measured. | One deploy, then `curl /version`. This is the highest-value single test in this document. |
-| `/ready` and `/version` serve at all | **Never served.** Both return 404 on the live app right now. | The first deploy carrying `HealthController`. |
-| The two-check `fly.toml` behaves as intended | **Never deployed.** Live config has one check. | The first deploy carrying it. |
+| `/ready` and `/version` serve at all | **Verified** on release v14, 2026-08-01. | — |
+| The two-check `fly.toml` behaves as intended | **Partly verified.** Both machines report `2 total, 2 passing` on v14, and readiness demonstrably gated a bad build (v13). The *rotation* path under a mid-life failure is still unrehearsed. | A deliberate fault injected against a running machine. |
 | Readiness comes green within 150 seconds | **Unmeasured.** The 30 × 5 s budget is copied from `deploy.yml` and rests on nothing. | Time it on the first successful deploy and record the number. |
 | `--wait-timeout 600` is the right timeout | **Unmeasured.** No build has been timed. | Same. |
 | A rollback via `flyctl deploy --image` works | **Never performed.** Twelve forward deploys, zero rollbacks. | Deliberately roll back to v11 in a quiet window and roll forward again. |

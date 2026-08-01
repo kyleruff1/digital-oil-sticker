@@ -64,6 +64,13 @@ jobs:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       FLY_APP: digital-oil-sticker
 
+    # fly.toml lives in app/, and flyctl resolves the app from it. Without this
+    # every flyctl step below fails to find the app — a bug that would only
+    # have surfaced on the first armed run.
+    defaults:
+      run:
+        working-directory: app
+
     steps:
       - uses: actions/checkout@v4
 
@@ -135,7 +142,7 @@ jobs:
         run: |
           mkdir -p artifacts
           curl -fsS "https://$FLY_APP.fly.dev/version" > artifacts/release-identity.json || echo '{}' > artifacts/release-identity.json
-          python3 tools/release/ledger_entry.py artifacts/release-identity.json > artifacts/ledger-entry.md
+          python3 ../tools/release/ledger_entry.py artifacts/release-identity.json > artifacts/ledger-entry.md
           cat artifacts/ledger-entry.md
 
       - name: Upload release evidence
@@ -143,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-evidence
-          path: artifacts/
+          path: app/artifacts/
           retention-days: 365
 
   conformance:
