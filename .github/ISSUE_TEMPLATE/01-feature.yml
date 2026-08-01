@@ -1,0 +1,101 @@
+name: Feature
+description: Propose a scoped feature change. Roadmap work stays in the managed roadmap issues; new ideas go through change control.
+labels: ["kind:feature"]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: The observable result when this issue is done. One or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: why-unblocks
+    attributes:
+      label: Why this matters and what it unblocks
+      description: Motivation and the downstream work this enables.
+    validations:
+      required: false
+  - type: textarea
+    id: included
+    attributes:
+      label: Included
+      description: Explicit in-scope work. Anything not listed here is excluded.
+    validations:
+      required: true
+  - type: textarea
+    id: excluded
+    attributes:
+      label: Excluded
+      description: Explicitly out-of-scope work, especially adjacent temptations.
+    validations:
+      required: true
+  - type: textarea
+    id: preconditions
+    attributes:
+      label: Preconditions
+      description: Issues, decisions, or gates that must close first. Use "N/A — reason" if none.
+    validations:
+      required: false
+  - type: textarea
+    id: functional-requirements
+    attributes:
+      label: Functional requirements
+      description: Numbered FR-* requirements.
+      placeholder: |
+        FR-1: ...
+        FR-2: ...
+    validations:
+      required: false
+  - type: textarea
+    id: technical-contract
+    attributes:
+      label: Technical contract summary
+      description: Components and ownership boundaries, data/persistence, interfaces/events, failure and recovery behavior, security/privacy, accessibility/performance. Use "N/A — reason" per part rather than omitting it.
+    validations:
+      required: false
+  - type: textarea
+    id: ux-content-states
+    attributes:
+      label: UX and content states
+      description: Screens, components, and required empty/error/unknown/unsupported states, using the required terminology (for example "Estimated due date", "Source unavailable").
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Numbered AC-* criteria as a Markdown task list so they can be checked off.
+      placeholder: |
+        - [ ] AC-1: ...
+        - [ ] AC-2: ...
+    validations:
+      required: true
+  - type: textarea
+    id: test-plan
+    attributes:
+      label: Test plan
+      description: Automated tests plus the manual/device matrix when on-device behavior is affected.
+    validations:
+      required: false
+  - type: textarea
+    id: rollout-rollback
+    attributes:
+      label: Rollout and rollback
+      description: How the change ships and how it is reverted safely. Use "N/A — reason" if not applicable.
+    validations:
+      required: false
+  - type: textarea
+    id: dependency-rationale
+    attributes:
+      label: Dependency rationale
+      description: Why each blocking or blocked relationship exists.
+    validations:
+      required: false
+  - type: textarea
+    id: risks-open-questions
+    attributes:
+      label: Risks, decisions, and open questions
+      description: Known risks, pending decisions, and questions to resolve before or during the work.
+    validations:
+      required: false

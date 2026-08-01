@@ -1,0 +1,90 @@
+name: Data change
+description: Add, update, or correct catalog data. Every displayed automotive fact needs provenance and redistribution rights; nothing is invented.
+labels: ["kind:task", "needs:data-validation"]
+body:
+  - type: textarea
+    id: source-version-license
+    attributes:
+      label: Source, version, and license
+      description: Provider/document, canonical URL or locator, provider version/revision, retrieved/verified dates, and the license or terms reference.
+    validations:
+      required: true
+  - type: textarea
+    id: rights-disposition
+    attributes:
+      label: Rights disposition
+      description: Lane (government data, documented facts, or permission-needed), the permitted acquisition method, redistribution/offline-use disposition, and required attribution.
+    validations:
+      required: true
+  - type: textarea
+    id: mapping-stable-keys
+    attributes:
+      label: Mapping and stable keys
+      description: How source records map onto catalog tables and which stable keys (for example configuration_key, provider namespace/key) identify them.
+    validations:
+      required: true
+  - type: textarea
+    id: constraints-indexes
+    attributes:
+      label: Constraints and indexes
+      description: Uniqueness constraints, nullability (unknown is nullable, not false), and indexes affected or required.
+    validations:
+      required: false
+  - type: textarea
+    id: idempotency
+    attributes:
+      label: Idempotency
+      description: How re-running the import/build produces the same result without duplicates.
+    validations:
+      required: false
+  - type: textarea
+    id: rejected-row-policy
+    attributes:
+      label: Rejected-row policy
+      description: What is rejected vs. quarantined, and how the rejected-row report surfaces it. Rows are never silently dropped.
+    validations:
+      required: true
+  - type: textarea
+    id: checksums
+    attributes:
+      label: Checksums
+      description: SHA-256 (or equivalent) for acquired inputs and the produced artifact, and where they are recorded.
+    validations:
+      required: false
+  - type: textarea
+    id: coverage-report
+    attributes:
+      label: Coverage report
+      description: Coverage counts and support-status impact (identity_only, schedule_supported, full_product_supported, not_applicable, unsupported) before vs. after.
+    validations:
+      required: false
+  - type: textarea
+    id: fixture-strategy
+    attributes:
+      label: Fixture strategy
+      description: Test fixtures derived from this data. Fixtures contain no private vehicle data and only rights-cleared facts.
+    validations:
+      required: false
+  - type: textarea
+    id: update-cadence
+    attributes:
+      label: Update cadence
+      description: How and when this source is expected to be refreshed, or that it is a one-time snapshot.
+    validations:
+      required: false
+  - type: textarea
+    id: rollback-recovery
+    attributes:
+      label: Rollback and recovery
+      description: How a bad data_version is rolled back. Catalog records are immutable within one data_version; UserRepo is never touched.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance-acceptance-criteria
+    attributes:
+      label: Provenance acceptance criteria
+      description: AC-* criteria proving each shipped fact links to a data_sources row with license, version, and verification state, and that missing data surfaces as unknown/unsupported.
+      placeholder: |
+        - [ ] AC-1: ...
+    validations:
+      required: true

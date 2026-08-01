@@ -1,0 +1,46 @@
+name: Spike
+description: Timeboxed investigation. A spike produces evidence and a decision, not shipped feature code.
+labels: ["kind:spike"]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: The claim this spike tests, stated so it can be proven or disproven.
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: Timebox
+      description: Maximum effort before the spike must conclude with a decision (a bounded amount of work, not a calendar date).
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives to evaluate
+      description: The candidate approaches, sources, or tools under comparison.
+    validations:
+      required: true
+  - type: textarea
+    id: success-failure-criteria
+    attributes:
+      label: Success/failure criteria
+      description: Objective criteria that decide the outcome before work starts.
+    validations:
+      required: true
+  - type: textarea
+    id: adr-follow-ups
+    attributes:
+      label: Mandatory ADR/follow-ups
+      description: The ADR this spike must produce and the follow-up issues to file for each possible outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence-to-capture
+    attributes:
+      label: Evidence to capture
+      description: Measurements, logs, screenshots, or sample outputs that must be attached before closing.
+    validations:
+      required: false

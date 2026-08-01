@@ -1,0 +1,50 @@
+name: QA
+description: Plan and record a verification pass against a defined scope.
+labels: ["needs:qa"]
+body:
+  - type: textarea
+    id: scope-under-test
+    attributes:
+      label: Scope under test
+      description: The issues, flows, or builds this QA pass verifies, and what it does not cover.
+    validations:
+      required: true
+  - type: textarea
+    id: platforms-devices
+    attributes:
+      label: Platforms and devices
+      description: Platforms, physical devices/simulators, and OS versions in this pass. Offline (airplane mode) behavior counts as a platform condition.
+    validations:
+      required: true
+  - type: textarea
+    id: matrix-rows
+    attributes:
+      label: Matrix rows
+      description: One row per case, for example "case | platform/device | condition | result".
+      placeholder: |
+        | Case | Platform/device | Condition | Result |
+        | --- | --- | --- | --- |
+        | ... | ... | ... | pending |
+    validations:
+      required: true
+  - type: textarea
+    id: pass-fail-criteria
+    attributes:
+      label: Pass/fail criteria
+      description: Objective criteria that decide the pass, agreed before execution.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence-artifacts
+    attributes:
+      label: Evidence artifacts
+      description: Screenshots, recordings, logs, or reports to attach. Redact VIN, odometer values, and notes.
+    validations:
+      required: false
+  - type: textarea
+    id: defect-linkage
+    attributes:
+      label: Defect linkage
+      description: Bug issues filed from this pass, linked by number. Every failing row links to a defect.
+    validations:
+      required: false

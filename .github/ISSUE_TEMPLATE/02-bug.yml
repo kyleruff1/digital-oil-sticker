@@ -1,0 +1,65 @@
+name: Bug
+description: Report a defect. Redact private vehicle data before submitting.
+labels: ["kind:bug"]
+body:
+  - type: textarea
+    id: expected-vs-actual
+    attributes:
+      label: Expected vs. actual behavior
+      description: What should happen and what happens instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Reproduction steps
+      description: Minimal numbered steps from a known starting state.
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: platform-device-os
+    attributes:
+      label: Platform, device, and OS
+      description: For example "Android, Pixel 7, Android 15" or "iOS, iPhone 13, iOS 18.2".
+    validations:
+      required: true
+  - type: input
+    id: app-and-data-version
+    attributes:
+      label: App version and catalog data_version
+      description: The app build/version and the catalog data_version it was running.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (redacted)
+      description: Relevant log excerpts. Redact VIN, odometer values, and notes — no private vehicle data may appear here.
+      render: text
+    validations:
+      required: false
+  - type: input
+    id: severity
+    attributes:
+      label: Severity
+      description: "One of: blocker (core flow unusable or data loss), major (feature broken, workaround exists), minor (degraded but usable), cosmetic."
+    validations:
+      required: true
+  - type: checkboxes
+    id: regression
+    attributes:
+      label: Regression?
+      options:
+        - label: This worked in a previous build (name the last known-good build in Evidence).
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Screenshots, recordings, or other artifacts. Redact private vehicle data.
+    validations:
+      required: false
