@@ -1,0 +1,9 @@
+{
+  "normalized_sha256": "25c737989c608b11e8b1f4ed0807187a5cb63a5bfae55b3ee49318f8d763ecc4",
+  "row_counts": {
+    "makes": 64,
+    "models": 363,
+    "vin_decodes": 4,
+    "empty_model_years": 1
+  }
+}

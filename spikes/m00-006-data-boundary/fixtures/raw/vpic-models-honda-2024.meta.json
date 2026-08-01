@@ -1,0 +1,8 @@
+{
+  "name": "vpic-models-honda-2024",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/honda/modelyear/2024?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:36.104Z",
+  "sha256": "95b00ae863d6a0fa36b34aacbc359bc0e6257e9d0baee789f06e2bcbf7b96fca",
+  "content_type": "application/json"
+}

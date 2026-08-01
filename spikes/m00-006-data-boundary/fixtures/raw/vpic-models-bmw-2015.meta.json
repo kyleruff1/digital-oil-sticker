@@ -1,0 +1,8 @@
+{
+  "name": "vpic-models-bmw-2015",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/bmw/modelyear/2015?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:37.519Z",
+  "sha256": "3d10ba9f0a49902df64b327f8e865939a026e6217f4bd26207a5c175248e3f0b",
+  "content_type": "application/json"
+}

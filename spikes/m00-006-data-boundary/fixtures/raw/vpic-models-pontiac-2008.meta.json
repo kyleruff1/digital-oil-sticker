@@ -1,0 +1,8 @@
+{
+  "name": "vpic-models-pontiac-2008",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/pontiac/modelyear/2008?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:40.437Z",
+  "sha256": "ca3a96f58b4930e55b670c28fb07e8da512cd5861b4df71e0a2dbd62ca705757",
+  "content_type": "application/json"
+}

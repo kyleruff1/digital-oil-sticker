@@ -1,0 +1,8 @@
+{
+  "name": "vpic-vin-ford-f150-2013",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/1FTFW1ET5DFC10312?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:47.532Z",
+  "sha256": "ff9ad79e670c6cb722bc1fdcf8ffc456840e9b5f121ab883760c9feb79b54520",
+  "content_type": "application/json"
+}

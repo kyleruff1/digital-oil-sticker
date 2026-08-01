@@ -1,0 +1,8 @@
+{
+  "name": "feg-menu-options-2020-toyota-camry",
+  "url": "https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=2020&make=Toyota&model=Camry",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:51.995Z",
+  "sha256": "4b858e7e5f7c0d7721bc92c4e5f19e8a49b3440cf05f66540e86ec42848126d5",
+  "content_type": "application/xml"
+}

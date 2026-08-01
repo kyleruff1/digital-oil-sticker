@@ -1,0 +1,8 @@
+{
+  "name": "feg-menu-models-1997-toyota",
+  "url": "https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=1997&make=Toyota",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:53.299Z",
+  "sha256": "b74f57e45cf8a46ac7a5b089e2151a47788091ca4ddf287b454bb2c240180c0c",
+  "content_type": "application/xml"
+}

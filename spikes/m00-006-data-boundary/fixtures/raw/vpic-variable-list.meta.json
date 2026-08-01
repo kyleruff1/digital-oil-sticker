@@ -1,0 +1,8 @@
+{
+  "name": "vpic-variable-list",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetVehicleVariableList?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:30.380Z",
+  "sha256": "6247a098089a77b44ce3b52ab83e720e8ce29804e8c3978328ce87ca9746d957",
+  "content_type": "application/json"
+}

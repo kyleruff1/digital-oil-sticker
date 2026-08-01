@@ -1,0 +1,8 @@
+{
+  "name": "vpic-vin-toyota-camry-2017-checkdigit",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/4T1BF1FK5HU999999?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:50.281Z",
+  "sha256": "775f712fed5bccc3d4ee6d7c0f983c49f08c005313d1bd940019cbba2bd474f4",
+  "content_type": "application/json"
+}

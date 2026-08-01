@@ -1,0 +1,8 @@
+{
+  "name": "vpic-vin-tesla-model3-2019",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/5YJ3E1EA7KF317621?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:48.896Z",
+  "sha256": "5bcf2dcd6e9a6455664fd633ef30ce7b37c2ad947643c7106f268975dcbe1b91",
+  "content_type": "application/json"
+}

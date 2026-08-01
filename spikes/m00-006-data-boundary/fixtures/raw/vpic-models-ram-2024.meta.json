@@ -1,0 +1,8 @@
+{
+  "name": "vpic-models-ram-2024",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/ram/modelyear/2024?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:44.771Z",
+  "sha256": "9dda9893dc54fc3cfeba1457332f74ec6840b72e6564a3616b4581fc27d30e65",
+  "content_type": "application/json"
+}

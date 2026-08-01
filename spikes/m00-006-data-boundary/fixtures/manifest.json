@@ -1,0 +1,125 @@
+{
+  "generator": "spikes/m00-006-data-boundary/fetch.mjs",
+  "request_count": 17,
+  "requests": [
+    {
+      "name": "vpic-variable-list",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetVehicleVariableList?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:30.380Z",
+      "sha256": "6247a098089a77b44ce3b52ab83e720e8ce29804e8c3978328ce87ca9746d957"
+    },
+    {
+      "name": "vpic-models-toyota-1997",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/toyota/modelyear/1997?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:31.796Z",
+      "sha256": "66ef7bf242692fc20cafea7ff8a44dc7c49cb2ad0f31d73ff8dd9d9958201ba0"
+    },
+    {
+      "name": "vpic-models-toyota-2024",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/toyota/modelyear/2024?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:33.242Z",
+      "sha256": "5a1f38b370a6cf2c309823c263d4b0cdda1285ee81328a91d934e4019dca1f87"
+    },
+    {
+      "name": "vpic-models-ford-2010",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/ford/modelyear/2010?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:34.670Z",
+      "sha256": "61530bcf70dc35d2e0df2f52e827619090316f274caea70480f464e6808c1a5a"
+    },
+    {
+      "name": "vpic-models-honda-2024",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/honda/modelyear/2024?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:36.104Z",
+      "sha256": "95b00ae863d6a0fa36b34aacbc359bc0e6257e9d0baee789f06e2bcbf7b96fca"
+    },
+    {
+      "name": "vpic-models-bmw-2015",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/bmw/modelyear/2015?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:37.519Z",
+      "sha256": "3d10ba9f0a49902df64b327f8e865939a026e6217f4bd26207a5c175248e3f0b"
+    },
+    {
+      "name": "vpic-models-tesla-2024",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/tesla/modelyear/2024?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:38.958Z",
+      "sha256": "61b8535b63d89d34b5018f81df62ca4d6fb9d625ddd114d97ab4771fdaeb4f96"
+    },
+    {
+      "name": "vpic-models-pontiac-2008",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/pontiac/modelyear/2008?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:40.437Z",
+      "sha256": "ca3a96f58b4930e55b670c28fb07e8da512cd5861b4df71e0a2dbd62ca705757"
+    },
+    {
+      "name": "vpic-models-pontiac-2024",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/pontiac/modelyear/2024?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:41.882Z",
+      "sha256": "5ad81a9502ceaa7664f4d3ece4736043575adc93ee227640c1736914f953b3d2"
+    },
+    {
+      "name": "vpic-models-dodge-2009",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/dodge/modelyear/2009?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:43.294Z",
+      "sha256": "e8fe885cee9199e9a1400d709c5c11adb201fdfc47a7f0e2d45bf24efada0e41"
+    },
+    {
+      "name": "vpic-models-ram-2024",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/ram/modelyear/2024?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:44.771Z",
+      "sha256": "9dda9893dc54fc3cfeba1457332f74ec6840b72e6564a3616b4581fc27d30e65"
+    },
+    {
+      "name": "vpic-vin-bmw-x3-2011-partial",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/5UXWX7C5XBA?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:46.138Z",
+      "sha256": "040530a1663db4f2198ce6fcdd4a84efca7bc8ab26839f4262ae054388033a6d"
+    },
+    {
+      "name": "vpic-vin-ford-f150-2013",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/1FTFW1ET5DFC10312?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:47.532Z",
+      "sha256": "ff9ad79e670c6cb722bc1fdcf8ffc456840e9b5f121ab883760c9feb79b54520"
+    },
+    {
+      "name": "vpic-vin-tesla-model3-2019",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/5YJ3E1EA7KF317621?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:48.896Z",
+      "sha256": "5bcf2dcd6e9a6455664fd633ef30ce7b37c2ad947643c7106f268975dcbe1b91"
+    },
+    {
+      "name": "vpic-vin-toyota-camry-2017-checkdigit",
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/4T1BF1FK5HU999999?format=json",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:50.281Z",
+      "sha256": "775f712fed5bccc3d4ee6d7c0f983c49f08c005313d1bd940019cbba2bd474f4"
+    },
+    {
+      "name": "feg-menu-options-2020-toyota-camry",
+      "url": "https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=2020&make=Toyota&model=Camry",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:51.995Z",
+      "sha256": "4b858e7e5f7c0d7721bc92c4e5f19e8a49b3440cf05f66540e86ec42848126d5"
+    },
+    {
+      "name": "feg-menu-models-1997-toyota",
+      "url": "https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=1997&make=Toyota",
+      "status": 200,
+      "retrieved_at": "2026-08-01T05:30:53.299Z",
+      "sha256": "b74f57e45cf8a46ac7a5b089e2151a47788091ca4ddf287b454bb2c240180c0c"
+    }
+  ]
+}

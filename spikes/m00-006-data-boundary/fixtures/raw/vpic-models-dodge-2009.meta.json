@@ -1,0 +1,8 @@
+{
+  "name": "vpic-models-dodge-2009",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/dodge/modelyear/2009?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:43.294Z",
+  "sha256": "e8fe885cee9199e9a1400d709c5c11adb201fdfc47a7f0e2d45bf24efada0e41",
+  "content_type": "application/json"
+}

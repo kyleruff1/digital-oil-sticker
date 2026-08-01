@@ -1,0 +1,8 @@
+{
+  "name": "vpic-vin-bmw-x3-2011-partial",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/5UXWX7C5XBA?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:46.138Z",
+  "sha256": "040530a1663db4f2198ce6fcdd4a84efca7bc8ab26839f4262ae054388033a6d",
+  "content_type": "application/json"
+}

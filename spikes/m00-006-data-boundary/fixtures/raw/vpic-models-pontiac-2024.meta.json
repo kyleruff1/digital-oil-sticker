@@ -1,0 +1,8 @@
+{
+  "name": "vpic-models-pontiac-2024",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/pontiac/modelyear/2024?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:41.882Z",
+  "sha256": "5ad81a9502ceaa7664f4d3ece4736043575adc93ee227640c1736914f953b3d2",
+  "content_type": "application/json"
+}

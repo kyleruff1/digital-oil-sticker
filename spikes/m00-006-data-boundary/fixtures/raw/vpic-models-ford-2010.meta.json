@@ -1,0 +1,8 @@
+{
+  "name": "vpic-models-ford-2010",
+  "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/ford/modelyear/2010?format=json",
+  "status": 200,
+  "retrieved_at": "2026-08-01T05:30:34.670Z",
+  "sha256": "61530bcf70dc35d2e0df2f52e827619090316f274caea70480f464e6808c1a5a",
+  "content_type": "application/json"
+}
