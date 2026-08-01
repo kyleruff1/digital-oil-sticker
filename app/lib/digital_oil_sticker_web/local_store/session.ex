@@ -25,6 +25,10 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       |> assign(:persist_granted, nil)
       |> assign(:quota, nil)
       |> assign(:cap_error, nil)
+      # Writes the browser refused. Rendered persistently and never cleared by
+      # time or navigation: a record the user believes they saved, which was
+      # not saved, is the failure INV-24.5 exists to prevent.
+      |> assign(:unsaved_writes, [])
       |> assign(:garage, @empty_garage)
       |> assign(:catalog_budget, DigitalOilSticker.Catalog.RateLimit.new())
 
@@ -85,8 +89,19 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   Stage a mutation: assign mutation_id and seq, record it pending, push
   `local_store:put`, and arm the ack timeout. The caller renders the record
   as SAVING until the ack clears it — never as committed.
+
+  ## `:navigate_to`
+
+  Pass the destination here instead of calling `push_navigate/2` yourself.
+  Navigation then happens when the browser ACKNOWLEDGES the write, not when we
+  ask for it. The conformance suite found why this matters: navigating
+  optimistically remounts the LiveView, and the remounted process has no memory
+  of the write, so a refused write could never be reported — the user saw a
+  clean new page and believed the entry was stored.
   """
-  def stage_mutation(socket, upserts, deletes) do
+  def stage_mutation(socket, upserts, deletes, opts \\ [])
+
+  def stage_mutation(socket, upserts, deletes, opts) when is_list(opts) do
     mutation_id = generate_id()
     seq = socket.assigns.seq + 1
     payload = Envelope.build_put(mutation_id, seq, to_pairs(upserts, "record"), to_pairs(deletes, "key"))
@@ -96,7 +111,8 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
         seq: seq,
         status: :saving,
         upserts: upserts,
-        deletes: deletes
+        deletes: deletes,
+        navigate_to: Keyword.get(opts, :navigate_to)
       })
 
     Process.send_after(self(), {:local_store_ack_timeout, mutation_id}, @ack_timeout_ms)
@@ -112,8 +128,17 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   end
 
   def handle_ack(socket, %{"mutation_id" => id, "status" => "ok"}) do
-    {_write, pending} = Map.pop(socket.assigns.pending_writes, id)
-    assign(socket, :pending_writes, pending)
+    {write, pending} = Map.pop(socket.assigns.pending_writes, id)
+    socket = assign(socket, :pending_writes, pending)
+
+    case write do
+      %{navigate_to: path} when is_binary(path) -> Phoenix.LiveView.push_navigate(socket, to: path)
+      _ -> socket
+    end
+  end
+
+  def handle_ack(socket, %{"mutation_id" => id, "reason" => reason}) do
+    mark_unsaved(socket, id, reason)
   end
 
   def handle_ack(socket, %{"mutation_id" => id}) do
@@ -194,11 +219,20 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   defp store_key("meta"), do: {:singleton, :meta}
   defp store_key(_), do: :unknown
 
-  defp mark_unsaved(socket, mutation_id) do
+  defp mark_unsaved(socket, mutation_id, reason \\ nil) do
     pending =
       Map.update(socket.assigns.pending_writes, mutation_id, %{status: :unsaved}, &%{&1 | status: :unsaved})
 
-    assign(socket, :pending_writes, pending)
+    already = Enum.any?(socket.assigns.unsaved_writes, &(&1.mutation_id == mutation_id))
+
+    unsaved =
+      if already,
+        do: socket.assigns.unsaved_writes,
+        else: socket.assigns.unsaved_writes ++ [%{mutation_id: mutation_id, reason: reason}]
+
+    socket
+    |> assign(:pending_writes, pending)
+    |> assign(:unsaved_writes, unsaved)
   end
 
   defp check_version(%Envelope{schema_version: v}) do

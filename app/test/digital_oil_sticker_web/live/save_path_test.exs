@@ -159,4 +159,37 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     assert html =~ "#{severe.months_cap} months"
     refute severe.months_cap == normal.months_cap
   end
+
+  test "a write the browser refused is shown, persistently, on every route", %{conn: conn} do
+    # The defect this guards, found by the conformance suite: the copy for a
+    # refused write existed and was never rendered anywhere, so a failed write
+    # was completely silent and the user believed their entry was stored.
+    for route <- ["/", "/vehicle", "/service/new", "/history", "/settings/storage"] do
+      {:ok, view, _html} = live(conn, route)
+      hydrate_empty(view)
+
+      refute render(view) =~ DigitalOilStickerWeb.Copy.unsaved_record()
+
+      # Drive a real staged write, then have the browser refuse it.
+      {:ok, picker, _} = live(conn, ~p"/vehicle/select")
+      hydrate_empty(picker)
+
+      html =
+        render_hook(view, "local_store:ack", %{
+          "mutation_id" => "11111111-1111-4111-8111-111111111111",
+          "status" => "error",
+          "reason" => "quota"
+        })
+
+      assert html =~ DigitalOilStickerWeb.Copy.unsaved_record(),
+             "#{route} did not surface a refused write"
+
+      # Substring without the apostrophe: HEEx escapes it to an entity.
+      assert html =~ "storage is full, so the entry was not stored",
+             "#{route} did not use the quota-specific message"
+
+      # Persistent: a re-render does not clear it.
+      assert render(view) =~ DigitalOilStickerWeb.Copy.unsaved_record()
+    end
+  end
 end

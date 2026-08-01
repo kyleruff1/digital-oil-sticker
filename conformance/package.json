@@ -1,0 +1,14 @@
+{
+  "name": "dos-conformance",
+  "private": true,
+  "type": "module",
+  "description": "Storage-behavior conformance suite (DOS-M09-008). Test tree only \u2014 never shipped.",
+  "scripts": {
+    "conformance": "node bin/dos-conformance.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0",
+    "axe-core": "4.11.0"
+  }
+}

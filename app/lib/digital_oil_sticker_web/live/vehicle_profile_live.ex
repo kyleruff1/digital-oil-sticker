@@ -100,10 +100,12 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> Map.put("maintenance_plan", plan)
       |> Map.put("updated_at", DateTime.utc_now() |> DateTime.to_iso8601())
 
-    {socket, _id} = Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => updated}], [])
-    socket = put_flash(socket, :info, Copy.saving())
+    stage_opts = if opts[:navigate], do: [navigate_to: ~p"/"], else: []
 
-    if opts[:navigate], do: push_navigate(socket, to: ~p"/"), else: socket
+    {socket, _id} =
+      Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => updated}], [], stage_opts)
+
+    put_flash(socket, :info, Copy.saving())
   end
 
   @impl true
@@ -119,7 +121,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> assign(:severe_questions, severe_questions())
 
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Your vehicle</h1>
 

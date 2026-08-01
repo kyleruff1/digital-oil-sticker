@@ -27,7 +27,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Storage</h1>
 
@@ -40,14 +40,18 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
           </div>
           <div class="rounded border p-3">
             <dt class="font-semibold">Keeping storage under pressure</dt>
-            <dd>{persist_line(@persist_granted)}</dd>
-            <button
-              :if={is_nil(@persist_granted) and @storage_mode == :durable_capable}
-              phx-click="request_persist"
-              class="btn btn-sm mt-2"
-            >
-              Ask this browser to keep storage
-            </button>
+            <dd>
+              {persist_line(@persist_granted)}
+              <%!-- Inside the <dd>, not beside it: a <div> within a <dl> may
+                   contain only dt/dd groups. --%>
+              <button
+                :if={is_nil(@persist_granted) and @storage_mode == :durable_capable}
+                phx-click="request_persist"
+                class="btn btn-sm mt-2"
+              >
+                Ask this browser to keep storage
+              </button>
+            </dd>
           </div>
           <div class="rounded border p-3">
             <dt class="font-semibold">Space</dt>
@@ -61,7 +65,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
 
         <button phx-click="export" class="btn btn-primary mt-6">Export a file</button>
 
-        <p class="mt-8 text-xs text-zinc-400">{Copy.no_affiliation()}</p>
+        <p class="mt-8 text-xs text-zinc-600">{Copy.no_affiliation()}</p>
       </div>
     </Layouts.app>
     """

@@ -178,13 +178,13 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
       Session.stage_mutation(
         socket,
         [%{"store" => "events", "record" => event}, %{"store" => "readings", "record" => reading}],
-        []
+        [],
+        navigate_to: ~p"/"
       )
 
     socket
     |> assign(:submitted_token, socket.assigns.form_token)
     |> put_flash(:info, Copy.saving())
-    |> push_navigate(to: ~p"/")
   end
 
   defp find_duplicate(garage, event) do
@@ -272,7 +272,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   def render(assigns) do
     assigns = assigns |> assign(:notes_limit, @notes_limit) |> grade_assigns()
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Log an oil change</h1>
 

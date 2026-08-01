@@ -1,0 +1,95 @@
+name: Browser conformance
+
+# The Tier 1 gate (DOS-M09-008 FR-20, AC-18). The runner exits non-zero on any
+# Tier 1 result that is not a pass — including an engine that could not be
+# launched — so "we did not run it" can never reach a release as "it is fine".
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Deployed application to run against
+        required: true
+        default: https://digital-oil-sticker.fly.dev
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'conformance/**'
+      - 'docs/quality/SUPPORT_MATRIX.md'
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install suite
+        working-directory: conformance
+        run: npm ci --no-audit --no-fund
+
+      # The suite's own tests: matrix/runner correspondence, and proof that the
+      # report writer treats `unproven` as blocking.
+      - name: Test the suite itself
+        working-directory: conformance
+        run: npm test
+
+      # All three engines, always. Installing only what a previous run happened
+      # to cache would turn a missing engine into a silent skip.
+      - name: Install engines
+        working-directory: conformance
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run conformance
+        working-directory: conformance
+        run: |
+          node bin/dos-conformance.mjs \
+            --base-url "${{ github.event.inputs.base_url || 'https://digital-oil-sticker.fly.dev' }}" \
+            --release "${{ github.sha }}"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-report
+          path: conformance/reports/*.json
+          retention-days: 90
+
+  # Proves the gate itself still blocks. A gate nobody has seen fail is a gate
+  # nobody knows works.
+  red-run-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install suite
+        working-directory: conformance
+        run: npm ci --no-audit --no-fund
+
+      - name: Install engine
+        working-directory: conformance
+        run: npx playwright install --with-deps chromium
+
+      - name: A deliberate failure must block
+        working-directory: conformance
+        run: |
+          if node bin/dos-conformance.mjs \
+               --base-url "${{ github.event.inputs.base_url || 'https://digital-oil-sticker.fly.dev' }}" \
+               --release "rehearsal-${{ github.sha }}" \
+               --engine chromium \
+               --rehearse-red; then
+            echo "::error::the red-run rehearsal exited 0 — the release gate does not block"
+            exit 1
+          fi
+          echo "gate blocked as expected"

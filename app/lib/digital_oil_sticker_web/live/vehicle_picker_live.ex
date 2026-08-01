@@ -79,8 +79,15 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
         "updated_at" => now
       }
 
-      {socket, _mutation_id} = Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => vehicle}], [])
-      {:noreply, push_navigate(socket, to: ~p"/vehicle")}
+      # Navigation is handed to the ack: if this browser refuses the write we
+      # stay here and say so, instead of landing on a clean page that implies
+      # the vehicle was stored.
+      {socket, _mutation_id} =
+        Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => vehicle}], [],
+          navigate_to: ~p"/vehicle"
+        )
+
+      {:noreply, socket}
     else
       _ -> {:noreply, put_flash(socket, :error, "Choose a vehicle first, and make sure storage is available.")}
     end
@@ -89,7 +96,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
       <div>
         <h1 class="text-2xl font-bold">Choose a vehicle</h1>
 

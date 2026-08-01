@@ -8,7 +8,9 @@
     <link rel="icon" href={~p"/favicon.ico"} sizes="any" />
     <link rel="icon" href={~p"/images/dos-favicon.svg"} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={~p"/images/apple-touch-icon.png"} />
-    <link rel="manifest" href={~p"/site.webmanifest"} />
+    <%!-- No web app manifest: PWA is deferred by INV-6/INV-17/INV-19 and its
+         go/no-go is DOS-M09-009. Linking one here would quietly change what
+         the app promises about installability and offline use. --%>
     <meta name="theme-color" content="#159447" />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>

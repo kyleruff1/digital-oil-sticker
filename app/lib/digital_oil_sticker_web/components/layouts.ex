@@ -31,6 +31,10 @@ defmodule DigitalOilStickerWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://phoenix.hexdocs.pm/scopes.html)"
 
+  attr :unsaved_writes, :list,
+    default: [],
+    doc: "writes this browser refused; rendered persistently and never auto-dismissed"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -40,15 +44,35 @@ defmodule DigitalOilStickerWeb.Layouts do
          hydration is per-mount by construction (INV-24 / ADR-0004). --%>
     <div id="local-store" phx-hook="LocalStore" aria-hidden="true"></div>
 
-    <header class="navbar px-4 sm:px-6 lg:px-8">
+    <%!-- A write the browser refused. Deliberately not dismissible and not on a
+         timer: the entry is on screen but is not stored, and the user has to be
+         able to see that for as long as it is true (INV-24.5). --%>
+    <div
+      :if={@unsaved_writes != []}
+      id="unsaved-writes"
+      role="alert"
+      data-test="unsaved-writes"
+      class="border-b-2 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+    >
+      <p class="font-semibold">{DigitalOilStickerWeb.Copy.unsaved_record()}</p>
+      <p class="mt-1">{unsaved_body(@unsaved_writes)}</p>
+      <.link navigate={~p"/settings/storage"} class="btn btn-sm mt-2">Export a file</.link>
+    </div>
+
+    <%!-- Wraps rather than scrolling: at 320px a single-row navbar overflowed
+         the viewport, which is the WCAG 1.4.10 reflow failure. --%>
+    <header class="navbar flex-wrap gap-y-1 px-4 sm:px-6 lg:px-8">
       <div class="flex-1">
-        <.link navigate={~p"/"} class="flex-1 flex w-fit items-center gap-2">
+        <.link navigate={~p"/"} class="flex w-fit items-center gap-2">
           <img src={~p"/images/dos-mark.svg"} width="36" alt="" />
           <span class="text-sm font-semibold">Digital Oil Sticker</span>
         </.link>
       </div>
-      <nav class="flex-none" aria-label="Main menu">
-        <ul class="flex flex-column px-1 space-x-2 items-center">
+      <%!-- Full width on narrow viewports so the list has a boundary to wrap
+           against; `flex-none` alone sizes the nav to its content, which is how
+           it kept overflowing at 320px. --%>
+      <nav class="w-full sm:w-auto sm:flex-none" aria-label="Main menu">
+        <ul class="flex flex-wrap items-center gap-x-2 gap-y-1 px-1">
           <li><.link navigate={~p"/vehicle"} class="btn btn-ghost btn-sm">Vehicle</.link></li>
           <li><.link navigate={~p"/service/new"} class="btn btn-ghost btn-sm">Log oil change</.link></li>
           <li><.link navigate={~p"/history"} class="btn btn-ghost btn-sm">History</.link></li>
@@ -117,6 +141,16 @@ defmodule DigitalOilStickerWeb.Layouts do
     """
   end
 
+  # Quota gets its own sentence because "your browser is full" and "the write
+  # failed" call for different actions from the user.
+  defp unsaved_body(unsaved) do
+    if Enum.any?(unsaved, &(&1.reason in ["quota", "quota_exceeded", "QuotaExceededError"])) do
+      DigitalOilStickerWeb.Copy.quota_full()
+    else
+      DigitalOilStickerWeb.Copy.not_saved_body()
+    end
+  end
+
   @doc """
   Provides dark vs light theme toggle based on themes defined in app.css.
 
@@ -131,6 +165,7 @@ defmodule DigitalOilStickerWeb.Layouts do
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="system"
+        aria-label="Follow the system theme"
       >
         <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
@@ -139,6 +174,7 @@ defmodule DigitalOilStickerWeb.Layouts do
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="light"
+        aria-label="Use the light theme"
       >
         <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
@@ -147,6 +183,7 @@ defmodule DigitalOilStickerWeb.Layouts do
         class="flex p-2 cursor-pointer w-1/3"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="dark"
+        aria-label="Use the dark theme"
       >
         <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>

@@ -31,7 +31,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
     assigns = assign(assigns, :view, derive_view(assigns))
 
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes}>
       <div class="mx-auto max-w-2xl">
         <.sticker
           :if={@view.mode in [:skeleton, :sticker]}
@@ -70,7 +70,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
           <.link navigate={~p"/history"} class="btn btn-ghost">History</.link>
         </div>
 
-        <p :if={@view.mode == :sticker} class="mt-6 text-center text-xs text-zinc-400">
+        <p :if={@view.mode == :sticker} class="mt-6 text-center text-xs text-zinc-600">
           {Copy.does_not_notify()}
         </p>
       </div>
