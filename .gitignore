@@ -17,3 +17,4 @@ app/deps/
 app/*.db
 app/*.db-*
 app/priv/static/assets/
+tools/catalog/data/raw/

@@ -1,0 +1,9 @@
+{
+  "name": "dos-catalog-pipeline",
+  "private": true,
+  "type": "module",
+  "description": "Digital Oil Sticker catalog data pipeline: courteous acquisition, normalization, crosswalk, deterministic SQLite compile, quality gates. Build-side only; never runs in the request path.",
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,1004 @@
+{
+  "generated_from": [
+    "vpic GetMakesForVehicleType car/mpv/truck",
+    "fueleconomy.gov vehicles.csv"
+  ],
+  "window": [
+    1997,
+    2026
+  ],
+  "tier": "A",
+  "approved": true,
+  "makes": [
+    {
+      "normalized": "acura",
+      "display": "Acura",
+      "vpic_make_id": 475,
+      "vpic_name": "ACURA",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "alfaromeo",
+      "display": "Alfa Romeo",
+      "vpic_make_id": 493,
+      "vpic_name": "ALFA ROMEO",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 13,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "astonmartin",
+      "display": "Aston Martin",
+      "vpic_make_id": 440,
+      "vpic_name": "ASTON MARTIN",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 28,
+      "tier": "B"
+    },
+    {
+      "normalized": "audi",
+      "display": "Audi",
+      "vpic_make_id": 582,
+      "vpic_name": "AUDI",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "azuredynamics",
+      "display": "Azure Dynamics",
+      "vpic_make_id": 1533,
+      "vpic_name": "AZURE DYNAMICS",
+      "types": [
+        "truck"
+      ],
+      "feg_window_years": 1,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "bentley",
+      "display": "Bentley",
+      "vpic_make_id": 583,
+      "vpic_name": "BENTLEY",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 29,
+      "tier": "B"
+    },
+    {
+      "normalized": "bmw",
+      "display": "BMW",
+      "vpic_make_id": 452,
+      "vpic_name": "BMW",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "bugatti",
+      "display": "Bugatti",
+      "vpic_make_id": 454,
+      "vpic_name": "BUGATTI",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 16,
+      "tier": "B"
+    },
+    {
+      "normalized": "buick",
+      "display": "Buick",
+      "vpic_make_id": 468,
+      "vpic_name": "BUICK",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "byd",
+      "display": "BYD",
+      "vpic_make_id": 1991,
+      "vpic_name": "BYD",
+      "types": [
+        "car",
+        "truck"
+      ],
+      "feg_window_years": 7,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "cadillac",
+      "display": "Cadillac",
+      "vpic_make_id": 469,
+      "vpic_name": "CADILLAC",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "chevrolet",
+      "display": "Chevrolet",
+      "vpic_make_id": 467,
+      "vpic_name": "CHEVROLET",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "chrysler",
+      "display": "Chrysler",
+      "vpic_make_id": 477,
+      "vpic_name": "CHRYSLER",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "daewoo",
+      "display": "Daewoo",
+      "vpic_make_id": 1077,
+      "vpic_name": "DAEWOO",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 7,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "dodge",
+      "display": "Dodge",
+      "vpic_make_id": 476,
+      "vpic_name": "DODGE",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "eagle",
+      "display": "Eagle",
+      "vpic_make_id": 2408,
+      "vpic_name": "EAGLE",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 2,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "ferrari",
+      "display": "Ferrari",
+      "vpic_make_id": 603,
+      "vpic_name": "FERRARI",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "fiat",
+      "display": "Fiat",
+      "vpic_make_id": 492,
+      "vpic_name": "FIAT",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 15,
+      "tier": "B"
+    },
+    {
+      "normalized": "fisker",
+      "display": "Fisker",
+      "vpic_make_id": 11856,
+      "vpic_name": "FISKER",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 3,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "ford",
+      "display": "Ford",
+      "vpic_make_id": 460,
+      "vpic_name": "FORD",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "genesis",
+      "display": "Genesis",
+      "vpic_make_id": 5083,
+      "vpic_name": "GENESIS",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 10,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "geo",
+      "display": "Geo",
+      "vpic_make_id": 1146,
+      "vpic_name": "GEO",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 1,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "gmc",
+      "display": "GMC",
+      "vpic_make_id": 472,
+      "vpic_name": "GMC",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "honda",
+      "display": "Honda",
+      "vpic_make_id": 474,
+      "vpic_name": "HONDA",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "hummer",
+      "display": "Hummer",
+      "vpic_make_id": 951,
+      "vpic_name": "HUMMER",
+      "types": [
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 5,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "hyundai",
+      "display": "Hyundai",
+      "vpic_make_id": 498,
+      "vpic_name": "HYUNDAI",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "infiniti",
+      "display": "Infiniti",
+      "vpic_make_id": 480,
+      "vpic_name": "INFINITI",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "isuzu",
+      "display": "Isuzu",
+      "vpic_make_id": 542,
+      "vpic_name": "ISUZU",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 13,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "jaguar",
+      "display": "Jaguar",
+      "vpic_make_id": 442,
+      "vpic_name": "JAGUAR",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "jeep",
+      "display": "Jeep",
+      "vpic_make_id": 483,
+      "vpic_name": "JEEP",
+      "types": [
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "kandi",
+      "display": "Kandi",
+      "vpic_make_id": 2018,
+      "vpic_name": "KANDI",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 1,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "karma",
+      "display": "Karma",
+      "vpic_make_id": 5122,
+      "vpic_name": "KARMA",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 4,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "kia",
+      "display": "Kia",
+      "vpic_make_id": 499,
+      "vpic_name": "KIA",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "koenigsegg",
+      "display": "Koenigsegg",
+      "vpic_make_id": 1896,
+      "vpic_name": "KOENIGSEGG",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 3,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "lamborghini",
+      "display": "Lamborghini",
+      "vpic_make_id": 502,
+      "vpic_name": "LAMBORGHINI",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 29,
+      "tier": "B"
+    },
+    {
+      "normalized": "landrover",
+      "display": "Land Rover",
+      "vpic_make_id": 444,
+      "vpic_name": "LAND ROVER",
+      "types": [
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "lexus",
+      "display": "Lexus",
+      "vpic_make_id": 515,
+      "vpic_name": "LEXUS",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "lincoln",
+      "display": "Lincoln",
+      "vpic_make_id": 464,
+      "vpic_name": "LINCOLN",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "lordstown",
+      "display": "Lordstown",
+      "vpic_make_id": 10768,
+      "vpic_name": "LORDSTOWN",
+      "types": [
+        "truck"
+      ],
+      "feg_window_years": 1,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "lotus",
+      "display": "Lotus",
+      "vpic_make_id": 466,
+      "vpic_name": "LOTUS",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 25,
+      "tier": "B"
+    },
+    {
+      "normalized": "lucid",
+      "display": "Lucid",
+      "vpic_make_id": 10919,
+      "vpic_name": "LUCID",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 5,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "mahindra",
+      "display": "Mahindra",
+      "vpic_make_id": 2146,
+      "vpic_name": "MAHINDRA",
+      "types": [
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 1,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "maserati",
+      "display": "Maserati",
+      "vpic_make_id": 443,
+      "vpic_name": "MASERATI",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 25,
+      "tier": "B"
+    },
+    {
+      "normalized": "maybach",
+      "display": "Maybach",
+      "vpic_make_id": 533,
+      "vpic_name": "MAYBACH",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 9,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "mazda",
+      "display": "Mazda",
+      "vpic_make_id": 473,
+      "vpic_name": "MAZDA",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "mercedesbenz",
+      "display": "Mercedes-Benz",
+      "vpic_make_id": 449,
+      "vpic_name": "MERCEDES-BENZ",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "mercury",
+      "display": "Mercury",
+      "vpic_make_id": 465,
+      "vpic_name": "MERCURY",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 15,
+      "tier": "B"
+    },
+    {
+      "normalized": "mini",
+      "display": "MINI",
+      "vpic_make_id": 456,
+      "vpic_name": "MINI",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 25,
+      "tier": "B"
+    },
+    {
+      "normalized": "mitsubishi",
+      "display": "Mitsubishi",
+      "vpic_make_id": 481,
+      "vpic_name": "MITSUBISHI",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "morgan",
+      "display": "Morgan",
+      "vpic_make_id": 539,
+      "vpic_name": "MORGAN",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 2,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "nissan",
+      "display": "Nissan",
+      "vpic_make_id": 478,
+      "vpic_name": "NISSAN",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "oldsmobile",
+      "display": "Oldsmobile",
+      "vpic_make_id": 4162,
+      "vpic_name": "OLDSMOBILE",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 8,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "pagani",
+      "display": "Pagani",
+      "vpic_make_id": 4767,
+      "vpic_name": "PAGANI",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 5,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "plymouth",
+      "display": "Plymouth",
+      "vpic_make_id": 2409,
+      "vpic_name": "PLYMOUTH",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 5,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "polestar",
+      "display": "Polestar",
+      "vpic_make_id": 10224,
+      "vpic_name": "POLESTAR",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 7,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "pontiac",
+      "display": "Pontiac",
+      "vpic_make_id": 536,
+      "vpic_name": "PONTIAC",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 14,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "porsche",
+      "display": "Porsche",
+      "vpic_make_id": 584,
+      "vpic_name": "PORSCHE",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "ram",
+      "display": "Ram",
+      "vpic_make_id": 496,
+      "vpic_name": "RAM",
+      "types": [
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 15,
+      "tier": "B"
+    },
+    {
+      "normalized": "rivian",
+      "display": "Rivian",
+      "vpic_make_id": 10887,
+      "vpic_name": "RIVIAN",
+      "types": [
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 5,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "rollsroyce",
+      "display": "Rolls-Royce",
+      "vpic_make_id": 445,
+      "vpic_name": "ROLLS-ROYCE",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 29,
+      "tier": "B"
+    },
+    {
+      "normalized": "saab",
+      "display": "Saab",
+      "vpic_make_id": 572,
+      "vpic_name": "SAAB",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 16,
+      "tier": "B"
+    },
+    {
+      "normalized": "saturn",
+      "display": "Saturn",
+      "vpic_make_id": 1056,
+      "vpic_name": "SATURN",
+      "types": [
+        "car",
+        "mpv"
+      ],
+      "feg_window_years": 14,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "shelby",
+      "display": "Shelby",
+      "vpic_make_id": 11832,
+      "vpic_name": "SHELBY",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 1,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "smart",
+      "display": "smart",
+      "vpic_make_id": 504,
+      "vpic_name": "SMART",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 12,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "spyker",
+      "display": "Spyker",
+      "vpic_make_id": 3766,
+      "vpic_name": "SPYKER",
+      "types": [
+        "car"
+      ],
+      "feg_window_years": 6,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "sti",
+      "display": "STI",
+      "vpic_make_id": 9610,
+      "vpic_name": "S.T.I",
+      "types": [
+        "truck"
+      ],
+      "feg_window_years": 1,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "subaru",
+      "display": "Subaru",
+      "vpic_make_id": 523,
+      "vpic_name": "SUBARU",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "suzuki",
+      "display": "Suzuki",
+      "vpic_make_id": 509,
+      "vpic_name": "SUZUKI",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 17,
+      "tier": "B"
+    },
+    {
+      "normalized": "tesla",
+      "display": "Tesla",
+      "vpic_make_id": 441,
+      "vpic_name": "TESLA",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 15,
+      "tier": "B"
+    },
+    {
+      "normalized": "toyota",
+      "display": "Toyota",
+      "vpic_make_id": 448,
+      "vpic_name": "TOYOTA",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "vinfast",
+      "display": "Vinfast",
+      "vpic_make_id": 11366,
+      "vpic_name": "VINFAST",
+      "types": [
+        "mpv"
+      ],
+      "feg_window_years": 3,
+      "tier": "A-only"
+    },
+    {
+      "normalized": "volkswagen",
+      "display": "Volkswagen",
+      "vpic_make_id": 482,
+      "vpic_name": "VOLKSWAGEN",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    },
+    {
+      "normalized": "volvo",
+      "display": "Volvo",
+      "vpic_make_id": 485,
+      "vpic_name": "VOLVO",
+      "types": [
+        "car",
+        "mpv",
+        "truck"
+      ],
+      "feg_window_years": 30,
+      "tier": "B"
+    }
+  ],
+  "quarantine": [
+    {
+      "normalized": "bmwalpina",
+      "display": "BMW Alpina",
+      "feg_window_years": 3,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "bugattirimac",
+      "display": "Bugatti Rimac",
+      "feg_window_years": 3,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "codaautomotive",
+      "display": "CODA Automotive",
+      "feg_window_years": 2,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "ineosautomotive",
+      "display": "INEOS Automotive",
+      "feg_window_years": 3,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "londontaxi",
+      "display": "London Taxi",
+      "feg_window_years": 1,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "mclarenautomotive",
+      "display": "McLaren Automotive",
+      "feg_window_years": 11,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "mobilityventuresllc",
+      "display": "Mobility Ventures LLC",
+      "feg_window_years": 3,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "quantumtechnologies",
+      "display": "Quantum Technologies",
+      "feg_window_years": 2,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "qvale",
+      "display": "Qvale",
+      "feg_window_years": 1,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "roushperformance",
+      "display": "Roush Performance",
+      "feg_window_years": 20,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "rufautomobile",
+      "display": "RUF Automobile",
+      "feg_window_years": 4,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "saleenperformance",
+      "display": "Saleen Performance",
+      "feg_window_years": 2,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "scion",
+      "display": "Scion",
+      "feg_window_years": 13,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "srt",
+      "display": "SRT",
+      "feg_window_years": 2,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "tecstarlp",
+      "display": "Tecstar, LP",
+      "feg_window_years": 1,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "vector",
+      "display": "Vector",
+      "feg_window_years": 1,
+      "reason": "no vPIC light-duty make match"
+    },
+    {
+      "normalized": "vpg",
+      "display": "VPG",
+      "feg_window_years": 3,
+      "reason": "no vPIC light-duty make match"
+    }
+  ],
+  "excluded_count": 333,
+  "approval_basis": "Owner planning review rev 2 (2026-08-01): proceed now with the complete vPIC year/make/model catalog. Tier A criteria approved at plan approval; junk/heavy-commercial absence verified. Scion resolves via aliases (absent from vPIC)."
+}
