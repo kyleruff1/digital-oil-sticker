@@ -1,6 +1,6 @@
 # Digital Oil Sticker — Product Constitution
 
-**Revision:** 1.0.0-rc1 (unratified draft) · **Owner workstream:** Product · **Implements:** [DOS-M00-001](https://github.com/kyleruff1/digital-oil-sticker/issues/2)
+**Revision:** 1.0.0 · **Ratified:** 2026-07-31 · **Owner workstream:** Product · **Implements:** [DOS-M00-001](https://github.com/kyleruff1/digital-oil-sticker/issues/2)
 
 This is the precedence document for the Digital Oil Sticker product. Every subsequent issue cites the invariant it implements or is bound by; when tickets conflict, this document prevails and the discovery becomes a new issue or ADR (change control, [CHANGE_CONTROL.md](../governance/CHANGE_CONTROL.md)). Amendments require a new ratified revision with fresh sign-off — never in-place edits that keep an old sign-off attached.
 
@@ -106,8 +106,10 @@ One unchanged revision is reviewed by the representatives below; ratification is
 
 | Role | Representative | Status |
 | --- | --- | --- |
-| Product | kyleruff1 | pending |
-| Engineering | kyleruff1 | pending |
-| Design | kyleruff1 | pending |
-| Data | kyleruff1 | pending |
-| QA | kyleruff1 | pending |
+| Product | kyleruff1 | ratified 2026-07-31 (revision 1.0.0) |
+| Engineering | kyleruff1 | ratified 2026-07-31 (revision 1.0.0) |
+| Design | kyleruff1 | ratified 2026-07-31 (revision 1.0.0) |
+| Data | kyleruff1 | ratified 2026-07-31 (revision 1.0.0) |
+| QA | kyleruff1 | ratified 2026-07-31 (revision 1.0.0) |
+
+Ratification was recorded by the owner in the working session of 2026-07-31; provisional targets in §9 carry their own ratification dates and re-ratify on measurement (DOS-M00-002/003/004).
