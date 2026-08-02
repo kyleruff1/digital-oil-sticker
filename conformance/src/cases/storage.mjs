@@ -179,10 +179,20 @@ export const cases = [
       } catch {
         // Staying on the form is a legitimate response to a failed write.
       }
-      await page.waitForTimeout(3000)
+      // Poll rather than sample once. The notice arrives after an IndexedDB
+      // round trip plus a server ack, and how long that takes differs per
+      // engine — sampling at a fixed delay failed on CI's WebKit while passing
+      // locally, which is a property of the harness, not of the application.
+      let honest = false
+      let text = ''
+      const deadline = Date.now() + 25_000
 
-      const text = await page.innerText('body')
-      const honest = /Not saved to this browser|storage is full|could not be used/i.test(text)
+      while (Date.now() < deadline) {
+        text = await page.innerText('body').catch(() => '')
+        honest = /Not saved to this browser|storage is full|could not be used/i.test(text)
+        if (honest) break
+        await page.waitForTimeout(500)
+      }
 
       if (!honest) {
         return {
