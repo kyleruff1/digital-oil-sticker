@@ -134,6 +134,14 @@ defmodule DigitalOilStickerWeb.Copy do
     "About #{miles} miles or #{months} months after each oil change, whichever comes first."
   end
 
+  # Rendered on the sticker qualifier and next to the intake recommendation
+  # when the oil is app-chosen (defaulted), never user-touched. Says WHOSE
+  # answer produced the number honestly — the app's assumption, not the
+  # user's choice — and points to where they change it.
+  def assumed_oil_note do
+    "Our estimate, assuming full synthetic — change it at intake if that's not what goes in."
+  end
+
   def unknown_oil_qualifier do
     "The shortest interval we model for this engine — record what oil goes in " <>
       "to extend it."

@@ -248,13 +248,22 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     end
   end
 
+  # Only `"selected"` plans pre-fill this form. A plan that carries a
+  # `"defaulted"` oil (app-chosen at intake, never user-touched) is not a
+  # fact about what the user pours into the engine, so pre-filling from it
+  # would risk saving the app's assumption as the user's record of what
+  # went in. If the intake was defaulted, the user picks the oil here.
+  defp planned_selected?(assigns), do: planned(assigns)["planned_oil"] == "selected"
+
   # Once the form has been touched, the assigns hold what the rendered
   # controls showed (the change params absorb the pre-fill), so the fallback
   # stops — otherwise clearing a pre-filled field is impossible.
   defp effective_base_stock(%{form_touched?: true} = assigns), do: assigns.base_stock
 
-  defp effective_base_stock(assigns),
-    do: assigns.base_stock || planned(assigns)["planned_base_stock"]
+  defp effective_base_stock(assigns) do
+    assigns.base_stock ||
+      if planned_selected?(assigns), do: planned(assigns)["planned_base_stock"]
+  end
 
   defp effective_listed_grade(%{form_touched?: true} = assigns), do: assigns.grade
 
@@ -262,10 +271,11 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   # suggested list, since that is what renders before any interaction. A
   # planned grade outside it (or a manual one) starts unselected: pre-selecting
   # a value the visible options do not contain shows "Choose…" on screen while
-  # saving the invisible value underneath.
+  # saving the invisible value underneath. Same "selected" gate as base stock:
+  # a defaulted plan's grade is not pre-filled here.
   defp effective_listed_grade(assigns) do
     assigns.grade ||
-      case planned(assigns)["planned_grade"] do
+      case planned_selected?(assigns) && planned(assigns)["planned_grade"] do
         grade when is_binary(grade) ->
           if Enum.any?(assigns.suggested_grades, &(&1.code == grade)), do: grade
 
@@ -376,6 +386,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
             manual_grade?={@manual_grade?}
             manual_grade={@manual_grade}
             engine_class_name={@engine_class_name}
+            show_miles_range?
           />
 
           <div class="grid grid-cols-2 gap-2">

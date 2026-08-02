@@ -90,12 +90,17 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     assert vehicle["archived"] == false
     assert is_binary(vehicle["vehicle_id"])
 
-    # The default answer travels with the vehicle: this is what the sticker's
-    # recommendation and the log form's pre-fill are derived from. Full
-    # synthetic is the default because it produces the longest defensible
-    # interval for every engine class we model — the user who leaves it alone
-    # gets the model's upper bound, and the user who knows better shortens it.
-    assert vehicle["maintenance_plan"]["planned_oil"] == "selected"
+    # The default answer travels with the vehicle: this is what the sticker
+    # renders an estimate from. Full synthetic is the default because it
+    # produces the longest defensible interval for every engine class we
+    # model — the user who leaves it alone gets the model's upper bound.
+    #
+    # planned_oil records "defaulted" here (not "selected"): the user never
+    # touched the oil form, so this is the app's assumption, not their
+    # answer. Downstream, the sticker qualifier labels the estimate as
+    # "assuming" instead of "based on", and the log form does not pre-fill
+    # from this plan — the user must actively pick their oil there.
+    assert vehicle["maintenance_plan"]["planned_oil"] == "defaulted"
     assert vehicle["maintenance_plan"]["planned_base_stock"] == "full_synthetic"
     assert is_binary(vehicle["maintenance_plan"]["planned_grade"])
 

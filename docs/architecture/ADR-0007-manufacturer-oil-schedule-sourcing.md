@@ -1,6 +1,6 @@
 # ADR-0007 — Manufacturer oil-schedule sourcing lane
 
-**Status:** Accepted in part — 2026-08-02 (lane and spike authorization decided; three questions remain open) · **Cites:** INV-11, INV-15, INV-16, INV-20, INV-21 ([CONSTITUTION.md](../product/CONSTITUTION.md)) · **Governed by:** [FACTUAL_USE_AND_MARKS_POLICY.md](../data/FACTUAL_USE_AND_MARKS_POLICY.md), [RECOMMENDATION_CLAIMS_POLICY.md](../product/RECOMMENDATION_CLAIMS_POLICY.md), [DOS-M03-001](../../planning/issues/DOS-M03-001.md) rights matrix
+**Status:** Accepted in part — 2026-08-02 (lane and spike authorization decided; four questions remain open) · **Cites:** INV-11, INV-15, INV-16, INV-20, INV-21 ([CONSTITUTION.md](../product/CONSTITUTION.md)) · **Governed by:** [FACTUAL_USE_AND_MARKS_POLICY.md](../data/FACTUAL_USE_AND_MARKS_POLICY.md), [RECOMMENDATION_CLAIMS_POLICY.md](../product/RECOMMENDATION_CLAIMS_POLICY.md), [DOS-M03-001](../../planning/issues/DOS-M03-001.md) rights matrix
 
 > **Owner decision, 2026-08-02.** Lane **(b)** — commercial license — is the chosen sourcing lane. The DOS-M03-007 §FR-2 sample/contract spike with MOTOR (or approved equivalent) is authorized to begin: capture delivery format, authentication, rate limits, change semantics, measured coverage over the shipped 33,273-configuration corpus, provider vehicle IDs, one-time and update pricing, and every embedding/retention/hosted-serving/termination right; write everything back into [DOS-M03-001](../../planning/issues/DOS-M03-001.md).
 >

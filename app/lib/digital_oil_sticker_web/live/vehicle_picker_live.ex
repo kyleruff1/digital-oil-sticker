@@ -109,8 +109,16 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
         do: auto_grade_for(socket.assigns),
         else: grade
 
+    # `oil_touched?` distinguishes an app-defaulted answer from a user-chosen
+    # one. Any dispatched oil-form change flips it — the user opened the form
+    # and made (or accepted) a choice. It never flips back to false. Downstream
+    # this decides whether the saved plan reads `"selected"` or `"defaulted"`,
+    # which in turn decides whether the log form pre-fills from the plan and
+    # whether the sticker attributes the number to the user's answer or to
+    # the app's assumption.
     {:noreply,
      socket
+     |> assign(:oil_touched?, true)
      |> assign(:oil_unknown?, unknown?)
      |> assign(:base_stock, new_base_stock)
      |> assign(grade: grade, show_all_grades?: show_all?, manual_grade?: manual?)
@@ -209,14 +217,23 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   defp planned_oil(_socket, :not_applicable), do: nil
 
   defp planned_oil(socket, _status) do
-    if socket.assigns.oil_unknown? do
-      %{"planned_oil" => "unknown"}
-    else
-      %{
-        "planned_oil" => "selected",
-        "planned_base_stock" => socket.assigns.base_stock,
-        "planned_grade" => effective_grade(socket.assigns)
-      }
+    cond do
+      socket.assigns.oil_unknown? ->
+        %{"planned_oil" => "unknown"}
+
+      # `"defaulted"` records that the plan carries an APP-CHOSEN oil, not a
+      # user-answered one — apply_oil_defaults filled it and the user never
+      # touched the oil form. Downstream: the log form does not pre-fill from
+      # a defaulted plan (or the pre-fill would masquerade as the user's
+      # answer about what they poured in), and the sticker qualifier labels
+      # the estimate as "assuming" rather than "based on". "selected" is
+      # reserved for a plan the user consciously chose or confirmed.
+      true ->
+        %{
+          "planned_oil" => if(socket.assigns.oil_touched?, do: "selected", else: "defaulted"),
+          "planned_base_stock" => socket.assigns.base_stock,
+          "planned_grade" => effective_grade(socket.assigns)
+        }
     end
   end
 
@@ -313,16 +330,34 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
               />
             </form>
 
+            <%!-- Live region: the recommendation number changes as the user
+                 arrows through the base-stock radios or picks a different
+                 grade, and sighted users track it in their peripheral vision.
+                 Without aria-live a screen-reader user hears nothing when
+                 the number below their current focus recomputes — the whole
+                 comparison signal per-option previews used to carry is lost.
+                 role=status + polite is the pattern this file already uses
+                 for the cascade count above. --%>
             <p
               :if={recommendation(assigns)}
               class="mt-3 rounded border border-emerald-700/40 p-3 text-sm"
               data-test="intake-recommendation"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
             >
               <span class="font-semibold">{recommendation(assigns)}</span>
               <br />
               <span class="text-xs text-base-content/70">
-                {Copy.our_model_label()}, not manufacturer guidance. Severe-service driving
-                shortens it — you can answer that on the vehicle page.
+                <%= cond do %>
+                  <% @oil_unknown? -> %>
+                    {Copy.unknown_oil_qualifier()}
+                  <% not @oil_touched? -> %>
+                    {Copy.assumed_oil_note()}
+                  <% true -> %>
+                    {Copy.our_model_label()}, not manufacturer guidance. Severe-service driving
+                    shortens it — you can answer that on the vehicle page.
+                <% end %>
               </span>
             </p>
           </div>
@@ -378,7 +413,8 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
       grade: nil,
       show_all_grades?: false,
       manual_grade?: false,
-      manual_grade: nil
+      manual_grade: nil,
+      oil_touched?: false
     )
   end
 

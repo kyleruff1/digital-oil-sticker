@@ -25,7 +25,8 @@ defmodule DigitalOilSticker.Due do
 
   @metres_per_mile 1609.344
 
-  @type oil_basis :: :event | :planned | :unknown_oil | :none
+  @type oil_basis ::
+          :event | :planned | :planned_default | :unknown_oil | :none
 
   @type t :: %{
           due_on: Date.t() | nil,
@@ -148,9 +149,15 @@ defmodule DigitalOilSticker.Due do
     end
   end
 
+  # Same math either way — the interval for THIS oil, on THIS engine — but
+  # `:planned` versus `:planned_default` records whether the user chose it or
+  # the app defaulted it, so the sticker qualifier can label the estimate
+  # honestly. A defaulted plan still produces a due date because it is more
+  # useful than dashes; the label carries the caveat.
   defp planned_stage(plan, class, condition) do
     if is_binary(plan["planned_base_stock"]) do
-      {OilModel.interval(class, plan["planned_base_stock"], condition), :planned}
+      basis = if plan["planned_oil"] == "selected", do: :planned, else: :planned_default
+      {OilModel.interval(class, plan["planned_base_stock"], condition), basis}
     end
   end
 

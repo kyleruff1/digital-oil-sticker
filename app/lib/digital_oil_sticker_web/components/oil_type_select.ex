@@ -19,6 +19,17 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
   attr :base_stocks, :list, required: true
   attr :base_stock, :string, default: nil
 
+  attr :show_miles_range?, :boolean,
+    default: false,
+    doc: """
+    Whether to render the generic "X–Y miles typical" line under each base
+    stock option. False on the intake picker, where a calculated result for
+    THIS vehicle × THIS oil appears in a live region above; true on the log
+    form, where no such calculated recommendation is rendered and per-option
+    ranges are the only in-place context for a user trying to confirm the
+    right radio from a receipt.
+    """
+
   attr :unknown_option?, :boolean,
     default: false,
     doc: """
@@ -57,12 +68,17 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
               checked={@base_stock == stock.code}
               class="mt-1"
             />
-            <%!-- Just the name. The generic "X–Y miles typical" range under
-                 each option previewed the answer BEFORE the user had asked a
-                 question of it; the estimate should read as a calculated
-                 result of THIS vehicle × THIS oil, shown once above after
-                 selection, not four hypothetical previews shown before. --%>
-            <span class="block text-sm font-semibold">{stock.display_name}</span>
+            <%!-- The per-option "X–Y miles typical" range is a generic hint,
+                 not a calculated result for THIS vehicle. Off on intake where
+                 a live calculated recommendation is rendered above; on for
+                 the log form where there is no such recommendation and the
+                 range is the only in-place context. --%>
+            <span>
+              <span class="block text-sm font-semibold">{stock.display_name}</span>
+              <span :if={@show_miles_range?} class="block text-xs text-base-content/70">
+                {Copy.miles_range(stock.published_miles_low, stock.published_miles_high)}
+              </span>
+            </span>
           </label>
 
           <label

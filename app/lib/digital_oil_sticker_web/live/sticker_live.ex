@@ -416,6 +416,16 @@ defmodule DigitalOilStickerWeb.StickerLive do
   defp qualifier_for(_event, %{oil_basis: :unknown_oil, resolved: %{basis: :our_model}}),
     do: "#{Copy.estimated_due_date()} — #{Copy.unknown_oil_qualifier()}"
 
+  # The plan holds an APP-CHOSEN oil (never user-touched at intake). Attribute
+  # honestly: the number is our estimate, ASSUMING that oil, not "based on
+  # your answer." Same math the picker's recommendation showed; the label
+  # keeps the assumption visible on every subsequent render.
+  defp qualifier_for(
+         _event,
+         %{oil_basis: :planned_default, resolved: %{basis: :our_model, miles: mi, months: mo}}
+       ),
+       do: "#{Copy.estimated_due_date()} — #{ceiling_line(mi, mo)}. #{Copy.assumed_oil_note()}"
+
   defp qualifier_for(_event, %{resolved: resolved}), do: qualifier(resolved)
 
   # The sticker never shows a number without saying whose interval it is.
