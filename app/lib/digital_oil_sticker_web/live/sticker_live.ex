@@ -20,10 +20,89 @@ defmodule DigitalOilStickerWeb.StickerLive do
   import DigitalOilStickerWeb.Components.StickerQr
   alias DigitalOilSticker.{Due, StickerCode}
   alias DigitalOilStickerWeb.{Copy, Hosts}
+  alias DigitalOilStickerWeb.LocalStore.Session
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Digital Oil Sticker")}
+    {:ok,
+     socket
+     |> assign(:page_title, "Digital Oil Sticker")
+     |> assign(:garage_open?, false)
+     |> assign(:confirm_delete_vehicle, nil)}
+  end
+
+  @impl true
+  def handle_event("toggle_garage", _params, socket) do
+    {:noreply, update(socket, :garage_open?, &(not &1))}
+  end
+
+  def handle_event("switch_vehicle", %{"vehicle-id" => id}, socket) do
+    if Session.mutations_enabled?(socket) do
+      prefs =
+        (socket.assigns.garage.prefs || %{})
+        |> Map.put("active_vehicle_id", id)
+
+      {socket, _mutation_id} =
+        Session.stage_mutation(socket, [%{"store" => "prefs", "record" => prefs}], [])
+
+      {:noreply, assign(socket, :garage_open?, false)}
+    else
+      {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+    end
+  end
+
+  def handle_event("ask_delete_vehicle", %{"vehicle-id" => id}, socket) do
+    {:noreply, assign(socket, :confirm_delete_vehicle, id)}
+  end
+
+  def handle_event("cancel_delete_vehicle", _params, socket) do
+    {:noreply, assign(socket, :confirm_delete_vehicle, nil)}
+  end
+
+  def handle_event("confirm_delete_vehicle", _params, socket) do
+    id = socket.assigns.confirm_delete_vehicle
+    garage = socket.assigns.garage
+
+    with true <- is_binary(id),
+         true <- Session.mutations_enabled?(socket) do
+      # The vehicle's dependent records go WITH it, in the same mutation.
+      # Leaving them behind would strand orphans that the next hydration
+      # quarantines — the deleted vehicle's oil changes surfacing forever as
+      # "could not read some records".
+      deletes =
+        [%{"store" => "vehicles", "key" => id}] ++
+          dependent_deletes(garage.events, "event_id", "events", id) ++
+          dependent_deletes(garage.readings, "reading_id", "readings", id) ++
+          dependent_deletes(garage.usage, "usage_id", "usage", id) ++
+          dependent_deletes(garage.reminders, "reminder_id", "reminders", id)
+
+      # If the deleted vehicle was the explicitly chosen one, the stored choice
+      # is cleared in the same write rather than left dangling.
+      upserts =
+        case garage.prefs do
+          %{"active_vehicle_id" => ^id} = prefs ->
+            [%{"store" => "prefs", "record" => Map.delete(prefs, "active_vehicle_id")}]
+
+          _ ->
+            []
+        end
+
+      {socket, _mutation_id} = Session.stage_mutation(socket, upserts, deletes)
+
+      {:noreply, assign(socket, :confirm_delete_vehicle, nil)}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> assign(:confirm_delete_vehicle, nil)
+         |> put_flash(:error, Copy.session_only_banner())}
+    end
+  end
+
+  defp dependent_deletes(records, id_key, store, vehicle_id) do
+    records
+    |> Enum.filter(&(&1["vehicle_id"] == vehicle_id))
+    |> Enum.map(&%{"store" => store, "key" => &1[id_key]})
   end
 
   @impl true
@@ -33,6 +112,107 @@ defmodule DigitalOilStickerWeb.StickerLive do
     ~H"""
     <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div class="mx-auto max-w-2xl">
+        <%!-- Which vehicle this sticker is about, as a description rather than
+             a labelled form: "2015 BMW 328i", not "Year: 2015 Make: BMW". The
+             folder opens the rest of the garage. --%>
+        <div :if={@view.vehicle} class="mb-3" data-test="vehicle-bar">
+          <button
+            type="button"
+            phx-click="toggle_garage"
+            aria-expanded={to_string(@garage_open?)}
+            aria-controls="garage-panel"
+            class="btn btn-ghost btn-sm gap-2 px-2 text-base font-semibold normal-case"
+          >
+            <.icon
+              name={if @garage_open?, do: "hero-folder-open", else: "hero-folder"}
+              class="size-5"
+            />
+            {vehicle_desc(@view.vehicle)}
+          </button>
+
+          <div
+            :if={@garage_open?}
+            id="garage-panel"
+            class="mt-2 rounded border p-3"
+            data-test="garage-panel"
+          >
+            <p class="text-xs font-semibold uppercase tracking-wide text-base-content/70">
+              {Copy.other_vehicles()}
+            </p>
+            <ul class="mt-2 space-y-1">
+              <li
+                :for={vehicle <- @view.garage_vehicles}
+                class="flex items-center justify-between gap-2"
+              >
+                <button
+                  :if={vehicle["vehicle_id"] != @view.vehicle["vehicle_id"]}
+                  type="button"
+                  phx-click="switch_vehicle"
+                  phx-value-vehicle-id={vehicle["vehicle_id"]}
+                  class="btn btn-ghost btn-sm grow justify-start normal-case"
+                  data-test="switch-vehicle"
+                >
+                  {vehicle_desc(vehicle)}
+                </button>
+                <span
+                  :if={vehicle["vehicle_id"] == @view.vehicle["vehicle_id"]}
+                  class="grow px-3 py-1 text-sm font-semibold"
+                >
+                  {vehicle_desc(vehicle)}
+                  <span class="ml-1 text-xs font-normal text-base-content/70">(showing)</span>
+                </span>
+                <button
+                  type="button"
+                  phx-click="ask_delete_vehicle"
+                  phx-value-vehicle-id={vehicle["vehicle_id"]}
+                  class="btn btn-ghost btn-sm"
+                  aria-label={"Remove #{vehicle_desc(vehicle)}"}
+                  data-test="ask-delete-vehicle"
+                >
+                  <.icon name="hero-trash" class="size-4" />
+                </button>
+              </li>
+            </ul>
+            <.link navigate={~p"/vehicle/select"} class="btn btn-ghost btn-sm mt-2 gap-1 normal-case">
+              <.icon name="hero-plus" class="size-4" /> {Copy.add_vehicle()}
+            </.link>
+          </div>
+        </div>
+
+        <div
+          :if={@confirm_delete_vehicle}
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-vehicle-title"
+          data-test="delete-vehicle-modal"
+        >
+          <div class="w-full max-w-sm rounded-lg bg-base-100 p-6 shadow-xl">
+            <h2 id="delete-vehicle-title" class="text-lg font-bold">
+              {Copy.delete_vehicle_heading()}
+            </h2>
+            <p class="mt-2 text-sm leading-relaxed">
+              {Copy.delete_vehicle_body(
+                vehicle_desc(find_vehicle(@garage, @confirm_delete_vehicle)),
+                deletable_event_count(@garage, @confirm_delete_vehicle)
+              )}
+            </p>
+            <div class="mt-5 flex justify-end gap-2">
+              <button type="button" phx-click="cancel_delete_vehicle" class="btn btn-ghost">
+                Cancel
+              </button>
+              <button
+                type="button"
+                phx-click="confirm_delete_vehicle"
+                class="btn btn-error"
+                data-test="confirm-delete-vehicle"
+              >
+                Remove from this browser
+              </button>
+            </div>
+          </div>
+        </div>
+
         <.sticker
           :if={@view.mode in [:skeleton, :sticker]}
           skeleton={@view.mode == :skeleton}
@@ -106,7 +286,9 @@ defmodule DigitalOilStickerWeb.StickerLive do
     grade: nil,
     changed: nil,
     qualifier: nil,
-    qr: nil
+    qr: nil,
+    vehicle: nil,
+    garage_vehicles: []
   }
 
   # Pure view derivation from the hydration state + garage.
@@ -122,12 +304,12 @@ defmodule DigitalOilStickerWeb.StickerLive do
   end
 
   defp sticker_view(garage) do
-    vehicle = active_vehicle(garage)
+    vehicle = Session.active_vehicle(garage)
 
     if vehicle == nil do
       %{@blank | mode: :empty}
     else
-      last = last_event(garage, vehicle["vehicle_id"])
+      last = Session.last_oil_change(garage, vehicle["vehicle_id"])
       due = Due.compute(vehicle, last)
 
       %{
@@ -138,10 +320,45 @@ defmodule DigitalOilStickerWeb.StickerLive do
           grade: grade_of(last),
           changed: due.changed_on && Calendar.strftime(due.changed_on, "%b %d, %Y"),
           qualifier: qualifier_for(last, due),
-          qr: qr_for(vehicle, last)
+          qr: qr_for(vehicle, last),
+          vehicle: vehicle,
+          garage_vehicles: Enum.reject(garage.vehicles, &(&1["archived"] == true))
       }
     end
   end
+
+  # "2015 BMW 328i · LE", not a labelled form. The nickname wins when the user
+  # gave one; a placeholder build ("2015 — Not specified") adds nothing to the
+  # description and is dropped from it.
+  defp vehicle_desc(nil), do: ""
+
+  defp vehicle_desc(vehicle) do
+    case vehicle["nickname"] do
+      name when is_binary(name) and name != "" ->
+        name
+
+      _ ->
+        snap = vehicle["display_snapshot"] || %{}
+        build = snap["build"]
+
+        head =
+          [snap["year"], snap["make"], snap["model"]]
+          |> Enum.reject(&is_nil/1)
+          |> Enum.join(" ")
+
+        if is_binary(build) and build != "" and not String.contains?(build, Copy.not_specified()) do
+          "#{head} · #{build}"
+        else
+          head
+        end
+    end
+  end
+
+  defp find_vehicle(garage, id),
+    do: Enum.find(garage.vehicles, &(&1["vehicle_id"] == id))
+
+  defp deletable_event_count(garage, id),
+    do: Enum.count(garage.events, &(&1["vehicle_id"] == id))
 
   # The scannable form of what the sticker shows.
   #
@@ -171,23 +388,17 @@ defmodule DigitalOilStickerWeb.StickerLive do
     end
   end
 
-  defp active_vehicle(garage) do
-    garage.vehicles
-    |> Enum.reject(&(&1["archived"] == true))
-    |> List.first()
-  end
-
-  defp last_event(garage, vehicle_id) do
-    garage.events
-    |> Enum.filter(&(&1["vehicle_id"] == vehicle_id))
-    |> Enum.sort_by(&{&1["performed_at"], &1["event_id"]}, :desc)
-    |> List.first()
-  end
-
   # The numbers come from DigitalOilSticker.Due; saying WHOSE interval produced
   # them is a sourcing claim (INV-20/21) and stays here, with the copy catalog.
   defp qualifier_for(nil, _due), do: "No oil change recorded yet."
   defp qualifier_for(_event, %{resolved: :not_applicable}), do: Copy.not_applicable_ev()
+
+  # The oil type was answered "I don't know yet" at intake, so the number is
+  # the model's floor for this engine — a distinct claim from a modelled
+  # interval, and one worth its own sentence.
+  defp qualifier_for(_event, %{oil_basis: :unknown_oil}),
+    do: "#{Copy.estimated_due_date()} — #{Copy.unknown_oil_qualifier()}"
+
   defp qualifier_for(_event, %{resolved: resolved}), do: qualifier(resolved)
 
   # The sticker never shows a number without saying whose interval it is.

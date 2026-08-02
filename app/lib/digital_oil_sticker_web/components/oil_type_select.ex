@@ -18,6 +18,17 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
 
   attr :base_stocks, :list, required: true
   attr :base_stock, :string, default: nil
+
+  attr :unknown_option?, :boolean,
+    default: false,
+    doc: """
+    Offer "I don't know yet" as an answer. Used at vehicle intake, where the
+    honest alternative to a known oil is the model's floor for the engine —
+    never a guessed stock. The log form does not offer it: an oil change that
+    happened involved a real oil.
+    """
+
+  attr :unknown?, :boolean, default: false
   attr :suggested_grades, :list, default: []
   attr :other_grades, :list, default: []
   attr :grade, :string, default: nil
@@ -53,10 +64,32 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
               </span>
             </span>
           </label>
+
+          <label
+            :if={@unknown_option?}
+            class={[
+              "flex min-h-11 cursor-pointer items-start gap-2 rounded border px-3 py-2",
+              @unknown? && "border-2 border-emerald-700"
+            ]}
+          >
+            <input
+              type="radio"
+              name="oil[base_stock]"
+              value="__unknown__"
+              checked={@unknown?}
+              class="mt-1"
+            />
+            <span>
+              <span class="block text-sm font-semibold">{Copy.intake_oil_unknown()}</span>
+              <span class="block text-xs text-base-content/70">
+                {Copy.intake_oil_unknown_note()}
+              </span>
+            </span>
+          </label>
         </div>
       </fieldset>
 
-      <div>
+      <div :if={not @unknown?}>
         <label for="oil-grade" class="mb-1 block text-sm font-semibold">Grade (viscosity)</label>
 
         <select

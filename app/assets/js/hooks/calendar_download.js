@@ -20,8 +20,13 @@ export const CalendarDownload = {
   download(event) {
     event.preventDefault()
 
-    const ics = this.el.dataset.ics
-    if (!ics) return
+    const raw = this.el.dataset.ics
+    if (!raw) return
+
+    // Re-normalized to CRLF regardless of what the attribute round-trip did to
+    // the line endings: RFC 5545 requires CRLF, and some calendar clients
+    // reject a bare-LF file outright.
+    const ics = raw.replace(/\r?\n/g, "\r\n")
 
     const url = URL.createObjectURL(new Blob([ics], {type: "text/calendar;charset=utf-8"}))
     const link = document.createElement("a")

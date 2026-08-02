@@ -132,6 +132,46 @@ defmodule DigitalOilSticker.Catalog.OilModel do
     do: interval(code, stock, condition)
 
   @doc """
+  The interval for a vehicle whose oil type is NOT known: the shortest interval
+  this class gets across every base stock we model.
+
+  This exists so "I don't know what oil is in it yet" can be an answer instead
+  of a dead end. It must never be treated as a fifth base stock — nothing is
+  recorded as conventional, synthetic, or anything else. The number is simply
+  the floor of the model for this engine, which is the only claim that stays
+  true whichever oil turns out to be in the crankcase.
+  """
+  def unknown_oil_interval(class_code, condition_code \\ "normal") do
+    case engine_class(class_code) do
+      %{engine_oil: "not_applicable"} ->
+        :not_applicable
+
+      _ ->
+        base_stocks()
+        |> Enum.map(&interval(class_code, &1.code, condition_code))
+        |> Enum.flat_map(fn
+          {:ok, rule} -> [rule]
+          _ -> []
+        end)
+        |> Enum.min_by(& &1.miles_recommended, fn -> nil end)
+        |> case do
+          nil ->
+            {:error, :no_modelled_interval}
+
+          rule ->
+            {:ok,
+             %{
+               rule
+               | basis: :unknown_oil_floor,
+                 reasoning:
+                   "The type of oil is not recorded, so this is the shortest interval we model " <>
+                     "for this engine across every oil type. Recording the oil extends it."
+             }}
+        end
+    end
+  end
+
+  @doc """
   Every interval we model for one engine class, as a table the settings screen
   can render so the user can see the model rather than just its output.
   """

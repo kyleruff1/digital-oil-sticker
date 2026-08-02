@@ -56,7 +56,11 @@ defmodule DigitalOilSticker.LocalStore.Schema.V1 do
                  condition effective_from effective_to created_at updated_at)
   @reminder_keys ~w(reminder_id vehicle_id kind lead_value lead_unit preferred_time
                     enabled created_at updated_at)
-  @prefs_keys ~w(unit_system time_zone onboarding_version display dismissed_notices)
+  # `active_vehicle_id` was added after v1 shipped. Additive, so no version
+  # bump: an older payload without it validates unchanged, and an older
+  # deployment reading a newer payload carries it through `__unknown__`.
+  @prefs_keys ~w(unit_system time_zone onboarding_version display dismissed_notices
+                 active_vehicle_id)
   @meta_keys ~w(schema_version seq created_at last_write_at write_count persist_granted log)
 
   @type result :: {:ok, map()} | {:error, atom()}

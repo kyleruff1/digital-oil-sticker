@@ -25,6 +25,8 @@ defmodule DigitalOilSticker.Due do
 
   @metres_per_mile 1609.344
 
+  @type oil_basis :: :event | :planned | :unknown_oil | :none
+
   @type t :: %{
           due_on: Date.t() | nil,
           due_odometer_m: non_neg_integer() | nil,
@@ -32,7 +34,8 @@ defmodule DigitalOilSticker.Due do
           date_text: String.t() | nil,
           mileage_text: String.t() | nil,
           resolved: map() | :not_applicable | nil,
-          changed_on: Date.t() | nil
+          changed_on: Date.t() | nil,
+          oil_basis: oil_basis()
         }
 
   @empty %{
@@ -42,7 +45,8 @@ defmodule DigitalOilSticker.Due do
     date_text: nil,
     mileage_text: nil,
     resolved: nil,
-    changed_on: nil
+    changed_on: nil,
+    oil_basis: :none
   }
 
   @doc """
@@ -59,8 +63,9 @@ defmodule DigitalOilSticker.Due do
   def compute(vehicle, event) do
     unit = unit_of(event)
     changed_on = performed_date(event)
+    {model, oil_basis} = model_interval(vehicle, event)
 
-    case IntervalPolicy.for_vehicle(vehicle["maintenance_plan"] || %{}, model_interval(vehicle, event)) do
+    case IntervalPolicy.for_vehicle(vehicle["maintenance_plan"] || %{}, model) do
       :not_applicable ->
         %{@empty | unit: unit, resolved: :not_applicable, changed_on: changed_on}
 
@@ -75,7 +80,8 @@ defmodule DigitalOilSticker.Due do
           date_text: due_on && Calendar.strftime(due_on, "%b %d, %Y"),
           mileage_text: due_m && format_mileage(due_m, unit),
           resolved: resolved,
-          changed_on: changed_on
+          changed_on: changed_on,
+          oil_basis: oil_basis
         }
     end
   end
@@ -93,15 +99,32 @@ defmodule DigitalOilSticker.Due do
 
   # -- internals ---------------------------------------------------------------
 
-  # Our model needs to know what went in last time; without a base stock we
-  # cannot pick a rule, and guessing one would be inventing the input.
+  # Which oil the model reasons from, in order of how much we actually know:
+  #
+  #   1. what the last change RECORDS went in — a fact about this engine,
+  #   2. what the intake step says the vehicle USES — the user's standing answer,
+  #   3. "not known yet" from intake — the model's floor for this engine class,
+  #      never a guessed stock (guessing would invent the input).
+  #
+  # Also returns which of those it was, because "this number is the floor until
+  # you record the oil" is a claim the sticker page must be able to make.
   defp model_interval(vehicle, event) do
-    case event["oil_base_stock"] do
-      stock when is_binary(stock) ->
-        OilModel.interval(vehicle["engine_class_code"], stock, service_condition(vehicle))
+    class = vehicle["engine_class_code"]
+    condition = service_condition(vehicle)
+    plan = vehicle["maintenance_plan"] || %{}
 
-      _ ->
-        nil
+    cond do
+      is_map(event) and is_binary(event["oil_base_stock"]) ->
+        {OilModel.interval(class, event["oil_base_stock"], condition), :event}
+
+      is_binary(plan["planned_base_stock"]) ->
+        {OilModel.interval(class, plan["planned_base_stock"], condition), :planned}
+
+      plan["planned_oil"] == "unknown" ->
+        {OilModel.unknown_oil_interval(class, condition), :unknown_oil}
+
+      true ->
+        {nil, :none}
     end
   end
 

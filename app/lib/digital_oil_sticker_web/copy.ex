@@ -115,6 +115,56 @@ defmodule DigitalOilStickerWeb.Copy do
       "what is stored in this browser."
   end
 
+  # --- The oil step at vehicle intake -----------------------------------------
+  def intake_oil_heading, do: "What oil does it use?"
+
+  def intake_oil_why do
+    "The type of oil is what sets how far an interval can stretch, so choosing " <>
+      "it here is what lets us put a number on the sticker."
+  end
+
+  def intake_oil_unknown, do: "I don't know yet"
+
+  def intake_oil_unknown_note do
+    "You will get the shortest interval we model for this engine until an oil " <>
+      "change records what actually went in."
+  end
+
+  def recommendation_line(miles, months) do
+    "About #{miles} miles or #{months} months after each oil change, whichever comes first."
+  end
+
+  def unknown_oil_qualifier do
+    "The shortest interval we model for this engine — record what oil goes in " <>
+      "to extend it."
+  end
+
+  # --- The vehicle switcher ----------------------------------------------------
+  def other_vehicles, do: "Other vehicles"
+  def add_vehicle, do: "Add a vehicle"
+  def delete_vehicle_heading, do: "Remove this vehicle?"
+
+  def delete_vehicle_body(vehicle_desc, event_count) do
+    "This removes #{vehicle_desc} and its #{event_count} recorded " <>
+      "#{if event_count == 1, do: "oil change", else: "oil changes"} from this browser. " <>
+      "There is no copy anywhere else, so this cannot be recovered."
+  end
+
+  # --- The calendar reminder ---------------------------------------------------
+  def reminder_heading, do: "Reminder"
+
+  def reminder_body do
+    "Your calendar can remind you before the estimated due date. The event " <>
+      "carries the date and the estimate only — your records stay in this browser."
+  end
+
+  def reminder_lead_label, do: "Remind me"
+  def reminder_download, do: "Add to my calendar"
+
+  def reminder_needs_change do
+    "Log an oil change first — the reminder is measured from it."
+  end
+
   # --- Cascade / catalog states ----------------------------------------------
   def choose_upstream(level), do: "Choose a #{level} first."
   def loading, do: "Loading…"

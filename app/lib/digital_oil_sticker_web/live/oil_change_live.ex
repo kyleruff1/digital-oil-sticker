@@ -155,8 +155,16 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
     # Provenance is about the GRADE: one we list is "catalog", one the user
     # typed is "manual". Base stock is always a choice from our fixed list.
+    #
+    # The effective_* helpers, not the raw assigns: the form pre-fills from the
+    # intake step's standing answer, and what is SAVED must be what the form
+    # SHOWS. Reading the raw assign here would save nil for a user who accepted
+    # the pre-filled oil without touching it — a record disagreeing with the
+    # screen it was saved from.
     {grade, provenance} =
-      if a.manual_grade?, do: {a.manual_grade, "manual"}, else: {a.grade, "catalog"}
+      if a.manual_grade?,
+        do: {a.manual_grade, "manual"},
+        else: {effective_listed_grade(a), "catalog"}
 
     %{
       "event_id" => Ecto.UUID.generate(),
@@ -165,7 +173,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
       "odometer_m" => metres,
       "odometer_input_value" => a.odo_value,
       "input_unit" => a.odo_unit,
-      "oil_base_stock" => a.base_stock,
+      "oil_base_stock" => effective_base_stock(a),
       "oil_viscosity" => grade,
       "filter_text" => a.filter_text,
       "notes" => a.notes,
@@ -217,8 +225,38 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     end
   end
 
-  defp active_vehicle(garage),
-    do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
+  defp active_vehicle(garage), do: Session.active_vehicle(garage)
+
+  # -- pre-fill from the intake step -------------------------------------------
+  #
+  # The intake step records what oil the vehicle USES; until the user touches
+  # the oil controls on this form, that standing answer is the form's answer.
+  # Both render and save go through these helpers so the record can never
+  # disagree with the screen.
+
+  defp planned(assigns) do
+    case active_vehicle(assigns.garage) do
+      %{"maintenance_plan" => plan} when is_map(plan) -> plan
+      _ -> %{}
+    end
+  end
+
+  defp effective_base_stock(assigns),
+    do: assigns.base_stock || planned(assigns)["planned_base_stock"]
+
+  # Only a grade we actually list pre-selects. A manual grade from intake would
+  # need this form silently switched into manual mode to show it — implicit
+  # state a user did not ask for — so it simply starts unselected instead.
+  defp effective_listed_grade(assigns) do
+    assigns.grade ||
+      case planned(assigns)["planned_grade"] do
+        grade when is_binary(grade) ->
+          if Enum.any?(OilModel.grades(), &(&1.code == grade)), do: grade
+
+        _ ->
+          nil
+      end
+  end
 
   # Grades filtered to the vehicle's engine class, with the rest one control
   # away. An unclassified vehicle gets no suggestions rather than another
@@ -314,10 +352,10 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
           <.oil_type_select
             base_stocks={@base_stocks}
-            base_stock={@base_stock}
+            base_stock={effective_base_stock(assigns)}
             suggested_grades={@suggested_grades}
             other_grades={@other_grades}
-            grade={@grade}
+            grade={effective_listed_grade(assigns)}
             show_all_grades?={@show_all_grades?}
             manual_grade?={@manual_grade?}
             manual_grade={@manual_grade}

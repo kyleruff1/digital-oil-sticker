@@ -11,6 +11,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   alias DigitalOilStickerWeb.Layouts
 
   import DigitalOilStickerWeb.Components.CascadeSelect
+  import DigitalOilStickerWeb.Components.OilTypeSelect
   alias DigitalOilSticker.Catalog
   alias DigitalOilSticker.Catalog.{OilModel, Selector}
   alias DigitalOilStickerWeb.Components.Badges
@@ -30,6 +31,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
      socket
      |> assign(:page_title, "Choose a vehicle")
      |> assign(:years, years)
+     |> assign(:base_stocks, OilModel.base_stocks())
      |> assign(:catalog_error, if(years == [], do: :catalog_unavailable))
      |> reset_cascade(:year)}
   end
@@ -52,17 +54,36 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
         model_id != socket.assigns.model_id ->
           socket |> reset_cascade(:model) |> assign(:model_id, model_id) |> load_configs()
 
+        config_key != socket.assigns.configuration_key ->
+          # A different build can mean a different engine class, which means a
+          # different grade suggestion and a different recommendation. Oil
+          # answers do not survive a change of engine.
+          socket |> reset_oil() |> assign(:configuration_key, config_key)
+
         true ->
-          assign(socket, :configuration_key, config_key)
+          socket
       end
 
     {:noreply, socket}
+  end
+
+  def handle_event("oil_change", %{"oil" => oil}, socket) do
+    {grade, show_all?, manual?} = grade_choice(oil["grade"], socket.assigns)
+    unknown? = oil["base_stock"] == "__unknown__"
+
+    {:noreply,
+     socket
+     |> assign(:oil_unknown?, unknown?)
+     |> assign(:base_stock, if(unknown?, do: nil, else: presence(oil["base_stock"])))
+     |> assign(grade: grade, show_all_grades?: show_all?, manual_grade?: manual?)
+     |> assign(:manual_grade, presence(oil["manual_grade"]))}
   end
 
   def handle_event("confirm", _params, socket) do
     with key when is_binary(key) <- socket.assigns.configuration_key,
          {:ok, sel} <- Selector.validate(:get_configuration, %{"configuration_key" => key}),
          {:ok, result} when not is_nil(result.data) <- Catalog.get_configuration(sel),
+         :ok <- oil_answered(socket, result.status),
          true <- Session.mutations_enabled?(socket) do
       config = result.data
       vehicle_id = Ecto.UUID.generate()
@@ -82,7 +103,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
         "engine_class_code" => config.engine_class_code,
         "oil_model_version" => OilModel.model_version(),
         "archived" => false,
-        "maintenance_plan" => nil,
+        "maintenance_plan" => planned_oil(socket, result.status),
         "created_at" => now,
         "updated_at" => now
       }
@@ -90,18 +111,59 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
       # Navigation is handed to the ack: if this browser refuses the write we
       # stay here and say so, instead of landing on a clean page that implies
       # the vehicle was stored.
+      #
+      # An oil-serviced vehicle routes to logging its most recent change: the
+      # recommendation shown above is an interval, and it only becomes a date
+      # and a mileage on the sticker once there is a change to measure from.
       {socket, _mutation_id} =
         Session.stage_mutation(socket, [%{"store" => "vehicles", "record" => vehicle}], [],
-          navigate_to: ~p"/vehicle"
+          navigate_to:
+            if(result.status == :not_applicable, do: ~p"/vehicle", else: ~p"/service/new")
         )
 
       {:noreply, socket}
     else
+      {:error, :oil_unanswered} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Choose what oil the vehicle uses first — it sets the interval."
+         )}
+
       _ ->
         {:noreply,
          put_flash(socket, :error, "Choose a vehicle first, and make sure storage is available.")}
     end
   end
+
+  # The oil step cannot be skipped (a vehicle with no oil service has nothing
+  # to answer). "I don't know yet" counts: it is an answer, resolved to the
+  # model's floor for the engine, not an absence.
+  defp oil_answered(_socket, :not_applicable), do: :ok
+
+  defp oil_answered(socket, _status) do
+    if socket.assigns.oil_unknown? or is_binary(socket.assigns.base_stock),
+      do: :ok,
+      else: {:error, :oil_unanswered}
+  end
+
+  defp planned_oil(_socket, :not_applicable), do: nil
+
+  defp planned_oil(socket, _status) do
+    if socket.assigns.oil_unknown? do
+      %{"planned_oil" => "unknown"}
+    else
+      %{
+        "planned_oil" => "selected",
+        "planned_base_stock" => socket.assigns.base_stock,
+        "planned_grade" => effective_grade(socket.assigns)
+      }
+    end
+  end
+
+  defp effective_grade(%{manual_grade?: true, manual_grade: manual}), do: manual
+  defp effective_grade(%{grade: grade}), do: grade
 
   @impl true
   def render(assigns) do
@@ -172,7 +234,47 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
             } />
           </p>
           <p class="mt-2 text-xs text-base-content/70">{confirm_note(assigns)}</p>
-          <button phx-click="confirm" class="btn btn-primary mt-4" data-test="confirm-vehicle">
+
+          <div :if={selected_status(assigns) != :not_applicable} class="mt-5" data-test="intake-oil">
+            <h3 class="font-semibold">{Copy.intake_oil_heading()}</h3>
+            <p class="mt-1 text-xs text-base-content/70">{Copy.intake_oil_why()}</p>
+
+            <form id="intake-oil-form" phx-change="oil_change" class="mt-3">
+              <.oil_type_select
+                base_stocks={@base_stocks}
+                base_stock={@base_stock}
+                suggested_grades={elem(picker_grades(assigns), 0)}
+                other_grades={elem(picker_grades(assigns), 1)}
+                grade={@grade}
+                show_all_grades?={@show_all_grades?}
+                manual_grade?={@manual_grade?}
+                manual_grade={@manual_grade}
+                engine_class_name={engine_class_name(assigns)}
+                unknown_option?
+                unknown?={@oil_unknown?}
+              />
+            </form>
+
+            <p
+              :if={recommendation(assigns)}
+              class="mt-3 rounded border border-emerald-700/40 p-3 text-sm"
+              data-test="intake-recommendation"
+            >
+              <span class="font-semibold">{recommendation(assigns)}</span>
+              <br />
+              <span class="text-xs text-base-content/70">
+                {Copy.our_model_label()}, not manufacturer guidance. Severe-service driving
+                shortens it — you can answer that on the vehicle page.
+              </span>
+            </p>
+          </div>
+
+          <button
+            phx-click="confirm"
+            class="btn btn-primary mt-4"
+            data-test="confirm-vehicle"
+            disabled={not confirmable?(assigns)}
+          >
             Save this vehicle
           </button>
         </section>
@@ -194,19 +296,41 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
     |> assign(makes: [], models: [], configs: [])
     |> assign(makes_empty: false, models_empty: false, configs_empty: false)
     |> assign(count_announcement: "")
+    |> reset_oil()
   end
 
   defp reset_cascade(socket, :make) do
     socket
     |> assign(make_id: nil, model_id: nil, configuration_key: nil)
     |> assign(models: [], configs: [], models_empty: false, configs_empty: false)
+    |> reset_oil()
   end
 
   defp reset_cascade(socket, :model) do
     socket
     |> assign(model_id: nil, configuration_key: nil)
     |> assign(configs: [], configs_empty: false)
+    |> reset_oil()
   end
+
+  defp reset_oil(socket) do
+    assign(socket,
+      base_stock: nil,
+      oil_unknown?: false,
+      grade: nil,
+      show_all_grades?: false,
+      manual_grade?: false,
+      manual_grade: nil
+    )
+  end
+
+  # "__all__" and "__manual__" are UI affordances, not grades: they switch the
+  # select's mode while keeping whatever grade was already chosen.
+  defp grade_choice("__all__", assigns), do: {assigns.grade, true, false}
+  defp grade_choice("__manual__", assigns), do: {assigns.grade, assigns.show_all_grades?, true}
+
+  defp grade_choice(value, assigns),
+    do: {presence(value), assigns.show_all_grades?, assigns.manual_grade?}
 
   defp load_makes(%{assigns: %{year: nil}} = socket), do: socket
 
@@ -309,6 +433,70 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
 
   defp selected_config(assigns),
     do: Enum.find(assigns.configs, &(&1.configuration_key == assigns.configuration_key))
+
+  # -- the oil step -------------------------------------------------------------
+
+  defp picker_grades(assigns) do
+    case selected_config(assigns) do
+      %{engine_class_code: code} -> OilModel.grade_choices(code)
+      _ -> {[], []}
+    end
+  end
+
+  defp engine_class_name(assigns) do
+    with %{engine_class_code: code} <- selected_config(assigns),
+         %{display_name: name} <- OilModel.engine_class(code) do
+      name
+    else
+      _ -> nil
+    end
+  end
+
+  # The deterministic answer the step exists for: engine class × oil type →
+  # interval, shown before anything is saved. Computed for normal service —
+  # the severe-service questions live on the vehicle page and only shorten it.
+  defp recommendation(assigns) do
+    config = selected_config(assigns)
+
+    interval =
+      cond do
+        config == nil ->
+          nil
+
+        assigns.oil_unknown? ->
+          OilModel.unknown_oil_interval(config.engine_class_code)
+
+        is_binary(assigns.base_stock) ->
+          OilModel.interval(config.engine_class_code, assigns.base_stock)
+
+        true ->
+          nil
+      end
+
+    case interval do
+      {:ok, %{miles_recommended: miles, months_cap: months}} ->
+        Copy.recommendation_line(format_int(miles), months)
+
+      _ ->
+        nil
+    end
+  end
+
+  defp confirmable?(assigns) do
+    selected_status(assigns) == :not_applicable or
+      assigns.oil_unknown? or
+      is_binary(assigns.base_stock)
+  end
+
+  defp format_int(n) when n >= 1000 do
+    n
+    |> Integer.to_string()
+    |> String.reverse()
+    |> String.replace(~r/(\d{3})(?=\d)/, "\\1,")
+    |> String.reverse()
+  end
+
+  defp format_int(n), do: Integer.to_string(n)
 
   defp selected_status(assigns) do
     case selected_config(assigns) do

@@ -69,6 +69,16 @@ defmodule DigitalOilStickerWeb.SavePathTest do
       "configuration_key" => row.key
     })
 
+    # The oil step is not skippable: confirming before answering it must
+    # refuse rather than save a vehicle with no interval basis.
+    html = render_click(view, "confirm", %{})
+    assert html =~ "Choose what oil the vehicle uses first"
+    refute_push_event(view, "local_store:put", %{})
+
+    render_change(view, "oil_change", %{
+      "oil" => %{"base_stock" => "full_synthetic", "grade" => "5W-30"}
+    })
+
     # The click must not crash the view, and must push a put with the
     # vehicle record the browser will store.
     render_click(view, "confirm", %{})
@@ -80,6 +90,12 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     assert vehicle["configuration_key"] == row.key
     assert vehicle["archived"] == false
     assert is_binary(vehicle["vehicle_id"])
+
+    # The intake answer travels with the vehicle: this is what the sticker's
+    # recommendation and the log form's pre-fill are derived from.
+    assert vehicle["maintenance_plan"]["planned_oil"] == "selected"
+    assert vehicle["maintenance_plan"]["planned_base_stock"] == "full_synthetic"
+    assert vehicle["maintenance_plan"]["planned_grade"] == "5W-30"
   end
 
   test "saving Your interval pushes a put carrying the user-entered plan", %{conn: conn} do

@@ -15,6 +15,38 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
                          )
   @ack_timeout_ms Application.compile_env(:digital_oil_sticker, :ack_timeout_ms, 2_000)
 
+  @doc """
+  The vehicle every garage page is currently about.
+
+  The user's explicit choice (`prefs.active_vehicle_id`, set by the switcher on
+  the sticker page) wins when it names a vehicle that still exists and is not
+  archived; otherwise the first non-archived vehicle. The fallback matters:
+  deleting the active vehicle leaves the stored id dangling, and dangling must
+  mean "fall back", never "no vehicle" — the user still has a garage.
+
+  Lives here because three pages were each keeping a private copy of this
+  rule, which is how the switcher's choice would end up honored on one page
+  and ignored on another.
+  """
+  def active_vehicle(garage) do
+    live = Enum.reject(garage.vehicles, &(&1["archived"] == true))
+    chosen_id = garage.prefs && garage.prefs["active_vehicle_id"]
+
+    Enum.find(live, &(&1["vehicle_id"] == chosen_id)) || List.first(live)
+  end
+
+  @doc """
+  The most recent oil change for one vehicle. Ordered by `(performed_at,
+  event_id)` descending — the id breaks same-day ties deterministically, so two
+  changes logged for one date do not swap "most recent" between renders.
+  """
+  def last_oil_change(garage, vehicle_id) do
+    garage.events
+    |> Enum.filter(&(&1["vehicle_id"] == vehicle_id))
+    |> Enum.sort_by(&{&1["performed_at"], &1["event_id"]}, :desc)
+    |> List.first()
+  end
+
   @empty_garage %{
     vehicles: [],
     events: [],
@@ -140,7 +172,10 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       socket
       |> assign(:pending_writes, pending)
       |> assign(:seq, seq)
-      |> assign(:garage, apply_upserts(socket.assigns.garage, upserts))
+      |> assign(
+        :garage,
+        socket.assigns.garage |> apply_upserts(upserts) |> apply_deletes(deletes)
+      )
       |> Phoenix.LiveView.push_event("local_store:put", payload)
 
     {socket, mutation_id}
@@ -215,6 +250,26 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
 
         {:singleton, field} ->
           Map.put(acc, field, record)
+
+        :unknown ->
+          acc
+      end
+    end)
+  end
+
+  # Deletes mirror upserts: staged, then reflected immediately. Before this
+  # existed, a deleted record stayed in `garage` — and therefore on screen —
+  # until the next full hydration, which read as the delete having failed.
+  defp apply_deletes(garage, deletes) do
+    Enum.reduce(to_pairs(deletes, "key"), garage, fn {store, key}, acc ->
+      case store_key(store) do
+        {:list, field, id_key} ->
+          Map.update!(acc, field, fn list ->
+            Enum.reject(list, &(Map.get(&1, id_key) == key))
+          end)
+
+        {:singleton, field} ->
+          Map.put(acc, field, nil)
 
         :unknown ->
           acc

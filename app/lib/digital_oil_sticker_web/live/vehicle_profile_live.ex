@@ -13,9 +13,12 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
   alias DigitalOilStickerWeb.Layouts
 
   alias DigitalOilSticker.Catalog.OilModel
+  alias DigitalOilSticker.{CalendarExport, Due}
   alias DigitalOilStickerWeb.Components.Badges
   alias DigitalOilStickerWeb.Copy
   alias DigitalOilStickerWeb.LocalStore.Session
+
+  @lead_choices Enum.map(CalendarExport.lead_time_options(), &elem(&1, 1))
 
   # The base stock the estimate on this page is quoted against when the user
   # has not logged a change yet. Full synthetic is the most common purchase
@@ -59,6 +62,46 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       vehicle ->
         plan = Map.put(vehicle["maintenance_plan"] || %{}, "service_condition", condition)
         {:noreply, save_plan(socket, vehicle, plan, navigate: false)}
+    end
+  end
+
+  def handle_event("reminder_lead_change", %{"lead_days" => raw}, socket) do
+    vehicle = active_vehicle(socket.assigns.garage)
+    days = parse_int(raw)
+
+    cond do
+      vehicle == nil ->
+        {:noreply, socket}
+
+      not Session.mutations_enabled?(socket) ->
+        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+
+      days not in @lead_choices ->
+        # Not one of the offered lead times — a tampered select, not a choice.
+        {:noreply, socket}
+
+      true ->
+        now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+        record =
+          (find_reminder(socket.assigns.garage, vehicle["vehicle_id"]) ||
+             %{
+               "reminder_id" => Ecto.UUID.generate(),
+               "vehicle_id" => vehicle["vehicle_id"],
+               "kind" => "oil_change",
+               "created_at" => now
+             })
+          |> Map.merge(%{
+            "lead_value" => days,
+            "lead_unit" => "days",
+            "enabled" => true,
+            "updated_at" => now
+          })
+
+        {socket, _mutation_id} =
+          Session.stage_mutation(socket, [%{"store" => "reminders", "record" => record}], [])
+
+        {:noreply, socket}
     end
   end
 
@@ -127,6 +170,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> assign(:condition, condition_of(vehicle))
       |> assign(:estimate, estimate_for(vehicle))
       |> assign(:severe_questions, severe_questions())
+      |> assign(:reminder, reminder_view(assigns.garage, vehicle))
 
     ~H"""
     <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
@@ -166,7 +210,9 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
           <section :if={@estimate == :not_applicable} class="rounded border p-4">
             <h2 class="font-semibold">{Copy.not_applicable_ev()}</h2>
-            <p class="mt-1 text-sm text-base-content/80">{@engine_class && @engine_class.reasoning}</p>
+            <p class="mt-1 text-sm text-base-content/80">
+              {@engine_class && @engine_class.reasoning}
+            </p>
           </section>
 
           <section :if={is_map(@estimate)} class="rounded border p-4">
@@ -292,14 +338,94 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
               </button>
             </form>
           </section>
+
+          <section
+            :if={@reminder && @reminder.applicable?}
+            class="mt-6 rounded border p-4"
+            data-test="reminder-panel"
+          >
+            <h2 class="font-semibold">{Copy.reminder_heading()}</h2>
+            <p class="mt-1 text-xs text-base-content/70">{Copy.reminder_body()}</p>
+
+            <form phx-change="reminder_lead_change" class="mt-3">
+              <label for="reminder-lead" class="mb-1 block text-sm font-semibold">
+                {Copy.reminder_lead_label()}
+              </label>
+              <select
+                id="reminder-lead"
+                name="lead_days"
+                class="w-full min-h-11 rounded border px-2 py-2 sm:max-w-xs"
+              >
+                {Phoenix.HTML.Form.options_for_select(
+                  CalendarExport.lead_time_options(),
+                  @reminder.lead_days
+                )}
+              </select>
+            </form>
+
+            <%!-- The file is built server-side but DOWNLOADED from markup the
+                 browser already has — a download route would put the due date
+                 and mileage in a URL, and URLs end up in access logs. --%>
+            <button
+              :if={@reminder.ics}
+              type="button"
+              id="calendar-download"
+              phx-hook="CalendarDownload"
+              data-ics={@reminder.ics}
+              data-filename={CalendarExport.filename()}
+              class="btn btn-primary mt-3"
+              data-test="calendar-download"
+            >
+              {Copy.reminder_download()}
+            </button>
+            <p :if={is_nil(@reminder.ics)} class="mt-3 text-sm text-base-content/70">
+              {Copy.reminder_needs_change()}
+            </p>
+          </section>
         </div>
       </div>
     </Layouts.app>
     """
   end
 
-  defp active_vehicle(garage),
-    do: garage.vehicles |> Enum.reject(&(&1["archived"] == true)) |> List.first()
+  defp active_vehicle(garage), do: Session.active_vehicle(garage)
+
+  defp find_reminder(garage, vehicle_id) do
+    Enum.find(
+      garage.reminders,
+      &(&1["vehicle_id"] == vehicle_id and &1["kind"] == "oil_change")
+    )
+  end
+
+  # Everything the reminder panel shows, from the garage. The calendar file is
+  # built only when a due date exists — the reminder is measured from a logged
+  # change, and an event with no date would be a promise about nothing.
+  defp reminder_view(_garage, nil), do: nil
+
+  defp reminder_view(garage, vehicle) do
+    id = vehicle["vehicle_id"]
+    record = find_reminder(garage, id)
+    lead_days = (record && record["lead_value"]) || 7
+    due = Due.compute(vehicle, Session.last_oil_change(garage, id))
+
+    ics =
+      with %Date{} = due_on <- due.due_on,
+           {:ok, ics} <-
+             CalendarExport.build(%{
+               vehicle_id: id,
+               due_on: due_on,
+               vehicle_label: snapshot_line(vehicle),
+               due_mileage: due.mileage_text,
+               changed_on: due.changed_on,
+               lead_days: lead_days
+             }) do
+        ics
+      else
+        _ -> nil
+      end
+
+    %{lead_days: lead_days, ics: ics, applicable?: due.resolved != :not_applicable}
+  end
 
   defp condition_of(nil), do: "normal"
 
@@ -312,12 +438,27 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
   defp estimate_for(nil), do: nil
 
+  # Quoted against the oil the vehicle actually uses when the intake step
+  # recorded one; the model's floor when it recorded "not known yet"; and only
+  # then the historical default.
   defp estimate_for(vehicle) do
-    case OilModel.interval(
-           vehicle["engine_class_code"],
-           @default_base_stock,
-           condition_of(vehicle)
-         ) do
+    plan = vehicle["maintenance_plan"] || %{}
+    class = vehicle["engine_class_code"]
+    condition = condition_of(vehicle)
+
+    result =
+      cond do
+        is_binary(plan["planned_base_stock"]) ->
+          OilModel.interval(class, plan["planned_base_stock"], condition)
+
+        plan["planned_oil"] == "unknown" ->
+          OilModel.unknown_oil_interval(class, condition)
+
+        true ->
+          OilModel.interval(class, @default_base_stock, condition)
+      end
+
+    case result do
       {:ok, interval} -> interval
       :not_applicable -> :not_applicable
       {:error, _} -> nil
