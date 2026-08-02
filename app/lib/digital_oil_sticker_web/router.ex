@@ -35,6 +35,11 @@ defmodule DigitalOilStickerWeb.Router do
     # Three distinct questions, three endpoints. Liveness must not consult
     # dependencies (a dependency failure would restart every machine instead
     # of rotating it out); readiness must consult all of them.
+    # The browser posts violation reports here. No CSRF token accompanies a
+    # report, and the endpoint performs no action — it reads a scrubbed record
+    # into the log and answers 204.
+    post "/csp-report", CSPReportController, :create
+
     get "/health", HealthController, :health
     get "/ready", HealthController, :ready
     get "/version", HealthController, :version

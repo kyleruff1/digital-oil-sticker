@@ -87,10 +87,19 @@ defmodule DigitalOilStickerWeb.SecurityHeadersTest do
       # from @exact_directives would quietly shrink what is checked. Comparing
       # the full directive set closes that, and catches the other direction too:
       # a directive added to the served policy that no one here has reviewed.
+      # `report-uri` and `report-to` are FR-3's, not ADR-0004's: they name the
+      # violation sink rather than constraining a resource type, so they are
+      # listed separately instead of widening what counts as a resource
+      # directive. Anything OUTSIDE both lists still fails here, which is the
+      # point — a directive nobody reviewed should not appear quietly.
+      reporting = ["report-uri", "report-to"]
+
       assert MapSet.new(Map.keys(directives)) ==
-               MapSet.new(["script-src", "connect-src" | Map.keys(@exact_directives)]),
+               MapSet.new(
+                 ["script-src", "connect-src"] ++ reporting ++ Map.keys(@exact_directives)
+               ),
              "the served CSP directive set is #{inspect(Enum.sort(Map.keys(directives)))}, " <>
-               "which is not the ADR-0004 set"
+               "which is not the ADR-0004 set plus the FR-3 reporting directives"
     end
 
     test "script-src is first-party plus exactly one per-request nonce", %{directives: directives} do

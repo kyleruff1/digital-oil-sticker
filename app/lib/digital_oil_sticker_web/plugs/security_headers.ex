@@ -43,6 +43,9 @@ defmodule DigitalOilStickerWeb.Plugs.SecurityHeaders do
 
   alias DigitalOilStickerWeb.Hosts
 
+  @report_path "/csp-report"
+  @report_group "csp-endpoint"
+
   @impl true
   def init(opts), do: opts
 
@@ -60,6 +63,7 @@ defmodule DigitalOilStickerWeb.Plugs.SecurityHeaders do
     # Carried over from Phoenix's put_secure_browser_headers, which this plug
     # replaces: legacy Flash/PDF cross-domain policy files.
     |> put_resp_header("x-permitted-cross-domain-policies", "none")
+    |> put_resp_header("reporting-endpoints", ~s(#{@report_group}="#{@report_path}"))
   end
 
   @doc """
@@ -84,7 +88,14 @@ defmodule DigitalOilStickerWeb.Plugs.SecurityHeaders do
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
-        "object-src 'none'"
+        "object-src 'none'",
+        # Both spellings on purpose. `report-uri` is deprecated but is what
+        # Firefox and Safari actually honour; `report-to` is what current
+        # Chrome prefers and needs the Reporting-Endpoints header below. A
+        # policy that reports to nothing is a policy whose failures are
+        # invisible, which matters far more once it is enforced.
+        "report-uri #{@report_path}",
+        "report-to #{@report_group}"
       ],
       "; "
     )

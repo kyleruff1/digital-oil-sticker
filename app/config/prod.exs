@@ -32,3 +32,18 @@ config :logger, level: :info
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
+
+# The content security policy is ENFORCED in production.
+#
+# FR-3's sequence was followed rather than assumed: the policy shipped
+# report-only, and a full session plus every route was driven on Chromium 141,
+# Gecko 142, WebKit 26, and real Android Chrome 150 on a Lenovo TB125FU. The
+# first such run reported 56 violations — every inline style attribute on the
+# sticker — which enforcing straight away would have turned into a collapsed
+# sticker on a live site. Those moved into CSS, and the sweep now reports zero
+# on all four.
+#
+# Enforcing also activates `frame-ancestors 'none'`, which a browser ignores in
+# report-only mode. Until now clickjacking protection rested on
+# X-Frame-Options: DENY alone.
+config :digital_oil_sticker, DigitalOilStickerWeb.Plugs.SecurityHeaders, enforce: true

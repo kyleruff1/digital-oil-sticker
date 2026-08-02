@@ -137,21 +137,21 @@ defmodule DigitalOilSticker.ProductionPostureTest do
                "log sink: #{Enum.join(offenders, ", ")}"
     end
 
-    test "lib/ contains no log call site at all today" do
+    test "the payload scan has real log calls to scan, so it is not vacuous" do
+      # This replaces an earlier assertion that lib/ contained NO log call at
+      # all, which was true when the suite was written and left the scan above
+      # with nothing to reject. The first Logger call arrived with the CSP
+      # report sink; that test's own instructions were to delete it and let the
+      # scan take over as the live guard, which is what happened.
+      #
+      # What is asserted now is the property that actually matters: there is
+      # something to scan, so a future call that interpolates a payload has a
+      # working guard rather than a dormant one.
       sites = log_call_sites(lib_sources())
 
-      # Honest note on the test above: it currently has nothing to reject,
-      # because this application writes no log lines of its own. That is the
-      # actual posture worth protecting, so it is asserted directly rather than
-      # left implied — and it is why the payload scan is not silently vacuous.
-      #
-      # If you are here because you added the first Logger call: this failing is
-      # the point. Confirm the call names none of assigns, params, garage,
-      # envelope or payload, then delete this test and let the scan above take
-      # over as the live guard.
-      assert sites == [],
-             "lib/ now contains log calls: " <>
-               inspect(Enum.map(sites, fn {file, line, _} -> "#{relative(file)}:#{line}" end))
+      assert sites != [],
+             "lib/ contains no log call at all, so the payload scan above rejects nothing " <>
+               "and would not notice a call that leaked one"
     end
   end
 
