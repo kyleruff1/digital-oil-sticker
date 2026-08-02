@@ -5,8 +5,13 @@
 //   node scripts/github/roadmap-sync.mjs validate
 //   node scripts/github/roadmap-sync.mjs hash --write
 //   node scripts/github/roadmap-sync.mjs plan
-//   node scripts/github/roadmap-sync.mjs apply --apply [--only <step>]
+//   node scripts/github/roadmap-sync.mjs apply --apply [--only <step>] [--update-divergent]
 //   node scripts/github/roadmap-sync.mjs verify
+//
+// --update-divergent (owner opt-in): during the `issues` step, PATCH title +
+// body on any remote issue that differs from its managed specification, with
+// read-back verification. Without the flag, divergent issues abort the pass
+// (the standing safety rule — silent update of GitHub content is never OK).
 //
 // Steps: repo, labels, milestones, project, fields, issues, relations, project-items
 
@@ -107,7 +112,7 @@ function main() {
         case 'fields': applyFields(catalog, state); break
         case 'issues': {
           const nums = Object.fromEntries(Object.entries(state.milestones).map(([id, m]) => [id, m.number]))
-          applyIssues(catalog, state, nums)
+          applyIssues(catalog, state, nums, flags.has('--update-divergent'))
           break
         }
         case 'relations': applyRelations(catalog, state); break

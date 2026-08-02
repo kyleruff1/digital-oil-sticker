@@ -40,11 +40,18 @@ export function planIssues(catalog, exists) {
   return lines
 }
 
-export function applyIssues(catalog, state, milestoneNumbers) {
+// `updateDivergent` (false by default) opts into pushing the local body/title
+// over a remote that differs. Without it, divergent issues collect into an
+// error at the end of the pass — the standing safety rule — because the
+// synchronizer's default philosophy is that GitHub-side edits should be
+// reconciled BACK into the local body files, not silently clobbered. Callers
+// pass `true` only after the owner has explicitly approved a bulk update
+// (RESCOPE-style rewrite that produced N divergent bodies deliberately).
+export function applyIssues(catalog, state, milestoneNumbers, updateDivergent = false) {
   const repo = catalog.repository
   const remote = buildRemoteIssueMap(repo)
   const divergent = []
-  let created = 0, skipped = 0
+  let created = 0, skipped = 0, updated = 0
 
   for (const issue of catalog.issues) {
     const body = readTextLF(issue.body)
@@ -70,7 +77,32 @@ export function applyIssues(catalog, state, milestoneNumbers) {
         have.title !== issue.title ? 'title' : null,
         remoteSha !== localSha ? 'body' : null,
       ].filter(Boolean).join(' + ')
-      divergent.push(`${issue.id} (#${have.number}): remote ${diffs} differs from managed specification`)
+      if (!updateDivergent) {
+        divergent.push(`${issue.id} (#${have.number}): remote ${diffs} differs from managed specification`)
+        continue
+      }
+      // Owner-approved update path: PATCH the body and title, then read back
+      // and verify byte-for-byte. A read-back mismatch is a hard stop, same as
+      // the CREATE path — silent partial updates are worse than a clean abort.
+      const patched = apiJson(`repos/${repo.owner}/${repo.name}/issues/${have.number}`, {
+        method: 'PATCH', body: { title: issue.title, body },
+      })
+      const patchedSha = sha256((patched.body ?? '').replace(/\r\n/g, '\n'))
+      const readbackProblems = []
+      if (patched.title !== issue.title) readbackProblems.push('title mismatch')
+      if (patchedSha !== localSha) readbackProblems.push('body hash mismatch')
+      if (readbackProblems.length) {
+        throw new Error(`${issue.id} update read-back failed on #${have.number}: ${readbackProblems.join('; ')} — stopping at checkpoint`)
+      }
+      state.issues[issue.id] = {
+        ...state.issues[issue.id],
+        number: have.number, databaseId: have.id, nodeId: have.node_id, url: have.html_url,
+        bodySha256: localSha, remoteState: have.state,
+        verified: { ...(state.issues[issue.id]?.verified ?? {}), created: true, updated: true },
+      }
+      saveState(state, 'issues')
+      updated++
+      console.log(`  #${String(have.number).padStart(3)} ${issue.id} updated + verified (${diffs}) (${created + skipped + updated}/${catalog.issues.length})`)
       continue
     }
 
@@ -103,9 +135,14 @@ export function applyIssues(catalog, state, milestoneNumbers) {
   }
 
   if (divergent.length) {
-    throw new Error('divergent managed issues require approval before update:\n  ' + divergent.join('\n  '))
+    throw new Error(
+      'divergent managed issues require approval before update (re-run with --update-divergent after owner review):\n  ' +
+      divergent.join('\n  '),
+    )
   }
-  console.log(`  issues: ${created} created, ${skipped} already-identical`)
+  const parts = [`${created} created`, `${skipped} already-identical`]
+  if (updated) parts.push(`${updated} updated`)
+  console.log(`  issues: ${parts.join(', ')}`)
 }
 
 export function applyRelations(catalog, state) {
