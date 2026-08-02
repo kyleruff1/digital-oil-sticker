@@ -217,3 +217,63 @@
 .dos-skeleton {
   background: #10182022;
 }
+
+/* The scannable code.
+ *
+ * The symbol is sized in absolute units rather than a percentage of anything.
+ * A QR has a hard floor — measured at roughly 1.6 device pixels per module on
+ * real hardware — and a percentage width lets a narrow viewport quietly slide
+ * under it. At 37 modules plus an 8-module quiet zone, 160px leaves ~3.5px per
+ * module, and the 120px floor below still leaves 2.6px. */
+.dos-qr {
+  margin: 2rem auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 20rem;
+}
+
+.dos-qr-symbol {
+  width: 10rem;
+  height: 10rem;
+  min-width: 7.5rem;
+  min-height: 7.5rem;
+}
+
+.dos-qr-symbol > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Nothing is drawn when the symbol cannot be built. An empty box is honest;
+ * a stale or broken image is not, because it still looks scannable. */
+.dos-qr-symbol[data-qr-failed] {
+  display: none;
+}
+
+.dos-qr-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  text-align: center;
+}
+
+/* break-all, not break-word: the code has no word boundaries, and letting it
+ * overflow instead would push the page into a horizontal scroll at 320px. */
+.dos-qr-key {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  word-break: break-all;
+  color: #101820;
+}
+
+.dos-qr-note {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: #52525b;
+}

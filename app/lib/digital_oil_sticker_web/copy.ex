@@ -102,6 +102,19 @@ defmodule DigitalOilStickerWeb.Copy do
 
   def does_not_notify, do: "This app does not notify you when it is closed."
 
+  # --- The scannable code ------------------------------------------------------
+  # Deliberately does not say the scan moves anything. It does not: the code
+  # carries the values printed on the sticker and nothing else, so scanning it
+  # elsewhere shows those values and leaves this browser's records where they
+  # are. Any wording suggesting the records themselves travel would be a
+  # prohibited storage claim wearing a different word.
+  def qr_alt, do: "QR code for this oil change record"
+
+  def qr_note do
+    "Scanning shows these same values on another device. It does not move " <>
+      "what is stored in this browser."
+  end
+
   # --- Cascade / catalog states ----------------------------------------------
   def choose_upstream(level), do: "Choose a #{level} first."
   def loading, do: "Loading…"

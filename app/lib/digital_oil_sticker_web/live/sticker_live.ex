@@ -17,9 +17,10 @@ defmodule DigitalOilStickerWeb.StickerLive do
   alias DigitalOilStickerWeb.Layouts
 
   import DigitalOilStickerWeb.Components.Sticker
+  import DigitalOilStickerWeb.Components.StickerQr
   alias DigitalOilSticker.Catalog.OilModel
-  alias DigitalOilSticker.{IntervalPolicy, Units}
-  alias DigitalOilStickerWeb.Copy
+  alias DigitalOilSticker.{IntervalPolicy, StickerCode, Units}
+  alias DigitalOilStickerWeb.{Copy, Hosts}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -48,6 +49,8 @@ defmodule DigitalOilStickerWeb.StickerLive do
         >
           {@view.qualifier}
         </p>
+
+        <.qr_symbol :if={@view.qr} code={@view.qr.code} payload={@view.qr.payload} />
 
         <div :if={@view.mode == :empty} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.empty_heading()}</h1>
@@ -94,40 +97,28 @@ defmodule DigitalOilStickerWeb.StickerLive do
     """
   end
 
+  # Every mode carries the same keys, so a new field cannot be added to one
+  # branch and forgotten in the other five — which is a crash in a template
+  # that only the unlucky hydration state reaches.
+  @blank %{
+    mode: nil,
+    date: nil,
+    mileage: nil,
+    grade: nil,
+    changed: nil,
+    qualifier: nil,
+    qr: nil
+  }
+
   # Pure view derivation from the hydration state + garage.
   defp derive_view(assigns) do
     case assigns.local_state do
-      :hydrating ->
-        %{mode: :skeleton, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
-
-      :empty ->
-        %{mode: :empty, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
-
-      :data_missing ->
-        %{mode: :data_missing, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
-
-      :hydration_refused ->
-        %{
-          mode: :hydration_refused,
-          date: nil,
-          mileage: nil,
-          grade: nil,
-          changed: nil,
-          qualifier: nil
-        }
-
-      :storage_unavailable ->
-        %{
-          mode: :storage_unavailable,
-          date: nil,
-          mileage: nil,
-          grade: nil,
-          changed: nil,
-          qualifier: nil
-        }
-
-      :loaded ->
-        sticker_view(assigns.garage)
+      :hydrating -> %{@blank | mode: :skeleton}
+      :empty -> %{@blank | mode: :empty}
+      :data_missing -> %{@blank | mode: :data_missing}
+      :hydration_refused -> %{@blank | mode: :hydration_refused}
+      :storage_unavailable -> %{@blank | mode: :storage_unavailable}
+      :loaded -> sticker_view(assigns.garage)
     end
   end
 
@@ -135,20 +126,59 @@ defmodule DigitalOilStickerWeb.StickerLive do
     vehicle = active_vehicle(garage)
 
     if vehicle == nil do
-      %{mode: :empty, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
+      %{@blank | mode: :empty}
     else
       last = last_event(garage, vehicle["vehicle_id"])
       plan = vehicle["maintenance_plan"] || %{}
       due = due_values(last, plan, vehicle)
 
       %{
-        mode: :sticker,
-        date: due.date,
-        mileage: due.mileage,
-        grade: grade_of(last),
-        changed: changed_on(last),
-        qualifier: due.qualifier
+        @blank
+        | mode: :sticker,
+          date: due.date,
+          mileage: due.mileage,
+          grade: grade_of(last),
+          changed: changed_on(last),
+          qualifier: due.qualifier,
+          qr: qr_for(vehicle, last)
       }
+    end
+  end
+
+  # The scannable form of what the sticker shows.
+  #
+  # Encoded here rather than in the browser because this is the canonical
+  # implementation and there should be exactly one. The browser port exists for
+  # the other direction: a scan arrives as `/s#CODE`, and a fragment is never
+  # sent to the server, so only the client can read it back.
+  #
+  # `nil` when the values cannot be encoded — a vehicle with no catalog
+  # configuration, most commonly. No symbol is better than one that resolves to
+  # a vehicle the user did not pick.
+  defp qr_for(vehicle, last) do
+    sticker = %{
+      configuration_key: vehicle["configuration_key"],
+      changed_on: performed_date(last),
+      odometer_m: last && last["odometer_m"],
+      grade: last && last["oil_viscosity"],
+      base_stock: last && last["oil_base_stock"]
+    }
+
+    case StickerCode.encode(sticker) do
+      # The code goes in the FRAGMENT. A path would put the odometer, service
+      # date, and grade it encodes into the request line and every access log
+      # in between (INV-26); a fragment is never sent to the server at all.
+      {:ok, code} -> %{code: code, payload: "https://#{Hosts.canonical()}/s##{code}"}
+      {:error, _} -> nil
+    end
+  end
+
+  defp performed_date(nil), do: nil
+
+  defp performed_date(event) do
+    case Date.from_iso8601(String.slice(event["performed_at"] || "", 0, 10)) do
+      {:ok, date} -> date
+      _ -> nil
     end
   end
 
@@ -219,11 +249,18 @@ defmodule DigitalOilStickerWeb.StickerLive do
     with mi when is_integer(mi) <- miles,
          m when is_integer(m) <- event["odometer_m"] do
       due_m = m + round(mi * 1609.344)
-      "#{format_int(round(Units.from_metres(due_m, String.to_existing_atom(unit))))} #{unit}"
+      "#{format_int(round(Units.from_metres(due_m, unit_atom(unit))))} #{unit}"
     else
       _ -> nil
     end
   end
+
+  # Matched rather than converted with String.to_existing_atom/1. The atom only
+  # "already exists" once Units happens to have been loaded, so that call
+  # crashed or not depending on module load order — the sticker rendering fine
+  # in one process and raising in another with identical data.
+  defp unit_atom("km"), do: :km
+  defp unit_atom(_), do: :mi
 
   # The sticker never shows a number without saying whose interval it is.
   defp qualifier(%{basis: :none}),
