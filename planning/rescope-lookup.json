@@ -1,0 +1,818 @@
+{
+  "rescope_cards": [
+    "DOS-M00-000",
+    "DOS-M00-002",
+    "DOS-M00-004",
+    "DOS-M01-000",
+    "DOS-M01-001",
+    "DOS-M01-002",
+    "DOS-M01-003",
+    "DOS-M01-005",
+    "DOS-M01-006",
+    "DOS-M02-000",
+    "DOS-M02-001",
+    "DOS-M02-002",
+    "DOS-M02-003",
+    "DOS-M02-004",
+    "DOS-M02-005",
+    "DOS-M02-008",
+    "DOS-M03-001",
+    "DOS-M04-000",
+    "DOS-M04-001",
+    "DOS-M04-003",
+    "DOS-M04-005",
+    "DOS-M04-006",
+    "DOS-M04-007",
+    "DOS-M04-008",
+    "DOS-M04-009",
+    "DOS-M04-010",
+    "DOS-M05-000",
+    "DOS-M05-001",
+    "DOS-M05-002",
+    "DOS-M05-003",
+    "DOS-M05-004",
+    "DOS-M05-005",
+    "DOS-M05-006",
+    "DOS-M05-007",
+    "DOS-M06-000",
+    "DOS-M06-002",
+    "DOS-M06-005",
+    "DOS-M06-007",
+    "DOS-M07-000",
+    "DOS-M07-001",
+    "DOS-M07-002",
+    "DOS-M07-003",
+    "DOS-M07-004",
+    "DOS-M07-005",
+    "DOS-M07-006",
+    "DOS-M07-007",
+    "DOS-M08-000",
+    "DOS-M08-001",
+    "DOS-M08-002",
+    "DOS-M08-003",
+    "DOS-M08-005",
+    "DOS-M08-006"
+  ],
+  "pivot_dispositions": {
+    "DOS-M00-000": "The gate still exists but now must freeze a hosted-LiveView-plus-anonymous-browser-storage architecture instead of an on-device one.",
+    "DOS-M00-002": "Becomes the browser-MVP architecture ADR: Fly.io as the sole app host, Netlify as static-content-only, browser storage as the sole personal-data store, and the hydration protocol as the ratified seam.",
+    "DOS-M00-004": "The dual-store idea survives but splits across a boundary: prove a read-only server-side catalog SQLite plus a client IndexedDB user store with its own forward-only versioning, not two on-device Ecto repos.",
+    "DOS-M01-000": "Offline-safe becomes reproducible and deployable \u2014 the platform target is a container on Fly, not a signed device package.",
+    "DOS-M01-001": "Drop Xcode/Android SDK/Gradle/Mob pins; keep Elixir/OTP/Phoenix/esbuild/Tailwind/SQLite pins and add Docker base image and flyctl version pinning.",
+    "DOS-M01-002": "The platform adapter port is no longer a native bridge but a browser-storage port whose only implementation is the JS hook plus IndexedDB adapter, with a test double for server-side tests.",
+    "DOS-M01-003": "CatalogRepo stays server-side Ecto/SQLite unchanged; UserRepo stops being an Ecto schema and becomes an IndexedDB object-store layout with an independent version line.",
+    "DOS-M01-005": "The shell becomes a hosted Phoenix app bound to a public interface behind Fly proxy with TLS and origin checks \u2014 replacing the loopback/WebView handshake \u2014 while the separate static Netlify support-site half carries over as written.",
+    "DOS-M01-006": "The device matrix becomes a browser/engine matrix, and release evidence becomes deploy evidence (image digest, catalog version, release ID) rather than store-build artifacts.",
+    "DOS-M02-000": "Freeze a responsive web interaction model (URLs, back button, refresh, tab focus) instead of a native mobile one; the language/content contract carries over intact.",
+    "DOS-M02-001": "Routes become real shareable URLs with browser history, refresh, and deep-link semantics, and every flow must define its pre-hydration entry state.",
+    "DOS-M02-002": "Replace native platform components and OS accessibility APIs with a responsive web design system and a WCAG 2.2 AA contract verified against browser assistive technology.",
+    "DOS-M02-003": "First run now means hydration-from-empty rather than bundled-catalog verification, and the privacy copy must say this browser on this device, explicitly warn that clearing site data destroys the record, and cover private-browsing and storage-blocked cases.",
+    "DOS-M02-004": "Search is served by a server-side query layer rather than a local database, so the spec must add network-latency, request-failure, and offline states that the offline design never needed.",
+    "DOS-M02-005": "The one-vehicle-now/multi-vehicle-later product shape is unchanged, but the tabs navigation direction must be respecified as a web navigation pattern.",
+    "DOS-M02-008": "Delete the OS permission-prompt and notification-delivery UX; the MVP specifies in-app due/overdue presentation only, plus honest copy that nothing arrives while the app is closed.",
+    "DOS-M03-001": "The rights analysis must now evaluate serving data over a public web service, which is a materially different redistribution mode from shipping rows inside a signed binary and may change the answer for individual sources.",
+    "DOS-M04-000": "The epic splits along the new boundary: read-only catalog persistence on the server, and anonymous personal-record persistence in the browser.",
+    "DOS-M04-001": "The ADR must now cover server CatalogRepo plus browser UserStore plus the hydration/mutation protocol, and state as a MUST that no personal row is ever written server-side.",
+    "DOS-M04-003": "The logical model and its invariants survive but must be expressed as IndexedDB object stores and indexes enforced in the client adapter and re-validated server-side on hydration, since SQL constraints are no longer available.",
+    "DOS-M04-005": "Becomes a browser storage adapter providing transactional IndexedDB semantics, with the server holding the same data only in socket assigns for the session lifetime.",
+    "DOS-M04-006": "Split into server catalog boot at application start and client store open-and-hydrate on LiveView mount; the native durable-file placement requirement drops.",
+    "DOS-M04-007": "Becomes an IndexedDB onupgradeneeded forward-only schema upgrade executed on connection open, with no rollback path and explicit quota/eviction/abort handling.",
+    "DOS-M04-008": "Becomes atomic activation of a new catalog version within a Fly release (no half-swapped reads, version pinning, rollback); the bundle-copy mechanics park with the native re-entry set.",
+    "DOS-M04-009": "Export becomes a generated file download and import a file-picker upload via browser File APIs instead of native share sheets, and erasure clears IndexedDB and localStorage \u2014 this is now the ONLY portability mechanism and rises in priority.",
+    "DOS-M04-010": "Replace physical-device budgets with browser/engine conformance and server budgets, and add quota-exhaustion, eviction, private-browsing, and multi-tab conformance cases that did not exist on device.",
+    "DOS-M05-000": "Local-only, offline becomes hosted, anonymous browser storage, connectivity required for catalog; the single-vehicle scope boundary is unchanged.",
+    "DOS-M05-001": "Integration now means wiring server catalog reads to hydrated client state held in assigns, rather than wiring two co-located on-device repos.",
+    "DOS-M05-002": "Search is a server query over the hosted catalog, so the local-query latency budget becomes a network-plus-server p95 budget and request-failure states become mandatory.",
+    "DOS-M05-003": "Every create and edit commits through the pushEvent then hook then IndexedDB round trip and is not shown as saved until the hook acknowledges.",
+    "DOS-M05-004": "Same write-path change, plus the append-only audit guarantees must be enforced in the client adapter because there is no server transaction to rely on.",
+    "DOS-M05-005": "The dashboard must render a determinate pre-hydration state, must not flash a false empty garage, and must never imply the record is backed up on the server it is loaded from.",
+    "DOS-M05-006": "Becomes the Fly.io deploy-and-boot contract \u2014 reproducible image, pinned toolchain, health check before traffic, release manifest binding app/catalog/storage-schema versions \u2014 with icons, splash screens, and signed native packages carved out to the native re-entry set.",
+    "DOS-M05-007": "Same envelope, checksum, preview-before-import, and replace semantics, delivered through browser download/upload with added guidance that browser data-clearing is the realistic loss scenario.",
+    "DOS-M06-000": "The forecasting half survives intact; the notification half narrows to in-app due/overdue state, with OS delivery moved to the native re-entry and Web Push to a spike.",
+    "DOS-M06-002": "The recurring prompt has no background scheduler in a browser, so recurring sampling must be respecified as an on-visit prompt driven by elapsed time since the last sample.",
+    "DOS-M06-005": "Keep the desired-reminder plan as a pure domain output rendered as in-app due/overdue state; the mob_notify delivery half splits out into a new deferred native issue.",
+    "DOS-M06-007": "Becomes in-app reminder preferences plus a due-state correctness gate; the OS delivery-reliability portion of the gate moves to the native re-entry.",
+    "DOS-M07-000": "Store release becomes public web launch on the custom domain; the hardening and closed-beta structure carries over.",
+    "DOS-M07-001": "The threat model changes fundamentally \u2014 a public internet-facing server replaces a loopback listener \u2014 and must now cover socket/origin abuse, transient personal data in assigns, log and error-report redaction, and a provable absence of personal-data tables.",
+    "DOS-M07-002": "Native platform accessibility APIs are replaced by WCAG 2.2 AA conformance verified across a named browser and assistive-technology matrix, including keyboard-only desktop use that the mobile bar never covered.",
+    "DOS-M07-003": "Battery and native-memory budgets are replaced by page-load, time-to-hydrated, LiveView round-trip latency, server memory-per-socket, and IndexedDB footprint budgets.",
+    "DOS-M07-004": "The matrix becomes browser/engine/OS instead of iOS/Android, notification rows are removed, and storage-eviction, quota, private-browsing, multi-tab, and reconnect rows are added.",
+    "DOS-M07-005": "Signed native store builds become signed/attested container images with reproducible provenance and an immutable Fly release identifier.",
+    "DOS-M07-006": "Beta distribution moves from TestFlight/Play tracks to an unlisted staging hostname or invite link, and defect intake must not collect browser storage contents.",
+    "DOS-M07-007": "Store records, screenshots, ratings, and review notes drop; the deliverable becomes staged Fly deploys, custom-domain cutover, canary smoke checks, monitoring, and a rehearsed rollback.",
+    "DOS-M08-000": "Remains post-MVP, but multi-vehicle now means multi-vehicle in browser storage and catalog operations now means server-side catalog releases.",
+    "DOS-M08-001": "The vehicle-scoped schema it activates is the IndexedDB object-store layout, and enabling it requires a client storage schema-version migration rather than an Ecto migration.",
+    "DOS-M08-002": "Respecify the tabbed pattern as an accessible web navigation pattern with real URLs per vehicle.",
+    "DOS-M08-003": "Per-vehicle isolation must be enforced in the client store and in the hydration payload shape, since there is no server-side row scoping to rely on.",
+    "DOS-M08-005": "The client-verified pack and trust root become build-and-deploy-time signing and verification of the catalog artifact, since the browser client never downloads a pack.",
+    "DOS-M08-006": "Content-addressed immutable publish, canary verification, and pointer rollback survive as concepts but target the Fly catalog release channel; Netlify retains only static content."
+  },
+  "sweep_findings_by_card": {
+    "DOS-M00-000": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Milestone M00 (\"Decisions and proof\") converts the Digital Oil Sticker product idea into tested constraints and written decisions, then proves the binding runtime architecture: a Mob `0.7.20` application generated with `mix mob.new digital_oil_sticker --liveview`, with BEAM/Phoenix running entirely on the device, a native WebView loading LiveView over IPv4 loopback, two on-device Ecto/SQLite repos",
+        "reason": "planning/issues/DOS-M00-000.md line 6 states the epic's outcome is to prove the on-device Mob/UserRepo/mob_notify runtime as the binding architecture. ADR-0004 (Accepted 2026-08-01, docs/architecture/ADR-0004-browser-first-client-and-hosting.md) supersedes ADR-0001 for MVP: the MVP is a hosted Phoenix LiveView on Fly.io, the deployment carries no UserRepo (Decision \u00a74: 'exactly one Ecto repo, DigitalOilSticker.CatalogRepo, opened read-only. There is no UserRepo in the deployment.'), and mob_notify does not exist in a browser ('No OS local notifications... The MVP ships in-app due/overdue state",
+        "action": "Add a bold \"SUPERSEDED IN PART BY ADR-0004 (Accepted 2026-08-01)\" header at the top of planning/issues/DOS-M00-000.md that: (a) states the on-device Mob/UserRepo/mob_notify runtime described in the outcome is deferred to a post-MVP native track; (b) records the surviving M00 deliverables as the ratified constitution (DOS-M00-001), the ADR-0003 data-boundary decision (DOS-M00-006), and the DOS-M00-003 spike evidence retained to justify ADR-0004; (c) notes that DOS-M00-002 (on-device architecture ADR), DOS-M00-004 (UserRepo persistence proof), and DOS-M00-005 (mob_notify capability matrix) are r"
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "critical",
+        "quote": "FR-3 (exit): a physical iPhone and a physical Android device have been used for the Mob, persistence, and notification proofs; simulator-only evidence does not satisfy the gate.",
+        "reason": "planning/issues/DOS-M00-000.md line 58 (also AC-2 at line 96) makes physical iPhone evidence a mandatory exit condition. ADR-0004 Context 'The iOS half is unreachable' records: 'No Mac and no Xcode. The spike log records this as a blocking constraint from the outset.' The same ADR concludes: 'The DOS-M00-003 gate in ADR-0001 \u00a77 is suspended, not passed and not failed \u2014 it cannot resolve without a Mac. It is no longer a precondition for feature work.' As written, this exit criterion can never be met, which means the epic can never close, which then wrongly implies M01/M02/M03 remain blocked.",
+        "action": "Rewrite DOS-M00-000.md FR-3 (line 57) and AC-2 (line 96) to reflect ADR-0004's disposition: the M00 exit gate is satisfied by (a) the ratified Constitution (or its 2.0.0 revision per ADR-0004 \u00a7\"Constitution invariants requiring re-ratification\"), (b) ADR-0003 data-boundary decision, and (c) the ADR-0004 pivot record itself which formally suspends DOS-M00-003. Move physical-device iPhone/Android criteria to the native-revival card (future ADR-0005 per ADR-0004 \u00a7\"Trigger conditions that revive the native track\"), making them contingent on those revival triggers (Mac/Xcode access, Mob 1.0 with Wi"
+      }
+    ],
+    "DOS-M00-002": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "An architecture decision record (ADR) and reproducible proof confirm the binding design: `mix mob.new digital_oil_sticker --liveview`; BEAM/Phoenix runs inside the installed iOS/Android application; its endpoint listens strictly on `127.0.0.1`; the native WebView connects to that loopback LiveView; all core state is on-device.",
+        "reason": "planning/issues/DOS-M00-002.md line 6 defines the card's outcome as producing the binding on-device ADR. ADR-0004 supersedes ADR-0001 for MVP and its 'Constitution invariants requiring re-ratification' table records that INV-1 (native-only), INV-2 (loopback binding), INV-6/INV-7 (offline-first bundled catalog) are contradicted \u2014 Constitution 2.0.0 \u00a70.2 confirms INV-2 is retired and INV-1/6/7/17 amended. Yet this card is still marked status 'Ready' in planning/roadmap.yml with priority P0 Critical and target Gate, so a scheduler could pick it up and produce an ADR that ADR-0004 already invalida",
+        "action": "Add a top-of-body 'SUPERSEDED BY ADR-0004' banner to planning/issues/DOS-M00-002.md that links to docs/architecture/ADR-0004-browser-first-client-and-hosting.md; flip the card in planning/roadmap.yml from status 'Ready' \u2192 'Blocked' and target 'Gate' \u2192 'Post-MVP' (mirroring DOS-M00-003 and DOS-M00-005); and rewrite the Outcome to state the on-device Mob/LiveView ADR would only be authored if one of the revival triggers in ADR-0004 \u00a7\"Trigger conditions that revive the native track\" fires (Mac/Xcode obtained, Mob 1.0 with Windows/WSL2 CI, WSL2 build host established, measured browser-storage evic"
+      }
+    ],
+    "DOS-M00-004": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "A persistence ADR and physical-device benchmark prove two distinct `ecto_sqlite3` repositories running inside the on-device BEAM: a replaceable, read-mostly `CatalogRepo` and a writable, private `UserRepo`.",
+        "reason": "planning/issues/DOS-M00-004.md line 6 makes the two-repo (UserRepo + CatalogRepo) design the whole point of the card. ADR-0004 Decision \u00a74 explicitly says: 'The deployed application has exactly one Ecto repo, DigitalOilSticker.CatalogRepo, opened read-only. There is no UserRepo in the deployment. Personal data exists on the server only as transient values in socket.assigns.' Personal state now lives in browser IndexedDB via the hydration protocol. The card's FR-3, FR-4, and its atomic-catalog-replacement/UserRepo-migration failure-injection contract are all against a design the MVP no longer u",
+        "action": "Add a top-of-file notice to planning/issues/DOS-M00-004.md: \"SUPERSEDED FOR MVP BY ADR-0004; retained for the native-revival track (see ADR-0004 \u00a7'Trigger conditions that revive the native track').\" Change roadmap.yml status for DOS-M00-004 from Backlog to Blocked and change target from Gate to Post-MVP so it aligns with DOS-M00-005 (already Blocked/Post-MVP under the same supersession). Then open a fresh sibling card scoping the MVP persistence work that IS in-scope under ADR-0004: (a) CatalogRepo read-only enforcement test (per ADR-0004 \u00a7Enforcement bullet 1), (b) IndexedDB LocalStore hydrat"
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "major",
+        "quote": "blocked_by: DOS-M00-001, DOS-M00-002, DOS-M00-003",
+        "reason": "planning/roadmap.yml line 191 lists DOS-M00-004 as blocked_by DOS-M00-003, but line 179 records DOS-M00-003 as status 'Blocked' with target 'Post-MVP' priority 'P3 Low'. DOS-M00-004's own status is 'Backlog' with priority 'P0 Critical' target 'Gate' (lines 194-198). A card whose blocker is Post-MVP cannot itself be Backlog/Gate \u2014 either the blocker relationship is stale or the status is. Given ADR-0004 also renders the UserRepo work moot (see the separate M00-004 finding), the correct fix is to demote M00-004 rather than to keep the transitive contradiction.",
+        "action": "Update planning/roadmap.yml DOS-M00-004 (lines 185-199) to status: Blocked, priority: P3 Low, target: Post-MVP (matching sibling M00-005), and drop DOS-M00-002 and DOS-M00-003 from its blocked_by list \u2014 they were on-device sequencing that ADR-0004 has removed from MVP scope. In the same edit, add an ADR-0004 supersession banner to planning/issues/DOS-M00-004.md noting that on-device CatalogRepo+UserRepo work is deferred with the native track (ADR-0004 \u00a74 and \u00a77), and preserved for revival under ADR-0004's trigger conditions."
+      }
+    ],
+    "DOS-M01-000": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Implement only the platform skeleton selected by M00: the Mob `0.7.20` on-device LiveView runtime, strict loopback hardening, two Ecto/SQLite repositories, a tiny bundled fixture catalog, the `mob_notify` adapter boundary, a separate static Netlify support site, and automated quality gates. ... The native shell starts on-device BEAM/Phoenix, connects the WebView only to `127.0.0.1`, and exposes a ",
+        "reason": "DOS-M01-000 Outcome, Included list, and every referenced 'on-device shell' obligation frame the entire epic around ADR-0001 (Mob 0.7.20 native runtime), which is now Deferred and superseded for the MVP by ADR-0004 (accepted 2026-08-01, hosted Phoenix LiveView on Fly.io). Constitution 2.0.0 retires INV-2 (loopback binding) and amends INV-1, INV-6, INV-7, INV-17, INV-19. The card carries no supersession marker and reads to an implementer as the current plan; the shipped app in `app/lib/digital_oil_sticker/application.ex` is a plain Phoenix/Bandit web app supervised alongside a read-only `Catalog",
+        "action": "Add a dated banner at the top of planning/issues/DOS-M01-000.md marking it \"SUPERSEDED FOR MVP BY ADR-0004 (2026-08-01) \u2014 see docs/governance/PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md; RESCOPE pending\" and re-issue the Outcome/Included/Excluded to describe a hosted Phoenix app on Fly.io with a read-only CatalogRepo, a Netlify static support site, and browser-storage personal data owned by the new M09 milestone. Preserve the original text below the banner per change-control's dated-supersession rule rather than editing it out. As an alternative, close the epic and reopen a fresh \"Reproducibl"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-4: The build creates both SQLite repositories (`CatalogRepo`, `UserRepo`) with a tiny bundled fixture catalog.",
+        "reason": "ADR-0004 decision \u00a74 states 'The server persists NO personal rows. The deployed application has exactly one Ecto repo, `DigitalOilSticker.CatalogRepo`, opened read-only. There is no `UserRepo` in the deployment.' INV-23 (Constitution 2.0.0) reaffirms anonymous client-side storage as the only home for personal data. The shipped supervision tree confirms only `CatalogRepo` is started. FR-4 as written can never be satisfied under the ratified architecture.",
+        "action": "Rewrite FR-4 in planning/issues/DOS-M01-000.md line 68 to remove the `UserRepo` clause. Replace with two sentences: (i) the build creates the server-side read-only `CatalogRepo` (one Ecto/SQLite repo per ADR-0004 \u00a74 and INV-23) seeded from the bundled fixture catalog, and (ii) the browser IndexedDB `local_store` object-store layout (`meta`, `vehicles`, `events`, `readings`, `reminders`, `prefs` per ADR-0004 \"Storage layout\") is provisioned by M09-001/M09-002 rather than by an Ecto migration here. Cross-link explicitly to M09-001 and M09-002 for the browser half, and update DOS-M01-003 in locks"
+      },
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "M05 single-vehicle MVP screens, which require the working on-device shell from DOS-M01-005.",
+        "reason": "Cross-milestone drift. Per PIVOT-2026-08-01 the M05 MVP is now a hosted browser LiveView with anonymous IndexedDB storage; there is no 'on-device shell' to require. DOS-M01-005 itself is RESCOPE, and the current epic still cites its former deliverable as a live dependency, misleading anyone reasoning about M05's entry gate.",
+        "action": "Change line 18 of planning/issues/DOS-M01-000.md to: \"M05 single-vehicle MVP screens, which require the hosted Phoenix/Fly deploy contract and the LiveView hydration protocol delivered by the rescoped DOS-M01-005 and by M09 (DOS-M09-003, DOS-M09-005, DOS-M09-006) per ADR-0004 and PIVOT-2026-08-01.\" Consider also refreshing lines 6, 8, 41, 91, 99, 103, 119, and 123 of the same file, which continue to describe the on-device shell, airplane-mode diagnostic screen, and iOS/Android device matrix as live M01 obligations."
+      }
+    ],
+    "DOS-M01-001": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-1: The repository contains the unmodified output of `mix mob.new digital_oil_sticker --liveview` as its base, with every deviation (if any) documented as an M00-approved compatibility fix.",
+        "reason": "ADR-0004 defers Mob 0.7.20 and adopts a plain Phoenix generator scaffold. The pivot doc's DOS-M01-001 row is explicit: 'Drop Xcode/Android SDK/Gradle/Mob pins; keep Elixir/OTP/Phoenix/esbuild/Tailwind/SQLite pins and add Docker base image and `flyctl` version pinning.' The shipped `app/mix.exs` (`elixir: '~> 1.17'`, Bandit 1.12.4, no `:mob` dep in lockfile) is not the `mix mob.new` output FR-1 mandates. FR-1 cannot be met without reverting the accepted architecture.",
+        "action": "Rewrite DOS-M01-001 FR-1 to reflect ADR-0004 and the 2026-08-01 pivot re-classification. Replace the mix mob.new mandate with language matching the shipped Phoenix scaffold and hosted-Fly architecture \u2014 for example: \"FR-1: The repository contains a Phoenix LiveView scaffold provisioned for a hosted Fly.io deployment, with `ecto_sqlite3` configured for the read-only server-side `CatalogRepo`. No `mob`/`mob_notify` dependency ships; the original `mix mob.new digital_oil_sticker --liveview` scaffold is preserved for the deferred native track per ADR-0004.\" Similarly reconcile the surrounding sect"
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "critical",
+        "quote": "FR-7: Production endpoint configuration binds only to `127.0.0.1`; the default app performs no telemetry or network calls.",
+        "reason": "Constitution 2.0.0 \u00a70 retires INV-2: 'Loopback-only was a property of the on-device shell; it is meaningless for a hosted app and would read as a false security claim. Replaced by hosted-transport rules (INV-22).' ADR-0004 \u00a7'Security and privacy boundary' replaces the loopback boundary with HTTPS/WSS + CSP + explicit `check_origin`. The shipped `endpoint.ex` and `fly.toml` bind to the Fly proxy on public interfaces. FR-7 as written is now itself the false security claim INV-22 was written to prevent.",
+        "action": "Replace FR-7, AC-8, and the \"Security and privacy\" loopback sentence in planning/issues/DOS-M01-001.md with a pointer to INV-22 hosted-transport requirements (HTTPS/HSTS, WSS, CSRF on LiveView + non-idempotent HTTP endpoints, CSP forbidding third-party script/connect origins, no telemetry, cookies Secure/HttpOnly/SameSite), and add a cross-reference to ADR-0004 \u00a7\"Security and privacy boundary for a hosted application\" with `check_origin` restricted to production hostnames. Move the retired 127.0.0.1 sentence to the deferred native-revival appendix so it resurfaces only if INV-1 is un-deferred "
+      },
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "Pin Erlang/OTP, Elixir, Hex/Rebar, Mob `0.7.20`, Ecto/`ecto_sql`/`ecto_sqlite3`, `mob_notify`, and required Node/package-manager, Xcode/iOS, and Gradle/Android dependencies.",
+        "reason": "Xcode, Gradle, Mob 0.7.20, and mob_notify pins are all specific to the deferred native track. ADR-0004 removes the native build path from the MVP; the shipped `mix.lock` carries none of them. Documented setup that pins these on a fresh checkout will fail loudly on tools nobody needs.",
+        "action": "Update `planning/issues/DOS-M01-001.md` to reflect the ADR-0004 pivot: replace the Included pin list (line 24) and FR-2/FR-8 with the browser-MVP toolchain \u2014 Erlang/OTP, Elixir, Hex/Rebar, Phoenix/LiveView, Ecto/`ecto_sql`/`ecto_sqlite3`, Bandit, Node/esbuild/Tailwind, the Docker base image, and `flyctl`. Move Mob 0.7.20, `mob_notify`, Xcode/iOS, and Gradle/Android pins into a clearly labeled \"Deferred native track (see ADR-0004 \u00a77 and the PIVOT-2026-08-01 reclassification)\" subsection so the native re-entry still has the pin matrix without requiring a fresh checkout to install unreachable too"
+      }
+    ],
+    "DOS-M01-002": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Define the `DeviceCommandBroker` protocol separately from page-level LiveView messaging: command envelope/version, correlation ID, target capability, allowlisted arguments, reply/error envelope, deadline, idempotency, and root-screen generation. The production broker dispatches to the registered root `Mob.Screen`; fake adapters answer without Mob.",
+        "reason": "The two-bridge / `DeviceCommandBroker` / `Mob.Screen` design comes from ADR-0001, which is now 'Deferred \u2014 superseded for the MVP by ADR-0004'. Grep across the repo confirms no `DeviceCommandBroker`, `MobScreen`, or `mob_notify` module exists in `app/lib/`. Any implementer following DOS-M01-002 would build a boundary against a runtime the MVP does not have, and would still miss the boundary the MVP actually needs \u2014 the LiveView-hook + IndexedDB hydration seam (INV-24) owned by M09-003.",
+        "action": "Rescope DOS-M01-002 to the browser boundary the MVP actually has: (a) the `LocalStore` phx-hook contract and the `pushEvent`/`push_event` message set for `local_store:hydrate|put|ack|conflict`; (b) the `LocalStore` port (behaviour) with an IndexedDB adapter and an in-memory contract-test adapter; (c) the server-side \"assigns-only, no personal rows, single read-only `CatalogRepo`\" rule made mechanically enforceable (mirroring ADR-0004 \u00a7\"Enforcement\"); (d) the hosted-endpoint hardening ports (origin allowlist, CSP, session-cookie invariants, log-scrubbing filters, rate-limit hooks). Preserve the"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "FR-2: Ports exist as explicit behaviours for catalog queries, user-record transactions, clock/timezone, ID generation, notification scheduling, app lifecycle, connectivity/readiness, and optional file export/import. ... FR-4: No-op and in-memory adapters exist for every port ...",
+        "reason": "'Notification scheduling' and 'app lifecycle' are OS-notification / native-lifecycle concepts. Constitution 2.0.0 amends INV-17 to 'in-app due/overdue state only; Web Push explicitly deferred'. ADR-0004 'Lost \u2014 honestly' \u00a7'No OS local notifications' confirms `mob_notify` has no browser equivalent. Retaining these ports invites implementers to introduce a scheduling seam that has no target and no user story in the MVP.",
+        "action": "Rewrite DOS-M01-002.md FR-2 and FR-4 for the browser-first pivot: (1) drop the \"notification scheduling\" port \u2014 Constitution 2.0.0 INV-17 (line 130) and ADR-0004 \u00a7\"Lost \u2014 honestly\" (line 420) eliminate OS-scheduled notifications from the MVP; replace with an in-app due-state computation port owned by the rescoped M06 (per PIVOT doc line 129 on DOS-M06-005); (2) drop the \"app lifecycle\" port \u2014 native foreground/background/suspend has no browser analogue; replace with a LiveView socket-lifecycle contract (mount/hydrate/reconnect/terminate) that composes with the hydration protocol specified in A"
+      }
+    ],
+    "DOS-M01-003": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-1: Two explicitly configured `ecto_sqlite3` repositories exist (`CatalogRepo`, `UserRepo`), each with `pool_size: 1`, separate storage files, separate migration paths, and separate schema-version records; no cross-database foreign keys exist. ... FR-3: `UserRepo` migrations create the local-user layer covering installation/local-profile settings ... multi-vehicle-safe from the first migration.",
+        "reason": "ADR-0004 \u00a74 (MUST) forbids a server `UserRepo`; INV-23/INV-24 relocate all user records to anonymous browser IndexedDB with its own schema line and forward-only upgrade path. `app/lib/digital_oil_sticker/application.ex` starts only `CatalogRepo`. The user-side schema/migrations described in FR-3 belong now to M09-001 ('Specify the browser storage schema, version line, and forward-migration contract'). Leaving FR-1/FR-3 as written locks an implementer into a design ADR-0004 explicitly bans.",
+        "action": "Rewrite `planning/issues/DOS-M01-003.md` to match ADR-0004 and Constitution revision 2.0.0: (a) retitle and rescope the issue to \"Define the server-side read-only `CatalogRepo` SQLite schema with Ecto migrations\" (drop `UserRepo` from title, Outcome, Context, Included, Preconditions, Technical implementation contract, Acceptance criteria, and Test plan); (b) rewrite FR-1 to require exactly one `ecto_sqlite3` `CatalogRepo` opened read-only, `pool_size: 1`, its own forward-only migration path and schema-version record, and no cross-schema references \u2014 and add that the deployed Ecto repo list MUS"
+      },
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "FR-6: Migrations are forward-only, monotonic, idempotence-checked, and cannot silently downgrade; user migrations are transactional; catalog construction/replacement is build-then-validate/copy-and-swap; the conditions requiring an on-device safety copy before a destructive user transformation are defined.",
+        "reason": "'User migrations are transactional' and 'on-device safety copy before a destructive user transformation' assume a server-owned or device-owned `UserRepo` with Ecto transactions. IndexedDB has no cross-store transactions of that shape, no rollback beyond a single request, and no server participation. The migration semantics have to be respecified against `onupgradeneeded` (M09-001) or the whole clause becomes unimplementable guidance.",
+        "action": "Split FR-6 in planning/issues/DOS-M01-003.md: (1) keep \"Migrations are forward-only, monotonic, idempotence-checked, and cannot silently downgrade\" and the \"catalog construction/replacement is build-then-validate/copy-and-swap\" clause (the latter now applying to the Fly image/catalog activation flow per PIVOT-2026-08-01 and DOS-M04-008 as re-scoped); (2) delete the \"user migrations are transactional\" and \"conditions requiring an on-device safety copy before a destructive user transformation are defined\" sentences; (3) add a cross-reference sentence pointing at DOS-M09-001's forward-only Indexe"
+      }
+    ],
+    "DOS-M01-005": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "The native iOS/Android shell starts its embedded BEAM/Phoenix runtime, opens only its loopback LiveView in the native WebView, initializes both SQLite repositories, and reaches a diagnostic screen in airplane mode. A separate static Netlify site publishes placeholder marketing/help/privacy/attribution pages without participating in application runtime.",
+        "reason": "DOS-M01-005 as a whole implements ADR-0001 (now Deferred). ADR-0004 decision \u00a71: 'The MVP is a browser application. A Phoenix LiveView application, hosted on Fly.io, served at digitaloilsticker.com.' Physical-device airplane-mode acceptance (AC-1, Test plan/Manual) cannot be attempted for the MVP \u2014 DOS-M00-003 itself is DEFER per PIVOT-2026-08-01 (no Mac/Xcode, no Windows-CI for Mob). The card has no supersession marker; the shipped app is a hosted Phoenix service.",
+        "action": "Add an ADR-0004 supersession banner at the top of `planning/issues/DOS-M01-005.md` (referencing `docs/governance/PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md` line 83's RESCOPE decision) and rewrite the Outcome, FR-1\u2013FR-11, ACs, and test plan around: a Fly.io-hosted Phoenix LiveView shell in region `ord` with TLS terminated at the Fly proxy and `check_origin` restricted to production hostnames; the ADR-0004 hydration-from-empty protocol on mount (IndexedDB `dos_local`, envelope, `:hydrating`/`:empty`/`:storage_unavailable`/`:data_missing` states) satisfying the no-server-personal-record stance"
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "critical",
+        "quote": "ADR-0001 (mob-liveview-on-device) and ADR-0002 (netlify-static-boundary) as resolved by M00.",
+        "reason": "ADR-0001 status header now reads 'Deferred \u2014 superseded for the MVP by ADR-0004 (2026-08-01)'. ADR-0002 status header now reads 'Amended \u2014 2026-08-01 by ADR-0004'; its \u00a75 (production domain reserved for the static boundary) is explicitly amended so the apex points at Fly. Citing them as 'resolved by M00' and as authoritative source-of-truth for this card is a direct invitation to reinstate the retired architecture.",
+        "action": "Replace the ADR citation on planning/issues/DOS-M01-005.md line 21 with language that reflects the 2026-08-01 pivot, e.g.: \"ADR-0004 (browser-first client and hosting) \u2014 normative for the MVP. ADR-0001 (mob-liveview-on-device) is Deferred and retained only for a future native track. ADR-0002 (netlify-static-boundary) as amended by ADR-0004: Netlify keeps only static marketing/help/privacy/attribution content; the production apex (digitaloilsticker.com) points at Fly.io.\" Note: the surrounding DOS-M01-005 body (native iOS/Android shell, embedded BEAM, on-device Netlify boundary) is itself obsol"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-2: No non-loopback listener exists in any build; the endpoint rejects invalid Host/Origin requests and is unreachable from LAN/public interfaces.",
+        "reason": "INV-2 is retired (Constitution 2.0.0 \u00a70). The MVP endpoint is deliberately reachable on public interfaces behind the Fly proxy at digitaloilsticker.com; unreachability from LAN/public interfaces would be a defect, not a requirement. INV-22 replaces this with 'HTTPS/WSS only, `check_origin` restricted to the exact production hostnames, CSRF on connect'.",
+        "action": "Rewrite FR-2 of `planning/issues/DOS-M01-005.md` to restate INV-22 (hosted transport security) instead of the retired INV-2. Suggested replacement: \"FR-2: The hosted Phoenix endpoint is served only over HTTPS with HSTS behind the Fly proxy on `digitaloilsticker.com` (with `digitaloilsticker.net` reserved/redirected); the LiveView socket runs on WSS with `check_origin` restricted to the exact production hostname list; CSRF protection is enabled for the LiveView session and every non-idempotent HTTP endpoint per ADR-0004 'Security and privacy boundary'; a Content-Security-Policy forbids third-pa"
+      }
+    ],
+    "DOS-M01-006": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-1: Named suites exist for: pure domain unit/property tests; `CatalogRepo` and `UserRepo` contract/integration tests; migration tests; pipeline fixture/golden tests; LiveView component tests; loopback endpoint/security tests; Mob/`mob_notify` adapter tests; native lifecycle tests; and physical-device acceptance smoke tests. ... FR-2: CI jobs run on change for: format, warnings/static analysis, d",
+        "reason": "Per ADR-0004 the MVP has no UserRepo on the server, no Mob root screen, no mob_notify adapter, no on-device native lifecycle, no physical-device smoke path, and no iOS/Android release build target. The PIVOT-2026-08-01 \u00a7DOS-M01-006 row rewrites this exactly: 'The device matrix becomes a browser/engine matrix, and release evidence becomes deploy evidence (image digest, catalog version, release ID) rather than store-build artifacts.' Leaving FR-1/FR-2 as-is asks CI to gate on suites that will never exist.",
+        "action": "Rewrite FR-1 in planning/issues/DOS-M01-006.md to the actual browser-first suite list: pure domain unit/property tests; `CatalogRepo` read-only contract/integration tests; migration tests for CatalogRepo; pipeline fixture/golden tests; LiveView component + hydration-protocol tests; hosted-endpoint security tests (origin/CSRF/CSP/rate-limit/log-scrubbing, INV-22 equivalent for the hosted boundary); IndexedDB client-storage adapter conformance tests (M09-009 handoff); and Fly deploy smoke. Rewrite FR-2 to: format, warnings/static analysis, dependency/license audit, secret scan, boundary enforcem"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "FR-8: The static-only/offline boundary is proven by gates, not assumed: a deliberately introduced remote server call, non-loopback bind, forbidden dependency, bad migration, and secret-like value each fail the appropriate gate.",
+        "reason": "'Non-loopback bind' as a failing gate encodes retired INV-2. Under ADR-0004 the hosted app binds on public interfaces intentionally; a CI gate that fires on that would fail every deploy. 'The static-only/offline boundary is proven by gates' also misdescribes the MVP \u2014 the app is hosted and requires connectivity to reach the catalog (Constitution 2.0.0 amends INV-6/INV-7).",
+        "action": "In `planning/issues/DOS-M01-006.md`, rewrite FR-8, AC-6, and the corresponding Test-plan \"Controlled-failure runs\" bullet to prove the hosted-transport + no-server-side-personal-row boundary from ADR-0004 and Constitution 2.0.0 (INV-3, INV-22, INV-23, INV-26), not the retired loopback boundary from INV-2. Replace \"non-loopback bind\" with a controlled-failure gate against the hosted boundary \u2014 e.g. an endpoint added with CSRF/origin protection bypassed, or code that writes a personal row / opens a second `Repo` in the deployment. Replace the \"static-only/offline boundary\" framing with \"hosted-t"
+      }
+    ],
+    "DOS-M02-000": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "Produce implementation-ready flows, component/state specifications, content rules, accessibility expectations, and testable native-mobile prototypes for local onboarding, one active MVP vehicle, oil-change records, forecasts, and reminders. ... Designs must show offline, missing-data, denied-permission, native-runtime failure, and destructive states\u2014not only the happy path.",
+        "reason": "planning/issues/DOS-M02-000.md line 6. The epic outcome frames the whole milestone as producing 'native-mobile prototypes' with 'offline' and 'native-runtime failure' states. ADR-0004 (Accepted 2026-08-01) and CONSTITUTION 2.0.0 pivoted the MVP to a hosted browser LiveView on Fly.io, deferred native mobile, and state plainly 'The app does not work offline at all.' A reader arriving at this epic will conclude M02 is designing an app that ADR-0004 abandoned.",
+        "action": "Add a top-of-file 'SUPERSEDED BY ADR-0004 (2026-08-01)' banner to planning/issues/DOS-M02-000.md linking to docs/architecture/ADR-0004-browser-first-client-and-hosting.md, and rewrite the affected sections to match the new architecture: (1) Outcome (line 6) \u2014 replace 'testable native-mobile prototypes' with 'testable browser LiveView prototypes' and drop 'native-runtime failure' from the mandatory state list; (2) Excluded (line 42) and Preconditions (line 48) \u2014 remove the 'no remote Phoenix host / no PWA/browser production surface' exclusion and note that the DOS-M00-000 native gate is suspend"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Any UX that assumes an online account, runtime API lookup, remote Phoenix host, PWA/browser production surface, guaranteed notification delivery, or unverified compatibility data.",
+        "reason": "planning/issues/DOS-M02-000.md line 42 (Excluded) and FR-3 line 56, AC-6 line 100. The epic's Excluded list forbids 'remote Phoenix host' and 'PWA/browser production surface' \u2014 exactly the two things ADR-0004 chose for the MVP ('Phoenix LiveView application, hosted on Fly.io, served at digitaloilsticker.com'). Any child spec written against this exclusion is authoritatively wrong for the MVP.",
+        "action": "Update planning/issues/DOS-M02-000.md to reconcile with ADR-0004. Specifically, in Excluded (line 42), FR-3 (line 56), and AC-6 (line 100), remove \"remote Phoenix host\" and change \"PWA/browser production surface\" to just \"PWA/service-worker offline mode\" (or \"service-worker offline surface\"). Keep the exclusions of online accounts, runtime API lookup, guaranteed notification delivery, and unverified compatibility data (all still binding under ADR-0004). Add a citation to ADR-0004 in the Context and source of truth section noting that the MVP is a hosted Phoenix LiveView on Fly.io with in-app d"
+      }
+    ],
+    "DOS-M02-001": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Master prompt \u00a77 (target implementation architecture): expected LiveViews (`OnboardingLive`, `VehiclePickerLive`, `StickerLive`, `OilChangeLive`, `RecommendationLive`, `MileageLive`, `SettingsLive`) and the single Mob root WebView / Phoenix route stack decision that constrains navigation.",
+        "reason": "planning/issues/DOS-M02-001.md line 22, plus the components-boundary section at line 66 ('Navigation lives in the single Phoenix route stack inside the one Mob root WebView; no flow may require a second native navigation stack'). ADR-0004 supersedes ADR-0001; there is no Mob root WebView in the MVP. The IA spec's core constraint no longer applies, and any flow written to satisfy the 'no second native navigation stack' rule is solving a phantom problem.",
+        "action": "In planning/issues/DOS-M02-001.md, replace the \"single Mob root WebView / Phoenix route stack\" framing at line 22 (Context and source of truth) and the \"Navigation lives in the single Phoenix route stack inside the one Mob root WebView; no flow may require a second native navigation stack\" clause at line 66 (Components and ownership boundaries) with ADR-0004's hosted-LiveView shell: navigation lives in the Fly.io-hosted Phoenix route stack served over HTTPS/WSS at digitaloilsticker.com, with LiveView remounting on every reconnect and using `phx-disconnected` styling per ADR-0004's hydration pr"
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "major",
+        "quote": "DOS-M00-004, DOS-M00-005, DOS-M00-006 accepted: two-repo SQLite operation, `mob_notify` local notification behavior (including tap/deep-link mechanics), and vehicle/maintenance data boundaries are proven, so flows describe only demonstrated capabilities.",
+        "reason": "planning/issues/DOS-M02-001.md line 45 (Preconditions). ADR-0004 states the DOS-M00-003 gate is 'suspended, not passed and not failed' because the iOS half is unreachable; the whole native architecture-proof chain (M00-003 through M00-005) is likewise suspended. Marking these as required preconditions leaves M02-001 waiting on gates that will never resolve as written.",
+        "action": "Rewrite the DOS-M02-001 Preconditions block to align with ADR-0004:\n\n- Drop DOS-M00-004 and DOS-M00-005 as blocking preconditions. Note explicitly that DOS-M00-003 (and the M00-004/M00-005 gates that depend on it) are suspended per ADR-0004 lines 205-211 and no longer block M02-001, and that the on-device two-repo SQLite architecture (M00-004) and mob_notify local notifications (M00-005) are not part of the MVP substrate.\n- Cite ADR-0004 as the authoritative architecture reference: the browser client, Fly-hosted Phoenix, IndexedDB client-side personal data, and the normative \"client-storage + "
+      }
+    ],
+    "DOS-M02-002": [
+      {
+        "category": "stale-blocker",
+        "severity": "major",
+        "quote": "DOS-M00-003 accepted: physical-device proof of Mob 0.7.20 establishes real WebView constraints (rendering, input, safe areas, accessibility bridge behavior) the spec must honor. DOS-M00-005 accepted: proven `mob_notify` permission flows constrain the permission-prompt component's states.",
+        "reason": "planning/issues/DOS-M02-002.md lines 44-45 (Preconditions), reiterated in Dependency rationale at lines 131-132 as 'hard blocker, platform constraints.' ADR-0004 records that DOS-M00-003 is suspended (Mac/Xcode unreachable) and that no M02 UI is bound by native WebView or `mob_notify` realities anymore. Treating a suspended gate as a hard blocker will keep this card artificially Blocked, and FR-4's 'native WebView semantics' plus the `PermissionPrimer` mob_notify states have no MVP consumer.",
+        "action": "Add a SUPERSEDED-FOR-MVP header note to DOS-M02-002.md citing ADR-0004 (2026-08-01). Rewrite Preconditions (lines 44-45) to drop DOS-M00-003 and DOS-M00-005 as accepted-dependency clauses and instead cite ADR-0004 plus the constitution invariants that actually bind an MVP browser design system (per the ADR-0004 discrepancy table; verify the current INV numbering in CONSTITUTION.md before naming them). Rewrite FR-4 (line 52) to drop \"native WebView semantics\" and specify WCAG 2.2 AA rendered content over a hosted browser (VoiceOver Safari / TalkBack Chrome / desktop screen reader combos). Updat"
+      }
+    ],
+    "DOS-M02-003": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-1: First launch is specified as fully offline: an embedded-runtime/database readiness experience is shown while the bundled catalog is verified or copied; a safe retry exists; corrupt/incompatible bundled-data failure has an explanatory state; download is never presented as the normal recovery path. FR-2: Plain-language privacy content states: information stays on this device; no sign-in is req",
+        "reason": "planning/issues/DOS-M02-003.md lines 53-54. ADR-0004 \u00a7Consequences states unambiguously: 'The app does not work offline at all... LiveView renders on the server, so with no connection there is no UI beyond a disconnected shell.' There is no bundled catalog; the catalog is served from Fly.io. INV-6 and INV-7 were amended for exactly this reason. The whole first-run/readiness spec is authored against a platform that no longer ships.",
+        "action": "SUPERSEDE DOS-M02-003. The card is authored against the deferred on-device Mob/BEAM architecture (embedded BEAM, DataPacks bundled catalog, `UserRepo`/`CatalogRepo` two-repo verify+copy, airplane-mode first launch) that ADR-0004 (Accepted 2026-08-01) explicitly replaced with a hosted Phoenix LiveView on Fly.io backed by anonymous browser IndexedDB. ADR-0004 \u00a7Consequences states \"The app does not work offline at all,\" \"No bundled offline catalog. INV-6's promise cannot hold,\" and its Constitution-invariants table forbids citing INV-1/6/7/17/19 in their current form. Fold surviving concerns into"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Profile creation writes one `local_profiles` row (UUID, optional display name, unit system, IANA time zone, onboarding version, timestamps) in a single `UserRepo` transaction \u2014 one active profile in MVP, no credentials.",
+        "reason": "planning/issues/DOS-M02-003.md line 72 (Data and persistence). ADR-0004 \u00a7Decision.4 says the deployed application has 'exactly one Ecto repo, `DigitalOilSticker.CatalogRepo`, opened read-only. There is no `UserRepo` in the deployment.' `grep UserRepo app/` confirms zero UserRepo modules in the code. There is no `local_profiles` table in the browser MVP; preferences live in IndexedDB `prefs` and `localStorage` (per ADR-0004 storage layout table).",
+        "action": "Rewrite DOS-M02-003 line 72 (Data and persistence) and FR-7 (line 59) to align with ADR-0004: profile/preference creation writes to the IndexedDB `prefs` singleton (and, where profile identity is needed, a client-generated record in the appropriate `dos_local` object store) through the `local_store:put` protocol defined in ADR-0004 \u00a7\"Mutation round trip\". Remove all `UserRepo` transaction language and the `local_profiles` table reference. Update AC-6 and the destructive-action language for \"erase all local user data\" to describe clearing IndexedDB stores rather than a `UserRepo`. Also revisit "
+      }
+    ],
+    "DOS-M02-004": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "An implementation-ready flow lets a user find the closest supported year/make/model/variant from the local catalog... The deliverable specifies progressive offline filtering... all against the bundled `CatalogRepo` with zero network dependency. ... FR-8: All queries use the provisioned local catalog and meet the accepted p95 latency budget; no flow requires network. ... AC-3: The bundled catalog s",
+        "reason": "planning/issues/DOS-M02-004.md lines 6-8, 59, 102. ADR-0004 removed the bundled on-device catalog. The catalog is now SQLite baked into the deploy image on Fly.io and queried over the network from the browser; ADR-0004 \u00a7Consequences says the user 'needs connectivity to select a vehicle or read a schedule.' FR-8/AC-3 (no-network / airplane mode) cannot be satisfied by the MVP. Constitution \u00a79 latency budgets are also void ('void \u2014 no replacement is ratified' per ADR-0004 R9).",
+        "action": "Rewrite DOS-M02-004 scope to target hosted server-side catalog queries (LiveView over WSS against Fly-embedded read-only SQLite CatalogRepo) per ADR-0004 Decision 2 and \u00a7\"Catalog database on Fly\". Remove FR-8's \"no flow requires network\" clause and AC-3's airplane-mode requirement; replace with a hosted-connectivity precondition and cite ADR-0004 \u00a7Consequences (\"needs connectivity to select a vehicle or read a schedule\"). Drop citations of Constitution \u00a79 p95 latency budgets and note they are void per ADR-0004 R9 until re-ratified; defer any latency AC to the successor issue that ratifies new "
+      }
+    ],
+    "DOS-M02-005": [
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "Permanent deletion enumerates the affected rows across `vehicles`, `maintenance_plans`, `service_events`, `odometer_readings`, `usage_profiles`, `forecast_snapshots`, `reminder_rules`, and `scheduled_notifications`; replace preserves history per DOS-M02-004 identity-edit/replace semantics and never silently remaps.",
+        "reason": "planning/issues/DOS-M02-005.md line 68 (Data and persistence). Those tables were `UserRepo` tables in the on-device design; ADR-0004 eliminated `UserRepo`. In the MVP, deletion enumerates IndexedDB object stores (`vehicles`, `events`, `readings`, `reminders`, `prefs` per ADR-0004 storage layout) \u2014 a different vocabulary and shape. FR-2's `scheduled_notifications` reference is doubly stale (no OS notifications per INV-17 amendment).",
+        "action": "Update DOS-M02-005.md to reflect ADR-0004: (a) Rewrite line 68's deletion enumeration to reference the ADR-0004 IndexedDB object stores (`vehicles`, `events`, `readings`, `reminders`, and any related `prefs` entries), removing `maintenance_plans`, `usage_profiles`, `forecast_snapshots`, `reminder_rules` (renamed `reminders`), `service_events` (renamed `events`), `odometer_readings` (renamed `readings`), and `scheduled_notifications`. (b) Update Context line 23 and Preconditions line 46 to cite the ADR-0004 storage layout rather than the eliminated `UserRepo` tables. (c) In FR-4, replace \"OS no"
+      }
+    ],
+    "DOS-M02-008": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "An implementation-ready reminder flow converts forecast or user-selected dates into local reminder intent, requests platform permission at the right moment, and remains useful when delivery is denied, unsupported, late, or impossible. ... Master prompt \u00a73 rule 8 (local notifications only in v1: no APNs/FCM, device tokens, notification server, or accounts) ... Proven platform behavior from DOS-M00-",
+        "reason": "planning/issues/DOS-M02-008.md lines 6, 19, 22. The entire card is authored against OS-scheduled local notifications delivered by `mob_notify`. ADR-0004 \u00a7Consequences.Lost states: 'No OS local notifications. `mob_notify` and OS-scheduled local notifications do not exist in a browser. The MVP ships in-app due/overdue state only. ... Web Push is explicitly deferred.' CONSTITUTION 2.0.0 amended INV-17 to match. DOS-M00-005 is suspended per ADR-0004. Every FR (FR-1 through FR-11), the `NotificationAdapter`, `DeviceCommandBroker`, `reminder_rules`/`scheduled_notifications` tables, permission-primer",
+        "action": "Mark DOS-M02-008 SUPERSEDED-FOR-MVP by ADR-0004 and Constitution 2.0.0's amended INV-17. Add a header banner citing ADR-0004 \u00a7Consequences.Lost (lines 420\u2013421), the pivot doc's RESCOPE disposition (line 93), and the DOS-M00-005 DEFER (line 76) that makes the card's hard-gate precondition unmeetable. Preserve the card verbatim as evidence for the native-revival trigger (ADR-0004 \u00a7\"Trigger conditions\"). Extract the single surviving MVP surface \u2014 in-app due/overdue state on the vehicle card, computed on hydration and after each mutation, with honest copy that the app does not push \u2014 into DOS-M02-"
+      }
+    ],
+    "DOS-M03-001": [
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "Parent epic DOS-M03-000 entry criteria hold (Mob 0.7.20 architecture baseline; catalog pipeline before mobile packaging).",
+        "reason": "Inherits the ADR-0004 supersession from DOS-M03-000. The 'mobile packaging' sequencing constraint no longer exists \u2014 there is no mobile package. A reviewer using this precondition to gate ingest work would be gating on an impossible predicate.",
+        "action": "Restate the precondition without the superseded framing, e.g.: \"Parent epic DOS-M03-000 entry criteria hold under the ADR-0004 baseline (browser-first Phoenix LiveView, hosted on Fly.io, catalog shipped read-only inside the Fly deploy image); the catalog build pipeline runs before the Fly deploy image build.\" The parent DOS-M03-000 entry criteria themselves also need to be updated in the same change so the inheritance points at current, not superseded, criteria."
+      }
+    ],
+    "DOS-M04-000": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "At epic close, the on-device persistence layer of Digital Oil Sticker is complete and certified: `DigitalOilSticker.CatalogRepo` and `DigitalOilSticker.UserRepo` are separate `Ecto.Repo` processes using `Ecto.Adapters.SQLite3`, distinct files, and `pool_size: 1`; the bundled catalog installs and upgrades atomically with rollback; `UserRepo` boot migrations preserve data; export/import recovery wor",
+        "reason": "ADR-0004 (accepted 2026-08-01) supersedes ADR-0001 for MVP: there is exactly ONE Ecto repo (CatalogRepo, read-only) in the deployed app, no UserRepo, personal data lives in browser IndexedDB (INV-23), and there is no on-device package. Constitution rev 2.0.0 \u00a72 INV-23 and application.ex ('no user repo exists on the server (INV-23)') both confirm this. The epic's entire target state describes an architecture the owner explicitly deferred.",
+        "action": "Add a top-of-file \"SUPERSEDED FOR MVP BY ADR-0004 (2026-08-01)\" banner to planning/issues/DOS-M04-000.md linking to docs/architecture/ADR-0004-browser-first-client-and-hosting.md, the PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md entry, and Constitution INV-23. Rewrite the Outcome paragraph to reflect the RESCOPE described in the pivot doc line 105: server-side read-only CatalogRepo (Ecto/SQLite, pool_size 1, opened read-only, baked into the Fly image), browser IndexedDB user store with forward-only schema versioning, and the LiveView hydration/mutation protocol from ADR-0004 \u00a7\"The client-stora"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "- Any PWA/browser/OPFS/IndexedDB/WASM database, Netlify-hosted Phoenix runtime, cloud accounts/sync, or remote application server (per child exclusions and \u00a74.3).",
+        "reason": "This exclusion list is inverted post-pivot. ADR-0004 \u00a74 mandates IndexedDB for all personal data, and ADR-0004 \u00a7Hosting specifics mandates a remote application server (Phoenix on Fly.io). The line as written forbids the ratified architecture.",
+        "action": "In DOS-M04-000.md line 42, remove \"browser/OPFS/IndexedDB/WASM database\" and \"remote application server\" from the Excluded list because ADR-0004 \u00a73 mandates IndexedDB for all personal data and ADR-0004 \u00a7\"Hosting specifics\" mandates Phoenix on Fly.io as the remote application server. Retain the still-honest exclusions that ADR-0004 preserves and strengthens (no online accounts, no server-side personal record, no cloud sync, no PWA/service worker without a separate ADR, Netlify-hosted Phoenix runtime still prohibited). Also update the \u00a74.3 cross-reference, since post-pivot Netlify remains a stat"
+      },
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "Position in the M00\u2192M08 DAG: M04 is blocked by M01 (engineering foundation: repository, CI, and test scaffolding that all child suites run on) and by M03 (the vocabulary/stable-ID contract `DOS-M03-002` that the catalog schema and crosswalks consume, and later the compiled release candidate `DOS-M03-010` that the installer and certification consume). M04 in turn blocks M05 (Single-vehicle MVP scre",
+        "reason": "The dependency story is written against the deferred architecture. The pivot doc explicitly says 'M09 executes after M01... and becomes a blocker of M02-000, M04-000, and M05-000', inverting part of the edge. And 'M05 screens are built on the `UserRepo` contract' is dead \u2014 M05 screens are built on the LiveView hydration protocol + client storage adapter (M09-002/M09-003). ROADMAP.md still shows the pre-pivot DAG (M04 \u2192 M09), which contradicts the pivot doc.",
+        "action": "Reconcile ROADMAP.md's DAG and ROADMAP_LEDGER.md with the 2026-08-01 pivot doc first (adding M09-000 as a blocker of M04-000 if the pivot is being ratified, or explicitly recording that the pivot's edge-inversion proposal is not adopted). Then rewrite the M04-000 Dependency rationale to (a) reflect the reconciled DAG including M09-000, and (b) replace the \"M05 screens are built on the CatalogRepo/UserRepo contracts\" framing with the current post-pivot dependency \u2014 M05 screens are built on the LiveView hydration protocol (DOS-M09-003) and browser storage adapter (DOS-M09-002), which themselves "
+      }
+    ],
+    "DOS-M04-001": [
+      {
+        "category": "stale-blocker",
+        "severity": "critical",
+        "quote": "An ADR fixes one concrete on-device architecture: Mob 0.7.20 runs the BEAM and Phoenix LiveView inside the iOS/Android app; `DigitalOilSticker.CatalogRepo` and `DigitalOilSticker.UserRepo` are separate Ecto SQLite repos with `pool_size: 1`; Netlify is static-only. The ADR is approved, the dependency set is pinned in `mix.lock`, and a packaged debug build proves the architecture on one physical iOS",
+        "reason": "This card exists to ratify ADR-0001, which ADR-0004 explicitly supersedes ('ADR-0001 \u2192 Deferred'). Because DOS-M04-001 is documented as blocking every other M04 numbered issue, and because the architecture it would ratify no longer applies, every downstream M04 card is blocked by a dead ratification step. ADR-0004 \u00a7'What this supersedes' already exercised ADR-0001 \u00a77's escape clause.",
+        "action": "Re-scope DOS-M04-001 to ratify the browser-MVP dual-store architecture (server CatalogRepo + browser UserStore + LiveView hydration/mutation protocol) as prescribed by PIVOT-2026-08-01 line 106, so that ADR-0004 becomes the ratified artifact this card points at; alternatively close the card with a note pointing to ADR-0004. Either action unblocks the downstream M04 children (#37-#45) that ROADMAP_LEDGER.md still shows blocked_by #36."
+      },
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "- [ ] AC-2: A packaged debug build on one physical iOS and one physical Android device starts both distinct repos with `pool_size: 1`, inserts/reopens user rows, queries the bundled catalog, and remains functional in airplane mode.",
+        "reason": "ADR-0004 \u00a7'Trigger conditions that revive the native track' records that the iOS half is unreachable ('No Mac and no Xcode') and DOS-M00-003's go/no-go is 'suspended, not passed and not failed'. AC-2 cannot be satisfied and, because DOS-M04-001 blocks every other M04 card, this creates a permanently unpassable gate at the head of the milestone.",
+        "action": "Rescope DOS-M04-001 to match the ADR-0004 pivot: (a) rewrite the Outcome to reference server-side read-only CatalogRepo + browser UserStore + hydration/mutation protocol with the MUST that no personal row is written server-side (as the pivot doc already directs); (b) replace AC-2 with browser-MVP evidence \u2014 packaged Fly release digest, a runtime assertion that the deployed Ecto repo list is exactly [CatalogRepo] opened read-only, and absence of a UserRepo in the deployment (as proven by the DOS-M09-006 / DOS-M09-008 gates); (c) remove or narrow the physical-iOS/Android references in Included, "
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "- FR-2: Both repos are defined with `use Ecto.Repo, otp_app: :digital_oil_sticker, adapter: Ecto.Adapters.SQLite3`, `pool_size: 1`, distinct runtime-resolved database files, and no shared transaction.",
+        "reason": "ADR-0004 \u00a7Decision item 4 mandates 'exactly one Ecto repo, `DigitalOilSticker.CatalogRepo`, opened read-only. There is no `UserRepo` in the deployment.' The enforcement \u00a7'a test asserting the deployed application's Ecto repo list is exactly [CatalogRepo]' is release-gating. FR-2 as written would fail that test.",
+        "action": "Rewrite DOS-M04-001.md to align with the ratified ADR-0004: FR-2 should describe a single `DigitalOilSticker.CatalogRepo` opened read-only with `pool_size: 1`, and the Outcome (line 6), Included (line 25), Technical implementation contract (line 63, 70-72), Failure and recovery (line 84), and Acceptance criteria (AC-2 line 106, AC-4 line 108) sections must be updated in the same pass to remove `UserRepo` language. Move all `UserRepo`/on-device SQLite content to the native re-entry holding set described in PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md line 195, and add a new FR/AC that mirrors A"
+      }
+    ],
+    "DOS-M04-003": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "A fresh UserRepo database supports one local profile, any number of vehicles, odometer history, oil-change history, usage profiles, immutable forecast snapshots, reminder rules, scheduled local notifications, and catalog-install metadata without online identity. The schema is implemented as Ecto migrations with SQL-enforced invariants and deterministic ordering contracts.",
+        "reason": "ADR-0004 \u00a7Decision items 3 and 4 forbid a UserRepo: 'All personal data lives in anonymous browser storage' and 'The server persists NO personal rows... There is no `UserRepo` in the deployment.' Constitution 2.0.0 INV-23 codifies this. The actual implementation lives in app/lib/digital_oil_sticker/local_store/schema/v1.ex (IndexedDB shapes), not in an Ecto migration set. Pivot doc classifies DOS-M04-003 as RESCOPE: 'expressed as IndexedDB object stores... since SQL constraints are no longer available.'",
+        "action": "Close DOS-M04-003 as superseded by the M09 client-storage series (DOS-M09-001 in particular already implements the IndexedDB schema at app/lib/digital_oil_sticker/local_store/schema/v1.ex). If the entity/invariant checklist is worth preserving, migrate any not-yet-covered items into the M09 cards rather than rewriting DOS-M04-003 in place \u2014 the pivot doc already routed this work to M09 and reopening M04-003 would reintroduce the ADR-0004 contradiction."
+      }
+    ],
+    "DOS-M04-005": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Multi-step `record_oil_change` uses `UserRepo.transaction/1` (or `Ecto.Multi`) to insert the event, optionally add an odometer reading, advance current odometer only when valid, snapshot chosen catalog items, invalidate/recalculate the affected forecast, and return notification-rescheduling work. Any failure rolls back all database steps; native OS notification calls occur after commit and reconci",
+        "reason": "There is no UserRepo to run a transaction against under ADR-0004. The ratified mutation model is ADR-0004 \u00a7'Mutation round trip': server assigns \u2192 pushEvent local_store:put \u2192 hook IndexedDB readwrite transaction \u2192 local_store:ack. Constitution INV-24.2 makes this a MUST. 'Native OS notification calls' is doubly dead (no native app; no browser OS notifications per ADR-0004 \u00a7Consequences, 'No OS local notifications'). Pivot doc marks DOS-M04-005 RESCOPE toward a browser storage adapter.",
+        "action": "Close DOS-M04-005 as superseded by DOS-M09-002 (browser storage adapter) and DOS-M09-003 (LiveView hydration protocol, mutation round trip, multi-tab consistency). Before closing, migrate the still-valid test contracts from DOS-M04-005 into the M09 issues: (a) multi-vehicle isolation property tests across 3+ vehicles (AC-3), (b) snapshot-backed history that survives catalog-item disappearance (Failure and recovery: \"history is never deleted; snapshots keep rows renderable\"), (c) idempotency-by-client-UUID with duplicate-payload conflict detection (FR-7/AC-4), and (d) the append-only audit guar"
+      }
+    ],
+    "DOS-M04-006": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Mob starts two supervised `ecto_sqlite3` repos against secure app-specific files, each with one connection, and preserves committed data across backgrounding, app kill, device reboot, and low-space failures. Native storage paths, the boot coordinator/state machine, lifecycle handling, disk-space detection, containment-safe cleanup, file-protection/backup policy, and redacted health reporting are a",
+        "reason": "There is no Mob on-device runtime under ADR-0004; iOS Application Support / Android app-specific files roots are not the storage classes anymore. application.ex boots only CatalogRepo and the read-through cache; no Boot state machine, no StoragePaths module, no on-device WAL policy. Pivot doc: 'Split into server catalog boot at application start and client store open-and-hydrate on LiveView mount; the native durable-file placement requirement drops.'",
+        "action": "Close DOS-M04-006 as superseded by ADR-0004. The server half (catalog boot at application start) is already implemented in app/lib/digital_oil_sticker/application.ex and further covered by DOS-M09-006 (Fly deploy pipeline). The client half is covered by DOS-M09-002 (browser storage adapter) and DOS-M09-003 (LiveView hydration protocol). Park the native durability-class / low-space / containment-safe cleanup / file-protection design language with the native re-entry holding set called out in the pivot doc, so it can be revived if/when the deferred native track resumes. If a re-scoped browser-qu"
+      }
+    ],
+    "DOS-M04-007": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "At boot, after UserRepo starts and before readiness, invoke `Ecto.Migrator` against `DigitalOilSticker.UserRepo` with `all: true` and an application-level single-run guard. CatalogRepo never runs these migrations and installed catalog files are never schema-migrated in place.",
+        "reason": "The shipped Application.start explicitly says the opposite: 'No Ecto.Migrator: the catalog is a build artifact, not state \u2014 there is nothing to migrate at boot, and no user repo exists on the server (INV-23)'. There is no UserRepo to migrate. IndexedDB schema evolution runs client-side via onupgradeneeded (ADR-0004 \u00a7Schema versioning and migration), owned by DOS-M09-001.",
+        "action": "Close DOS-M04-007 as superseded by the ADR-0004 pivot. The server-side UserRepo Ecto.Migrator pipeline it specifies is architecturally impossible in the current deployment (no UserRepo exists; Application.start and ADR-0004 \u00a74/\u00a7Enforcement forbid one). Point the closure at DOS-M09-001, which owns the forward-only IndexedDB schema/version/migration contract per ADR-0004 \u00a7\"Schema versioning and migration\". Preserve DOS-M04-007's backup/recovery intent by folding it into the client-side quarantine/export path already implemented at app/lib/digital_oil_sticker/local_store/quarantine.ex and specifi"
+      }
+    ],
+    "DOS-M04-008": [
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "First launch and app-store upgrades copy the exact catalog packaged with the app into durable catalog storage, verify it completely, and atomically activate it without network access or risk to the prior catalog/UserRepo. The installer is a persisted state machine with staging, full verification, atomic rename/pointer activation, retained-rollback, containment-safe garbage collection, and determin",
+        "reason": "Pivot doc explicitly parks DOS-M04-008's bundle-copy mechanics with the native re-entry set and rescopes atomic catalog swap to a Fly release. ADR-0004 \u00a7'Catalog database on Fly' makes this concrete: 'The catalog is shipped read-only inside the deploy image. No volume. No Postgres... Catalog replacement is a deploy.' There is no first-launch copy, no catalog-pointer.json, and no catalog_installations UserRepo row (because there is no UserRepo).",
+        "action": "Re-scope or close DOS-M04-008 as superseded by DOS-M09-005 (not DOS-M09-006 as originally proposed \u2014 that ID is the domain/TLS issue). DOS-M09-005 \u00a7FR-13 already claims the re-scoped M04-008 requirement (\"A deploy never serves a half-swapped catalog... re-scoped `DOS-M04-008` requirement\") and \u00a7Data-and-persistence confirms the read-only-catalog-in-image model. Preserve the current M04-008 text verbatim in a Deferred-Native-Re-Entry card labelled with the deferred set (platform:ios, platform:android, plus a native-re-entry tag) so the bundle-copy state machine, verification matrix, atomic-acti"
+      }
+    ],
+    "DOS-M04-009": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Implement the envelope contract: `format: digital-oil-sticker-user-export`, `format_version`, `export_id`, `exported_at`, `app_version`, `user_schema_version`, `catalog_versions_referenced[]`, `record_counts`, `payload`, `payload_sha256`; canonical JSON hashing excludes the hash field itself; every snapshot retains its own version.",
+        "reason": "The shipped envelope is ADR-0004's `dos_local` shape, not the format above. app/lib/digital_oil_sticker/local_store/envelope.ex defines the fields as `envelope, schema_version, seq, tab_id, generated_at, data` (with optional `storage` sibling) and its docstring cites 'DOS-M09-001 FR-17, DOS-M09-002 FR-2'. The M04-009 envelope shape is incompatible: different key names, `payload_sha256` outside the envelope, `catalog_versions_referenced[]`, `import_history` inside a nonexistent UserRepo.",
+        "action": "Rewrite `planning/issues/DOS-M04-009.md` to align with the 2026-08-01 pivot rather than close it outright \u2014 the ROADMAP_LEDGER still lists it as an in-flight P1 MVP item (row 54) and the pivot doc explicitly RESCOPES it (line 114). Concretely: (a) delete the envelope contract paragraph and FR-1 \u2014 envelope shape is owned by DOS-M09-001 FR-17 and already shipped in `app/lib/digital_oil_sticker/local_store/envelope.ex`; (b) delete the `UserRepo.transaction` reference (line 62) and the `import_history` requirement (FR-12 line 56, line 71) \u2014 no UserRepo/import_history exists post-pivot per DOS-M09-"
+      }
+    ],
+    "DOS-M04-010": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "A release gate proves the two on-device Ecto repos remain deterministic and isolated, survive mobile lifecycle/storage faults, require no network, and meet explicit size/latency/memory budgets on packaged physical iOS and Android apps. The gate produces signed release evidence: contract-suite results on hosts and devices, budget measurements against an approved budgets ADR, fault/soak/corruption d",
+        "reason": "There is no packaged iOS/Android app under ADR-0004, and there are not 'two on-device Ecto repos' \u2014 only one server-side read-only CatalogRepo. FR-2 asserts 'on-device BEAM/LiveView endpoint' \u2014 the opposite of what shipped (Phoenix on Fly.io, per ADR-0004 \u00a7Hosting specifics). Constitution 2.0.0 \u00a79 replaced device budgets with page-load/hydration/socket budgets. Pivot doc classifies DOS-M04-010 RESCOPE toward browser/engine conformance and server budgets.",
+        "action": "Close DOS-M04-010 as superseded by ADR-0004 and the pivot's RESCOPE classification. Route the residual work as follows: (a) server-side privacy/no-personal-record proof and internet-facing hardening evidence to DOS-M09-008; (b) the browser/engine conformance matrix \u2014 hydration, IndexedDB schema migration, quota exhaustion, ITP-style eviction, private-mode refusal, multi-tab writes, export/import round trips \u2014 to DOS-M09-009; (c) release-evidence assembly (image digest, catalog version, Fly release ID, rehearsed rollback) to DOS-M09-006. Preserve the \"budgets ADR before sign-off\" obligation onl"
+      }
+    ],
+    "DOS-M05-000": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "A first-time user can install the native Digital Oil Sticker app, select one exact vehicle from the bundled catalog without a network connection, save one local vehicle profile, record an oil change and odometer readings, and understand the vehicle's current time/mileage service position. No sign-in, cloud database, remote profile, or network dependency is allowed in the core journey.",
+        "reason": "The epic's central Outcome sentence promises a native installable app with a bundled catalog and airplane-mode first launch. ADR-0004 (Accepted 2026-08-01) supersedes ADR-0001 for the MVP: the MVP is a hosted Phoenix LiveView browser app on Fly.io. INV-1, INV-6, and INV-7 are amended in CONSTITUTION 2.0.0 accordingly; the app requires connectivity and there is no bundle. The pivot ledger (PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md) explicitly classifies DOS-M05-000 as RESCOPE with the note '\"Local-only, offline\" becomes \"hosted, anonymous browser storage, connectivity required for catalog\".'",
+        "action": "Rewrite the Outcome to describe the browser MVP (hosted Phoenix LiveView on Fly.io at digitaloilsticker.com, server-side catalog queries, personal data in IndexedDB, export/import as sole recovery path, no server-side personal record) and add a SUPERSEDES-VIA banner at the top of DOS-M05-000.md citing ADR-0004, CONSTITUTION 2.0.0, and PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION so the pre-pivot text is not read as current. While rewriting, also fix the epic-level FR-2/FR-3/FR-4 exit-gate clauses that still reference airplane-mode physical-device flows and loopback-only traffic, and the Test plan"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Additionally excluded per the frozen scope boundaries (\u00a75): predictive usage date and reminder scheduling (M06), data-quality sign-off and release hardening (M07), multi-vehicle UI, signed catalog updates, VIN scan, browser/PWA product, and all cloud/social/commerce features (M08 or out of scope entirely).",
+        "reason": "The Excluded section lists 'browser/PWA product' as out of MVP scope, but ADR-0004 makes the browser product the MVP itself and CONSTITUTION 2.0.0 amends INV-19 to remove that prohibition. A reader would take the Excluded list as authoritative and conclude the current work is native, contradicting every downstream architectural decision made 2026-08-01.",
+        "action": "Two-part fix. (1) The narrow line-45 correction: replace \"browser/PWA product\" in the Excluded list with \"service-worker/PWA offline caching\" and add an inline citation to ADR-0004 and CONSTITUTION.md v2.0.0 \u00a70.5 / INV-19, noting the browser product is now the MVP surface while PWA/service-worker offline and Web Push remain deferred. (2) Flag that this is one symptom of a broader stale-doc problem: the whole DOS-M05-000.md epic (Outcome line 6 \"install the native Digital Oil Sticker app\", AC-2 \"clean iOS or Android device\", context \u00a77 references to `DeviceCommandBroker`/`MobScreen`, DOS-M05-00"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-2 (exit): A clean iOS or Android device completes the scripted first-run-to-dashboard flow \u2014 install, first launch, vehicle selection, profile save, oil-change record, odometer reading, dashboard read \u2014 in airplane mode immediately after installation.",
+        "reason": "FR-2 (and the paralleling AC-2, AC-3, AC-4 and 'Manual/device matrix' rows) require a physical-device airplane-mode installation flow as the exit gate. ADR-0004 records honestly that 'the app does not work offline at all' in the browser MVP and that there is no bundled catalog to make first launch work in airplane mode. INV-6 ('bundled catalog; airplane-mode first launch') is amended to a withdrawn promise in CONSTITUTION 2.0.0. This exit gate cannot be satisfied by anything the current architecture produces.",
+        "action": "Rewrite FR-2, AC-2, AC-3, AC-4, and the Manual/device matrix in `planning/issues/DOS-M05-000.md` to reflect ADR-0004's browser-first architecture. Replace the airplane-mode-after-install gate with the browser-equivalent gates the accepted architecture actually produces: (a) the pre-hydration `:hydrating` skeleton state, (b) the hydration round-trip filling assigns from IndexedDB, (c) the mutation write-back round-trip through the `LocalStore` hook with `local_store:put`/`local_store:ack`, and (d) the honest storage-unavailable / `:data_missing` / quota states from ADR-0004 \u00a7\"First-paint and em"
+      }
+    ],
+    "DOS-M05-001": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "The first feature slice consumes the already-approved M04 persistence layer without inventing a third store, duplicate schemas, or LiveView-owned queries. `CatalogRepo` remains replaceable/read-mostly; `UserRepo` remains durable and contains the exact `local_profiles`, `vehicles`, `maintenance_plans`, `service_events`, `odometer_readings`, `usage_profiles`, `forecast_snapshots`, `reminder_rules`, ",
+        "reason": "The entire card is built around wiring a dual on-device Ecto/SQLite architecture (CatalogRepo + UserRepo). ADR-0004 Decision \u00a74 says: 'The deployed application has exactly one Ecto repo, `DigitalOilSticker.CatalogRepo`, opened read-only. There is no `UserRepo` in the deployment.' The Enforcement section makes this a release-gating test. The pivot ledger classifies DOS-M05-001 as RESCOPE with the note that wiring means 'server catalog reads to hydrated client state held in assigns, rather than wiring two co-located on-device repos.' AC-7's architectural test forbidding LiveViews from aliasing '",
+        "action": "Rescope DOS-M05-001 to specify the browser-MVP integration contract: (a) rewrite Outcome and FR-1 so \"integration\" means wiring server-side read-only CatalogRepo, LiveView context APIs, socket.assigns hydration from the LocalStore JS hook, and the mutation round trip defined in ADR-0004 \u00a7\"Mutation round trip\" \u2014 not wiring two on-device Ecto repos; (b) rewrite the Data section to reference IndexedDB object stores (vehicles, events, readings, reminders, prefs, meta) per ADR-0004 \u00a7\"Storage layout\" instead of the ten UserRepo tables; (c) rewrite AC-7 as \"the deployed application's Ecto repo list i"
+      }
+    ],
+    "DOS-M05-002": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "A user can find an exact supported year/make/model/variant from the installed catalog and commit it to the single-vehicle profile entirely offline.",
+        "reason": "The Outcome, FR-1 ('Query only the locally installed, validated SQLite catalog'), FR-2 (on-device Endpoint/WebView), the 'Manual/device matrix' airplane-mode journey, and AC-2 all presuppose an on-device bundled catalog. ADR-0004 replaces this: 'The catalog is served from the server. Vehicle identity, intervals, oil requirements, filter fitments, confidence tiers, and support statuses are queried server-side from a read-only catalog database and rendered through LiveView' and 'the app does not work offline at all.' INV-6 in CONSTITUTION 2.0.0 amends the bundled-catalog promise away. The pivot ",
+        "action": "Rescope DOS-M05-002 as a server-queried search consumer over the read-only CatalogRepo query layer (introduced by DOS-M09-005): rewrite the Outcome to drop \"entirely offline\"; replace FR-1's \"locally installed, validated SQLite catalog\" wording with \"server-queried CatalogRepo through the read context\"; drop FR-2's \"on-device Endpoint/WebView\" framing; add functional requirements for network-latency behavior, request-failure/retry states, and per-socket rate-limit handling consistent with ADR-0004; strike the airplane-mode journey and AC-2's \"network blocked\" wording, replacing with a \"catalog"
+      }
+    ],
+    "DOS-M05-003": [
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "`maintenance_plans`: operating condition, sourced miles/months/OLM rule snapshots, requirement/source/version snapshots, and the optional explicit user override with reason \u2014 the custom interval is an override row/field, never a mutation of the sourced snapshot.",
+        "reason": "Data-and-persistence describes writes to UserRepo tables (`vehicles`, `maintenance_plans`, `usage_profiles`, `odometer_readings`), and FR-12 says 'All profile values persist through `UserRepo` context APIs and survive restart'. Under ADR-0004 Decision \u00a73 personal data lives in IndexedDB and 'the server persists NO personal rows'; UserRepo does not exist in the deployment. The 'Manual/device matrix' still calls for 'Offline create/review/edit pass on packaged iOS and Android builds, including restart survival' which is deferred native work.",
+        "action": "Rewrite DOS-M05-003 persistence around the ADR-0004 hydration/mutation protocol (DOS-M09-003): every create/edit is a `pushEvent` \u2192 LocalStore hook \u2192 IndexedDB `readwrite` transaction round trip, rendered as saved only after the hook's `local_store:ack` (protecting the \"Not saved to this browser\" state for a failed/timed-out ack). Replace all `UserRepo` references (context source note, FR-12, replace-atomicity note, log-redaction note) with the IndexedDB stores and per-mount hydration guarantee \u2014 \"profile values persist in the browser's IndexedDB and re-hydrate on every mount/reconnect.\" Repla"
+      }
+    ],
+    "DOS-M05-004": [
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "Writes target `service_events` and `odometer_readings` exactly as specified in \u00a78 and FR-1/FR-2; odometer values persist in the canonical integer base unit with the entered unit/original value retained.\n- Linked mutations (event plus its reading plus staleness marks) run in one `Ecto.Multi` wholly inside `UserRepo` (DOS-M05-001 FR-4).",
+        "reason": "Every FR and every persistence rule assumes an on-device UserRepo with Ecto.Multi transactions. Under ADR-0004 there is no UserRepo; history rows live in IndexedDB with no cross-store transactions and no Ecto. Security & privacy notes 'History never leaves the device' \u2014 literally false in a hosted app where the values transit the socket into assigns on every mutation (bounded by INV-24). The device-matrix E2E on iOS+Android is the native-track flow.",
+        "action": "Rescope DOS-M05-004 to ADR-0004: replace UserRepo/Ecto.Multi language in FR-3/FR-4/FR-10, Preconditions, Data-and-persistence, and Undo state with IndexedDB per-store `readwrite` transactions plus the LocalStore hydrate/put/ack protocol and hydration-time recomputation; move staleness invalidation from \"in the same transaction\" to \"computed on the next hydration and after each mutation\" per ADR-0004's in-app due/overdue state. Rewrite Security & privacy: replace \"History never leaves the device\" with the accurate statement that personal data is transient in `socket.assigns` for one LiveView co"
+      }
+    ],
+    "DOS-M05-005": [
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "FR-10: The dashboard renders entirely from local data, reaching usable content without any online spinner, and links to profile edit and history.",
+        "reason": "FR-10 (and AC-2 'Dashboard renders from local data with network blocked and reaches usable content without an online spinner') presuppose an on-device renderer. In the browser MVP the LiveView server is the renderer; a network-blocked client cannot reach usable content at all. INV-24 (hydration protocol) and INV-24.6 (private-browsing/blocked storage) require a distinct pre-hydration state that is NOT the same as 'usable dashboard'. Additionally the manual matrix asks for 'offline cold-start on packaged iOS and Android builds recorded on video' \u2014 a native-track deliverable.",
+        "action": "Replace FR-10 and AC-2 with browser-appropriate gates aligned to the pivot and M09: a determinate pre-hydration first paint (never a false empty garage per INV-24.3), a hydration round-trip budget (mount-unhydrated \u2192 hook read \u2192 snapshot \u2192 validated assigns), and honest storage-unavailable / quota / eviction / session-only states per DOS-M09-003 (the storage-state UX issue; the finding's reference to DOS-M09-004 should be corrected to DOS-M09-003). Move the \"offline cold-start on packaged iOS and Android builds recorded on video\" acceptance evidence out of DOS-M05-005's manual matrix into the "
+      }
+    ],
+    "DOS-M05-006": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "The iOS and Android bundles contain the OTP release, Phoenix/LiveView assets, native Mob shell, SQLite migrations, and starter catalog needed for an immediate, deterministic offline first boot.",
+        "reason": "The entire card describes packaging and booting the Mob 0.7.20 native iOS/Android app: signed IPA/AAB/APK, on-device BEAM/Endpoint, loopback binding to 127.0.0.1, WebView, native shell, ATS/network security config, mix mob.doctor, DeviceCommandBroker. ADR-0004 defers the Mob native track entirely, and the pivot ledger says this card's spine 'is exactly the Fly deploy contract, so it re-scopes with the native packaging content carved out'. INV-2 (loopback binding) is retired per CONSTITUTION 2.0.0 and replaced by INV-22 (hosted transport). The AC set (physical-device airplane-mode, LAN unreacha",
+        "action": "Split DOS-M05-006 per the pivot ledger's own RESCOPE guidance: retain the Fly.io deploy contract (reproducible container build, pinned Elixir/OTP/Phoenix toolchain, `/healthz` gate before traffic promotion, release manifest binding app version + catalog data_version + storage schema_version + asset digest) and reissue as part of M09 deployment work (DOS-M09-006 reproducible image, DOS-M09-007 health/readiness gating, DOS-M09-008 release manifest & rollback). Move all native packaging surfaces \u2014 Mob 0.7.20 `mix mob.doctor`/`mob_new` toolchain pins, signed IPA/AAB/APK, iOS ATS + Android network "
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-2: Netlify hosts only static marketing/help/privacy content and, beginning in DOS-M08, signed public catalog artifacts. It is not a Phoenix runtime, profile API, login service, or user database. A browser/PWA product requires a separate future ADR and is out of scope.",
+        "reason": "FR-2 in an M05 packaging card asserts the browser/PWA product is out of scope pending a separate future ADR. ADR-0004 IS that separate ADR and it approves the hosted browser application: the apex now points at Fly.io, and 'ADR-0002 \u00a76 ... is satisfied: this ADR is that separately approved decision.' Leaving FR-2's second sentence in place directly contradicts the ratified architecture.",
+        "action": "Update DOS-M05-006 FR-2 to cite ADR-0004: replace the last sentence (\"A browser/PWA product requires a separate future ADR and is out of scope\") with a statement that ADR-0004 approves the hosted browser Phoenix LiveView application as the MVP surface, while a PWA / service-worker offline mode remains an explicitly deferred separate decision. Also revise the Netlify description to match ADR-0004's amended split (apex + www on Fly.io; static marketing/help/privacy/attribution on `help.` and `legal.` subdomains under `digitaloilsticker.com` or on `digitaloilsticker.net`; later post-MVP `catalog."
+      }
+    ],
+    "DOS-M05-007": [
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "FR-4: Resolve/write app-local files through the approved `Mob.Storage`/filesystem boundary. Any picker or share capability that requires `Mob.Socket` is invoked by the root `Mob.Screen` through the DeviceCommandBroker, with an allowlisted private path, correlation ID, cancellation result, and root-containment check; a Phoenix LiveView socket is never passed to a Mob file/share API.",
+        "reason": "FR-3/FR-4 and the Components-and-ownership section route export/import through `Mob.Files`, `Mob.Storage`, `Mob.Socket`, the root `Mob.Screen`, and the DeviceCommandBroker \u2014 all native-track machinery. ADR-0004 defers the native track and CONSTITUTION 2.0.0 retires INV-2. In the browser MVP export is a Blob download and import is a File input read in a JS hook (ADR-0004 'Export and import' section). The manual matrix (physical iOS+Android platform save/share, airplane mode) is likewise native-track.",
+        "action": "Rewrite DOS-M05-007 FR-3 and FR-4 to the browser MVP export/import path defined in ADR-0004 \u00a7\"Export and import\": export builds the envelope in the `LocalStore` JS hook, computes a SHA-256 content digest, and hands the user a `Blob` download named `digital-oil-sticker-export-YYYYMMDD.json` (no server round trip, no Mob picker/share); import reads a File via a file input in the hook, hash-checks, and is submitted through the existing `local_store:hydrate` validation/migration pipeline. Delete every reference to `Mob.Files`, `Mob.Storage`, `Mob.Socket`, `Mob.Screen`, and the DeviceCommandBroker "
+      }
+    ],
+    "DOS-M06-000": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Digital Oil Sticker converts the selected interval, service history, manually sampled odometer history, and an optional declared typical-driving baseline into a deterministic, explainable estimate. It identifies the earlier of the time and projected-mileage thresholds and schedules private, on-device reminders through `mob_notify`; it never requires a user account, remote job, APNs/FCM push servic",
+        "reason": "The epic outcome for DOS-M06-000 promises on-device reminders via `mob_notify` and a running BEAM. ADR-0004 (Accepted 2026-08-01) supersedes ADR-0001 for MVP: the app is a hosted Phoenix LiveView on Fly.io with no native shell, no `mob_notify`, no `Mob.Socket`, and no on-device BEAM. Constitution 2.0.0 \u00a76 INV-17 (amended) states: 'OS-scheduled local notifications (`mob_notify`) are unavailable in a browser and are no longer part of the MVP. The MVP uses in-app due/overdue state only.' The PIVOT ledger (2026-08-01) classifies DOS-M06-000 as RESCOPE: 'the notification half narrows to in-app due/",
+        "action": "Rewrite the DOS-M06-000 Outcome (lines 4-8) to describe in-app due/overdue state derived from the deterministic forecast plus IndexedDB-persisted reminder preferences, removing the `mob_notify` and \"no running/backgrounded BEAM process\" clauses. Add a \"SUPERSEDED BY\" or \"PIVOTED 2026-08-01\" header note pointing to ADR-0004 \u00a7Consequences.Lost, CONSTITUTION.md 2.0.0 \u00a76 INV-17, and PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md row for #54. Move the OS-scheduling/`mob_notify` promise and any child-issue references (DOS-M06-005/006/007) that hinge on native scheduling into a deferred native-re-entry"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-7: Scheduled notifications fire on physical iOS and Android devices with the app foregrounded, backgrounded, and killed.\nFR-8: Launch/resume and date/time/time-zone changes converge the OS schedule to the local desired plan.",
+        "reason": "These milestone exit-gate conditions (also AC-5 and AC-6) require behavior that is structurally impossible in the browser MVP: there is no OS local-notification API in a browser, and no killed-app delivery path (Constitution 2.0.0 \u00a76 INV-17; ADR-0004 \u00a7Consequences.Lost). Leaving these gates in place makes M06 unclosable and gives M07 (release) an unmeetable prerequisite.",
+        "action": "In planning/issues/DOS-M06-000.md, add a dated supersession block above the Outcome section citing ADR-0004 (2026-08-01) and Constitution 2.0.0 INV-17 (amended). In that block: (a) retire FR-7, FR-8, AC-5, and AC-6 as structurally unmeetable in the browser MVP, preserving their original text with a \"Superseded 2026-08-01\" annotation rather than deleting; (b) rewrite the Outcome paragraph (line 8) to remove the physical iOS/Android/killed-app clause; (c) replace them with a browser-appropriate exit gate \u2014 \"In-app due/overdue state is visible on every mount and recomputes on the INV-24 hydration"
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "critical",
+        "quote": "The M00 physical-device go/no-go gate passed, including the proven LiveView/OTP \u2192 DeviceCommandBroker \u2192 root `Mob.Screen`/`Mob.Socket` plugin path that `DOS-M06-005` depends on.",
+        "reason": "ADR-0004 \u00a7'ADR-0001 \u2192 Deferred' states DOS-M00-003 is 'suspended, not passed and not failed' because the iOS half is unreachable without a Mac/Xcode and the Android half exposed five Windows-host defects. The precondition can never resolve as written. The PIVOT ledger classifies DOS-M00-003 as DEFER for the same reason.",
+        "action": "Delete the M00-003 precondition line from `planning/issues/DOS-M06-000.md` (line 60). The MVP has no `DeviceCommandBroker`/`Mob.Screen`/`Mob.Socket` path \u2014 those were rescoped out per PIVOT-2026-08-01. If a replacement precondition is desired, use: \"ADR-0004 is accepted and Constitution revision 2.0.0 (rewriting INV-1/2/6/7/17/19) has been ratified per ADR-0004 \u00a7'Constitution invariants requiring re-ratification' and Risk R5.\" Also review other M06 children (DOS-M06-006 is DEFER per PIVOT line 130; DOS-M06-005 itself is RESCOPE per line 129) so downstream preconditions do not cascade the same "
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "critical",
+        "quote": "A `mob_notify` release verified compatible with Mob 0.7.20 has been identified (verified in `DOS-M06-005`).",
+        "reason": "Constitution 2.0.0 \u00a76 INV-17 (amended) removes `mob_notify` from MVP scope entirely; there is no browser build target for it. The precondition cannot be satisfied, and even asking the question in an MVP card contradicts INV-19's prohibition on 'a deferred item MUST NOT be implied by MVP copy'.",
+        "action": "Rescope DOS-M06-000 per pivot document line 124 (RESCOPE, not just precondition deletion): remove the mob_notify precondition on line 61, remove the risk statement on line 153 referencing \"mob_notify/Mob 0.7.20 compatibility\", update the Outcome (line 6) to describe in-app due/overdue state instead of \"schedules private, on-device reminders through mob_notify\", update the AC-5 and AC-7 language and FR-7 (which reference physical iOS/Android device delivery), and align child-issue references (DOS-M06-005/006/007) with the pivot's narrowed scope. Delete or replace all references to Mob 0.7.20 an"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "Master prompt \u00a78 \"Database and data-contract baseline\": the `usage_profiles`, `odometer_readings`, `forecast_snapshots`, `reminder_rules`, and `scheduled_notifications` `UserRepo` tables this milestone populates and consumes.",
+        "reason": "ADR-0004 \u00a7Decision 4 states: 'The deployed application has exactly one Ecto repo, `DigitalOilSticker.CatalogRepo`, opened read-only. There is no `UserRepo` in the deployment. Personal data exists on the server only as transient values in `socket.assigns`.' Constitution 2.0.0 INV-23 makes IndexedDB the only home for personal data. All five tables named here are `UserRepo` tables that no longer exist as a server-side lane. `scheduled_notifications` in particular has no MVP home at all (INV-17 amended).",
+        "action": "Rewrite the DOS-M06-000.md \u00a7\"Context and source of truth\" bullet citing master prompt \u00a78: rather than naming those five `UserRepo` tables as the persistence surface, describe M06's persistence surface as the IndexedDB object-store layout defined in ADR-0004 \u00a7\"Storage layout\" (`vehicles`, `events`, `readings`, `reminders`, `prefs`, plus the `meta` singleton with `schema_version`), with forward-only client-side migrations. Do the same in \u00a7\"Data and persistence\" (line 90). Drop `scheduled_notifications` outright \u2014 INV-17 has been rewritten to \"in-app due/overdue state only; Web Push deferred\", so"
+      }
+    ],
+    "DOS-M06-002": [
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "FR-5 (in-app sampling suggestion): Offer a local in-app \u201ctake another reading\u201d suggestion after 7\u201314 days only while confidence is low/medium; do not create OS notifications until the user separately enables them.",
+        "reason": "The 'do not create OS notifications' clause is now a promise the browser MVP cannot break (Constitution 2.0.0 INV-17 amended). More importantly, the PIVOT ledger flags this exact FR for rework: 'The \"recurring\" prompt has no background scheduler in a browser, so recurring sampling must be respecified as an on-visit prompt driven by elapsed time since the last sample.' Written as an autonomous timer it will be built wrong.",
+        "action": "Rewrite FR-5 to eliminate scheduler/opt-in framing so it reads as an on-visit elapsed-time check that cannot be built as a timer: \"FR-5 (on-visit sampling suggestion): On any mount/hydration where the current forecast confidence is low or medium and the most recent eligible odometer reading is 7\u201314+ days old (per DOS-M06-001 eligibility), render a non-blocking in-app suggestion to take a new reading; suppress after user dismissal for that visit; no scheduler, no background task, and no OS notification path exists in this issue (INV-17, Constitution 2.0.0).\" Also update AC-7 to match the on-vis"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "Offline pass on at least one physical iOS and one physical Android device: full capture flows in airplane mode, including large-text accessibility spot checks.",
+        "reason": "ADR-0004 \u00a7Consequences.Lost states plainly: 'The app does not work offline at all... with no connection there is no UI beyond a disconnected shell.' Constitution 2.0.0 INV-6/INV-7 amended: connectivity is required. Requiring airplane-mode evidence on physical iOS/Android as MVP acceptance is directly contradicted by the ratified architecture.",
+        "action": "Rewrite DOS-M06-002 \u00a7Test plan \u2192 Manual/device matrix to remove the airplane-mode iOS/Android requirement and replace it with: (1) online exercise of the capture flows on each row of Constitution 2.0.0 \u00a79 browser support matrix \u2014 current and prior stable of Chrome, Edge, Firefox, and Safari on desktop plus iOS Safari 16+ and Android Chrome; (2) an INV-7 honest-degradation checklist verifying that each capture surface shows the specified socket-down and catalog-query-failure states rather than a stale or fabricated result, and that no queued mutation is silently dropped on LiveView reconnect (p"
+      }
+    ],
+    "DOS-M06-005": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "The packaged app sends typed commands through the M00/M01 DeviceCommandBroker; the registered root `Mob.Screen` requests permission and schedules/cancels local notifications through `mob_notify` using its `Mob.Socket`.",
+        "reason": "The entire Outcome, all nine FRs, and AC-7/AC-8 of DOS-M06-005 depend on a native `Mob.Screen`, `Mob.Socket`, `MobNotify`, `Mob.Permissions.request`, an Android channel, and a physical-device packet capture proving no push registration. None of that infrastructure ships in the browser MVP (ADR-0004 supersedes ADR-0001; Constitution 2.0.0 \u00a76 INV-17 amended). The PIVOT ledger classifies DOS-M06-005 as RESCOPE: 'Keep the desired-reminder plan as a pure domain output rendered as in-app due/overdue state; the `mob_notify` delivery half splits out into a new deferred native issue.'",
+        "action": "Close DOS-M06-005 with a dated supersession note citing ADR-0004 (2026-08-01), Constitution 2.0.0 \u00a76 INV-17 amendment, and the PIVOT-2026-08-01 RESCOPE classification. Reopen as two cards: (a) a browser-scoped planner card owning FR-1 through FR-7 and FR-12/FR-13's in-app portions \u2014 a pure `DigitalOilSticker.Reminders` planner producing a deterministic desired-reminder set rendered as in-app due/overdue state and reminder preferences persisted through the INV-24 hydration round trip, with settings UX reusing DOS-M06-004's warning component; (b) a parked native-re-entry card holding FR-8 throug"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "FR-8 (plugin pinning and adapter boundary): Pin a `mob_notify` release verified compatible with Mob `0.7.20`, activate it in `mob.exs`, and record native host requirements generated/merged for both targets. `LocalNotifications` emits validated schedule/cancel/permission command envelopes; the root `Mob.Screen` adapter handles them, calls `MobNotify.schedule(mob_socket, ...)` or `MobNotify.cancel(m",
+        "reason": "There is no `mob.exs`, no `Mob.Screen`, and no `MobNotify.schedule/cancel` in the browser MVP build (ADR-0004 supersedes ADR-0001; Constitution 2.0.0 INV-1 amended). Every artifact this FR names is on the deferred native track. Even keeping the seam 'for later' misleads: implementers would be gated on infrastructure that is not on the MVP path.",
+        "action": "Rewrite FR-8 to a browser-shaped adapter boundary: a pure planner returning a desired plan plus a NotificationAdapter behaviour whose only MVP implementation renders in-app due/overdue state; carve out the mob_notify/Mob.Screen/mob.exs pinning language into the deferred native re-entry set; add an explicit gate that any Web Push or OS-notification adapter requires a new ADR (per ADR-0004 \u00a7\"Trigger conditions that revive the native track\") and Constitution 2.0.0 INV-17 revision before implementation."
+      },
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "AC-7: Test and real notifications schedule/cancel on physical iOS and Android; no push token or APNs/FCM backend is configured.",
+        "reason": "The 'no APNs/FCM backend' half is still true and worth preserving, but the 'physical iOS/Android schedule/cancel' half describes deferred native work (ADR-0004; Constitution 2.0.0 INV-17). A reader is misled into thinking this is an MVP acceptance test.",
+        "action": "Split AC-7 into two acceptance criteria:\n\n(a) MVP AC (kept in a re-scoped DOS-M06-005): \"The deployed browser build makes zero outbound requests to APNs, FCM, or any push-notification service. Evidence: CI-run packet/network capture during a full session (enable reminders, schedule, test, cancel) shows only requests to the application origin, satisfying Constitution 2.0.0 \u00a79 'Privacy on the wire' and INV-4/INV-22/INV-26.\"\n\n(b) Deferred AC (moved to the native re-entry holding card alongside DOS-M00-003, DOS-M00-005, DOS-M06-006, DOS-M08-004, and the carved-out mob_notify delivery half named in"
+      }
+    ],
+    "DOS-M06-007": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-6 (QA protocol): The QA protocol records requested UTC/local fire time, OS-delivered time when observable, app state, power-saving mode, permission, timezone, app version, forecast revision, and result. OS delivery may be delayed; the product guarantees correct scheduling intent/reconciliation, not exact display time.",
+        "reason": "FR-6, AC-3 ('after native adapter failure'), AC-4 ('killed-app delivery'), and the release-gate contract with `DOS-M07-004`/`M07-006`/`M07-007` all require OS-delivery evidence on physical iOS/Android that the browser MVP cannot produce (Constitution 2.0.0 \u00a76 INV-17 amended; ADR-0004 \u00a7Consequences.Lost). Because DOS-M07-004 in roadmap.yml is `blocked_by: DOS-M06-002, ..., DOS-M06-007`, leaving this unrewritten keeps a permanently-unmeetable dependency on the release train (the very failure mode commit 87f3104 'Stop the conformance gate from being permanently red' guarded against elsewhere).",
+        "action": "Rewrite planning/issues/DOS-M06-007.md to the pivot doc's RESCOPE (line 131 of PIVOT-2026-08-01): retire FR-6, AC-3 (\"after native adapter failure\"), AC-4 (physical iOS/Android and killed-app delivery), and their evidence rows; replace the reliability worksheet with a browser-appropriate protocol covering (i) hydration correctness on cold load and reconnect (Constitution 2.0.0 INV-24.1/24.3), (ii) in-app due-state accuracy across timezone/clock/DST changes and forecast revisions, (iii) permission-independent overdue state (INV-17 amended, MVP is in-app due/overdue state only), and (iv) the \u00a79 "
+      }
+    ],
+    "DOS-M07-000": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "Outcome: The single-vehicle app is accessible, private, secure, supportable, performant, migration-safe, and demonstrably reliable on the declared iOS/Android matrix. Signed release builds and truthful store/Netlify materials can move through closed beta to staged production without introducing accounts or behavioral telemetry.",
+        "reason": "The epic's Outcome, Context and source of truth (which still cites the 'BEAM + Repo + loopback Phoenix + LiveView/WebView architecture' and the 'M07 is Target = Launch' cross-milestone edges), and Definition of done all describe launching a native iOS/Android package to Apple/Google stores. That path is superseded for the MVP by ADR-0004 (Accepted 2026-08-01), which pivots to a hosted browser app on Fly.io behind digitaloilsticker.com with no store submission, no signed native package, and no bundled catalog. The pivot doc at docs/governance/PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md explici",
+        "action": "Add a \"SUPERSEDED BY / Re-scope pending\" note at the top of `planning/issues/DOS-M07-000.md` referencing ADR-0004 and `docs/governance/PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md` row for DOS-M07-000, then re-scope Outcome, Context and source of truth (drop the \"iOS/Android matrix\", \"store/Netlify materials\", \"BEAM + Repo + loopback Phoenix + LiveView/WebView\" phrasing), FRs (FR-4, FR-6), ACs (AC-3, AC-5), and Definition of done so the epic gates a Fly.io custom-domain public web launch \u2014 staged Fly deploys, `digitaloilsticker.com` cutover, canary smoke, rehearsed rollback \u2014 instead of a sign"
+      },
+      {
+        "category": "stale-framing",
+        "severity": "major",
+        "quote": "M07 blocks M08: post-MVP expansion (multi-vehicle UI, signed catalog updates, VIN scan) builds on the released v1 baseline, its store presence, and its migration history.",
+        "reason": "The pivot inserted a new milestone M09 ('Hosted browser platform and anonymous client storage') between M07 and M08 (planning/roadmap.yml lines 97-99 and 1280+). The immediate successor of a released browser MVP is M09's hosted-browser hardening plus the M10 shop-integration surface, not M08's native-only 'store presence' and 'signed catalog updates' \u2014 the pivot doc marks DOS-M08-007 (client-side updater) as DEFER and re-scopes the rest to server-side catalog operations. The 'its store presence' phrase is a native-store assumption that no longer holds.",
+        "action": "Rewrite the M07\u2192M08 handoff sentence in planning/issues/DOS-M07-000.md line 124 to (a) remove \"store presence\" (M07 is now a web launch on digitaloilsticker.com per pivot 2026-08-01, not an app-store release), (b) drop \"signed catalog updates\" from the M08 expansion examples because DOS-M08-007 is DEFER and DOS-M08-005/006 are rescoped to build/deploy-time signing of the Fly catalog artifact per pivot doc line 145-147, and (c) update the \"M00\u2192M08 DAG\" framing to acknowledge that M09 (hosted browser platform) and M10 (shop integration) now exist in the roadmap. Note that M09 is not simply the \""
+      }
+    ],
+    "DOS-M07-001": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "Master prompt 'Target implementation architecture,' subsection 'Production shell security': bind Cowboy/Phoenix strictly to `127.0.0.1`, never `0.0.0.0`; ... WebView navigation restricted to loopback application routes; Android cleartext exception limited to device loopback; verify another LAN device cannot reach the endpoint ...",
+        "reason": "The entire Context/Included/FR list is a threat model for a device-local loopback Phoenix endpoint inside a Mob WebView. ADR-0004 \u00a7Consequences states plainly: 'The loopback security posture is gone (INV-2). It is replaced by the boundary above, which is a real boundary but a public one. The threat-model ticket (DOS-M07-001) must be rewritten from scratch against a hosted app; it currently reasons about a device-local endpoint.' FR-2 ('bind Phoenix to loopback only'), FR-7 (iCloud/Android cloud backup exclusion for on-device SQLite), FR-8 (no push-token permission \u2014 Web Push is now the deferre",
+        "action": "Add a top-of-card \"SUPERSEDED BY ADR-0004\" note and rewrite DOS-M07-001 as a hosted-app threat model: cover HTTPS/WSS transport, check_origin allowlist, CSRF on socket connect, restrictive CSP (per ADR-0004 \u00a7\"Content Security Policy\"), session cookie contents constraints (no personal data, no stable identifier \u2014 ADR-0004 \u00a7\"CSRF and session\"), transient personal data in socket.assigns lifecycle, socket abuse and rate limiting (ADR-0004 \u00a7\"Rate limiting and abuse\"), log/error-report redaction (ADR-0004 \u00a7\"Logging\"), operator-access honesty (ADR-0004 \u00a7\"LiveDashboard and operator access\"), IndexedDB"
+      },
+      {
+        "category": "stale-blocker",
+        "severity": "major",
+        "quote": "`DOS-M06-005` and `DOS-M06-006` are closed (notification scheduling/payloads and export/import mechanisms exist and can be classified and tested).",
+        "reason": "Two problems. First, DOS-M06-006 ('Reconcile notifications across DST, lifecycle') is classified DEFER by the pivot doc \u2014 'Entirely about reconciling OS-scheduled notifications across app lifecycle and killed-app states; there is nothing scheduled in the browser MVP to reconcile.' A precondition on a deferred card can never close under the browser MVP. Second, the parenthetical mis-attributes ownership: neither DOS-M06-005 (reminder plan / mob_notify) nor DOS-M06-006 (DST reconciliation) is the export/import mechanism \u2014 export/import is DOS-M04-009 / DOS-M05-007. So this precondition line is b",
+        "action": "In `planning/issues/DOS-M07-001.md` line 49 (and the mirroring line 157 in Dependency rationale, plus the M06 mention on line 19): (a) remove DOS-M06-006 from the preconditions \u2014 per `docs/governance/PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md` row 130 it is DEFER (deferred to native re-entry), and a DEFER card cannot satisfy a \"closed\" precondition under the browser MVP; (b) reword DOS-M06-005's role to reflect its rescope on pivot row 129 \u2014 \"in-app due/overdue state as a pure domain output\" \u2014 not \"notification scheduling/payloads\"; and (c) move the \"export/import mechanisms\" citation to the"
+      }
+    ],
+    "DOS-M07-002": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "Every critical workflow is usable with VoiceOver, TalkBack, keyboard/switch-style navigation where supported, large text, high contrast, reduced motion, color-vision differences, and one-handed compact screens. ... the UI is Phoenix LiveView inside a native WebView (Mob 0.7.20), so both web (WCAG) and platform (iOS/Android) accessibility conventions apply.",
+        "reason": "The card certifies accessibility against iOS VoiceOver / Android TalkBack of a Mob 0.7.20 WebView shell, requires 'physical iOS and Android test devices' as a precondition, and mandates 'Xcode Accessibility Inspector/XCTest' and 'Android Accessibility Scanner/Espresso' evidence. Per ADR-0004 the MVP has no native shell \u2014 it is a hosted browser app. The pivot doc rescopes DOS-M07-002 to 'WCAG 2.2 AA conformance verified across a named browser and assistive-technology matrix, including keyboard-only desktop use that the mobile bar never covered.' The FR-3 caveat about 'the extent the Mob WebView",
+        "action": "Add a SUPERSEDED BY note at the top of planning/issues/DOS-M07-002.md pointing to ADR-0004 and the 2026-08-01 pivot. Replace the Mob-WebView/iOS/Android framing throughout (Outcome, Context source #4, Preconditions, Included list, FR-1/3/4, AC-1, Test plan automated/manual, Documentation and evidence, Risks) with a browser-and-AT matrix: browsers (Chromium/Firefox/WebKit including WebKit on iOS Safari and Chromium/WebView on Android Chrome) \u00d7 assistive technologies (NVDA, JAWS, VoiceOver on macOS, VoiceOver on iOS Safari, TalkBack on Android Chrome). Drop the Mob WebView text-scaling caveat in"
+      }
+    ],
+    "DOS-M07-003": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-2: Adopt these initial release budgets ... cold tap-to-interactive p95 \u22644.0 s ... local LiveView interaction p95 \u2264100 ms ... FR-3: Enforce size targets: per-architecture store-delivered compressed app \u226450 MiB before store transformations; total installed app + starter catalog + empty DB \u2264150 MiB; starter catalog artifact \u226430 MiB compressed ...",
+        "reason": "The entire budget register is written for the embedded-BEAM-in-Mob architecture with a bundled starter catalog. ADR-0004 \u00a7Consequences explicitly voids them: 'Constitution \u00a79's latency and size budgets are void. The interaction-latency budget (local p95 \u2264 100 ms) was written for a loopback socket and is not achievable coast-to-coast over the public internet. New provisional budgets must be measured and re-ratified rather than quietly missed. Packaged-app-size budgets are replaced by a first-paint payload budget.' There is no store-delivered app, no installed footprint, no bundled catalog, and ",
+        "action": "Add a \"Superseded by ADR-0004 (2026-08-01) \u2014 pending re-ratification per PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md bucket RESCOPE\" header at the top of planning/issues/DOS-M07-003.md; replace \u00a7Context and source of truth's Mob/on-device references with the ADR-0004 hosted-browser architecture; rewrite FR-1 (drop signed-release-build / reference-device framing), FR-2 (drop local \u2264100 ms loopback interaction budget and cold-tap-to-interactive; substitute provisional first-paint payload budget, time-to-hydrated p95, and LiveView round-trip latency p95 measured by geography per ADR-0004 R9), FR"
+      }
+    ],
+    "DOS-M07-004": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "FR-3: Define device tiers: Tier 1 must run each release on physical current iPhone, minimum-supported iPhone, current Google-reference Android, and one supported lower/mid-tier Android/OEM. ... FR-7: Record actual notification behavior for killed app, reboot, timezone travel, and permission revocation on both OSes.",
+        "reason": "The matrix's device tiers (iPhones + Android OEMs), reboot/killed-app notification rows, OS permission states, XCUITest/Espresso/Appium automation, and 'clock/timezone manipulation is restricted on physical iOS' risks all presume a native app with OS-scheduled local notifications. Per ADR-0004 the browser MVP delivers 'in-app due/overdue state only' \u2014 'Nothing is scheduled, nothing arrives when the app is closed'. Per the pivot doc, DOS-M07-004 becomes 'browser/engine/OS instead of iOS/Android, notification rows are removed, and storage-eviction, quota, private-browsing, multi-tab, and reconne",
+        "action": "Add a \"SUPERSEDED / RESCOPED BY ADR-0004 and PIVOT-2026-08-01\" header note at the top of planning/issues/DOS-M07-004.md; rewrite FR-1 to declare supported browser \u00d7 engine \u00d7 OS floors instead of iOS/Android; replace FR-3's physical iPhone/Android device tiers with a named browser \u00d7 OS \u00d7 assistive-technology matrix (e.g., Safari/iOS current+min, Chrome/Android current+min, Chrome/Windows, Firefox/Windows, Safari/macOS, Edge/Windows, with VoiceOver, TalkBack, NVDA, JAWS); delete FR-7 and AC-4 (killed-app/reboot/timezone notification rows) and any lines referencing XCUITest/Espresso/Appium, `mob_"
+      }
+    ],
+    "DOS-M07-005": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "FR-5: Production signing credentials live in platform/CI protected secret storage with least privilege, rotation/recovery owners, and no PR access. Build unsigned test artifacts on ordinary PRs; sign only reviewed tags in protected environments. ... AC-2: Clean CI builds produce traceable unsigned artifacts; protected release job produces signed IPA archive/AAB with matching source tag and checksu",
+        "reason": "The gate emits signed IPA/AAB, runs 'Android native build/test' on every PR, and requires 'iOS build/test runs on protected macOS capacity at least for merge/release' \u2014 an architecture that assumes native store submission. Per ADR-0004 there is no native artifact; deploys are Fly.io container images. The pivot doc rescopes: 'Signed native store builds become signed/attested container images with reproducible provenance and an immutable Fly release identifier.' The 'macOS CI capacity cost/availability' risk also disappears \u2014 the DOS-M00-003 spike record shows Mac/Xcode is not available and nati",
+        "action": "Add a SUPERSEDED BY note to DOS-M07-005 pointing at ADR-0004 and PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION. Rewrite FR-5/AC-2/AC-6 and FR-1 to replace IPA/AAB signing and macOS/Android native build tiers with container-image signing (cosign or equivalent), attested SBOM, and an immutable Fly release identifier as the release artifact. Delete the \"macOS CI capacity\" risk (R2). Retain FR-2 (dependency locking) and FR-4 (migration CI) as they still apply to CatalogRepo. Add release-gating checks that mirror ADR-0004 \u00a7Enforcement: (1) deployed Ecto repo list equals [CatalogRepo] with read-only con"
+      }
+    ],
+    "DOS-M07-006": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "Invited testers exercise real maintenance/reminder workflows through TestFlight and Google Play testing tracks, while feedback and diagnostics remain explicit, minimal, and actionable. ... Store accounts and testing tracks (TestFlight; Play closed testing) are provisioned. ... FR-2: Verify the current Google account-specific closed-testing requirement immediately before scheduling ...",
+        "reason": "The beta program targets TestFlight/Play closed testing on iOS/Android \u2014 distribution channels the browser MVP does not use. Per the pivot doc: 'Beta distribution moves from TestFlight/Play tracks to an unlisted staging hostname or invite link, and defect intake must not collect browser storage contents.' The 'killed-app delivery/timezone/clock-change' missions and 'accessibility with consent' cohort assume OS notifications and native AT that no longer apply. Also the Outcome sentence 'Native killed-app reminders, catalog comprehension, real driving samples, and accessibility need longitudinal",
+        "action": "Add a SUPERSEDED BY / RESCOPE header pointing to PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md and ADR-0004. Replace TestFlight/Play distribution (Outcome, Included, Preconditions store-tracks bullet, FR, Technical implementation \"Distribution\", Test plan \"Track verification\", Documentation evidence \"TestFlight/Play track screenshots\", Rollback) with an unlisted invite-link staging hostname on Fly (aligned with whatever DOS-M09 defines). Delete FR-2 entirely (Google-account closed-testing rules are inapplicable). Rewrite the Outcome sentence to drop \"Native killed-app reminders\" and native-acce"
+      }
+    ],
+    "DOS-M07-007": [
+      {
+        "category": "stale-framing",
+        "severity": "critical",
+        "quote": "FR-1: Reserve final bundle/package IDs, app name 'Digital Oil Sticker,' signing/team identities, SKU, version/build-number policy, and support domains early. ... FR-4: Complete Apple App Privacy and Google Play Data safety from the `DOS-M07-001` inventory ... Supply a valid privacy URL even for a local-only app.",
+        "reason": "The card's included scope \u2014 bundle/package IDs, App Store Connect / Google Play Console records, App Privacy and Data safety forms, IPA/AAB pre-submission validation, store review notes explaining the loopback architecture, staged-rollout controls, 'never downgrading a migrated SQLite database with an older binary' \u2014 is entirely a store-release workflow that no longer applies. Per the pivot doc: 'Store records, screenshots, ratings, and review notes drop; the deliverable becomes staged Fly deploys, custom-domain cutover, canary smoke checks, monitoring, and a rehearsed rollback.' The 'local-on",
+        "action": "Add a \"SUPERSEDED BY ADR-0004 (Accepted 2026-08-01) and pivot 2026-08-01 \u00a7DOS-M07-007\" banner at the top of planning/issues/DOS-M07-007.md preserving the original text for change-control history. Then rewrite the store-native passages to match the Accepted architecture: (1) In \u00a7Included, drop bundle/package IDs, store records for both stores, screenshots and store copy, Apple/Google privacy declarations, IPA/AAB review notes, and the loopback review-notes item; replace with Fly staged deploys, digitaloilsticker.com DNS cutover from Netlify placeholder to Fly, canary smoke checks, Netlify prior"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "Master prompt 'Research-backed architecture decisions' 4.3: Netlify is a static boundary \u2014 static product/support/privacy/attribution site and deploy previews; it is not an always-on Elixir/Phoenix host and must not be represented as one; distribute iOS through TestFlight/App Store and Android through internal testing/Play Store; a browser product is not promised by this roadmap. ... Excluded: Net",
+        "reason": "The Context bullet quotes an obsolete master-prompt clause that 'a browser product is not promised by this roadmap'. ADR-0004 explicitly satisfies ADR-0002 \u00a76's requirement for 'a separately approved decision' by approving a hosted-Phoenix browser application \u2014 a browser product IS the MVP now. Keeping the old master-prompt clause in the Context misleads the reader about what is permitted. The 'Excluded: Netlify-hosted app runtime' bullet is technically still true (Netlify still cannot host Phoenix) but the framing now reads as if the whole hosted-app category were out of scope \u2014 a Fly-hosted ",
+        "action": "Update the Context section of DOS-M07-007 to cite ADR-0004 as the current architecture authority (superseding the pre-2026-08-01 master-prompt clause 4.3 that \"a browser product is not promised by this roadmap\"), and rewrite the Excluded bullet from \"Netlify-hosted app runtime\" to something like \"Netlify-hosted Phoenix runtime (per ADR-0002 as amended by ADR-0004, Netlify serves only static marketing/support/privacy/attribution content; the Phoenix application runs on Fly.io).\" Also note that the entire DOS-M07-007 issue's native-mobile store-release framing (App Store, Google Play, TestFlight"
+      },
+      {
+        "category": "stale-framing",
+        "severity": "minor",
+        "quote": "- Preconditions... `DOS-M07-007` is closed: the production v1 schema and release process are proven (epic entry rule), so this migration extends a certified baseline.",
+        "reason": "planning/issues/DOS-M08-001.md line 47 \u2014 the M08 preconditions cite DOS-M05-001, DOS-M05-007, and DOS-M07-007 as the 'certified v1 baseline' this migration extends. Those cards are themselves in the pre-pivot native architecture (DOS-M05-001 line 6 talks about `local_profiles`, `vehicles`, `maintenance_plans`, `service_events`, etc. as `UserRepo` tables, and is marked RESCOPE by PIVOT line 111-118). Treating them as an unchanged certified baseline hides the fact that the entire blocker chain was itself rewritten by the pivot. This is not a fatal blocker in isolation \u2014 it is a symptom of the fr",
+        "action": "After each M08 blocker (DOS-M05-001, DOS-M05-007, DOS-M07-007) is rescoped in place (or after the M09 client-storage epic closes), rewrite DOS-M08-001 lines 45-47 Preconditions and DOS-M08-000 line 129 Dependency rationale to name the post-pivot equivalents: the M09 IndexedDB storage schema (in place of the on-device `UserRepo`) and the hosted Fly.io release process (in place of the Netlify site and store release). Preserve the change under governance change control with a dated supersession that references the PIVOT-2026-08-01 document rather than silently editing."
+      }
+    ],
+    "DOS-M08-000": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "A user can maintain many fully isolated vehicles, switch among them through an accessible tabbed garage, and receive correctly budgeted reminders for each. The data team can build, sign, publish, audit, roll back, and retire public catalog packs on Netlify; clients can verify and atomically activate them without risking private vehicle/history data or losing offline operation.",
+        "reason": "planning/issues/DOS-M08-000.md line 6 \u2014 the entire epic Outcome is written for the pre-pivot native architecture: (a) 'correctly budgeted reminders for each' assumes OS-scheduled local notifications, which ADR-0004 removes for the MVP ('The MVP ships in-app due/overdue state only. Web Push is explicitly deferred'), and Constitution 2.0.0 flagged INV-17 for re-ratification; (b) 'public catalog packs on Netlify' and 'clients can verify and atomically activate them' assume a client-side .dospack updater, but ADR-0004 \u00a7'Catalog database on Fly' bakes the catalog read-only into the Fly deploy image",
+        "action": "Rewrite `planning/issues/DOS-M08-000.md` Outcome, \"Why this matters\", and \"Included\" sections against ADR-0004 and PIVOT-2026-08-01: reframe multi-vehicle as IndexedDB scoping (delegating storage primitives to M09), reframe catalog operations as immutable Fly deploy releases (not Netlify .dospack), replace per-vehicle reminders with in-app due/overdue state (removing the OS-scheduled notification promise), and delete the \"without... losing offline operation\" clause. Add a top-of-file \"Superseded by ADR-0004 + PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION\" banner and update Context/source-of-truth "
+      }
+    ],
+    "DOS-M08-001": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "The product removes the M05 one-active-vehicle domain restriction and exposes the already vehicle-scoped M04/M05 records as a garage. A small additive migration supplies deterministic ordering and active selection without changing the identity or logical content of the existing vehicle or its dependent history.",
+        "reason": "planning/issues/DOS-M08-001.md line 6 (and the entire 'Data and persistence' section, lines 81-86) \u2014 the card describes a forward Ecto migration on `UserRepo` tables `local_profiles` and `vehicles`, but ADR-0004 \u00a7Decision (4) removed `UserRepo` from the deployment entirely ('The deployed application has exactly one Ecto repo, `DigitalOilSticker.CatalogRepo`, opened read-only. There is no `UserRepo` in the deployment'). Vehicles live in IndexedDB `vehicles` object store keyed by client-generated UUIDv4 (ADR-0004 \u00a7Storage layout table). No Ecto migration is possible on storage that does not exis",
+        "action": "Rewrite DOS-M08-001.md Outcome, Included, Data-and-persistence, and Rollout sections to target the IndexedDB object-store layout under `DigitalOilSticker.LocalStore` and the M09 hydration payload rather than `UserRepo` tables. Replace the forward Ecto migration deliverable with a `schema_version` bump under `LocalStore.Migrations` per ADR-0004 \u00a7\"Schema versioning and migration\", including the write-back protocol. Rewrite FR-1/FR-2/FR-3/FR-5/FR-6/FR-8 and AC-1/AC-2/AC-6 to describe object-store fields, per-vehicle key layout, and quarantine-based failure handling instead of Ecto tables, indexes"
+      },
+      {
+        "category": "shipped-not-marked",
+        "severity": "major",
+        "quote": "FR-2: Add nullable `active_vehicle_id` to `local_profiles` (or an equivalently explicit single source of truth) with validation that the target belongs to that profile and is not archived. Do not use a global process variable for active-vehicle state.",
+        "reason": "planning/issues/DOS-M08-001.md line 53 \u2014 `active_vehicle_id` has already shipped as part of the M09 client-storage work. `app/lib/digital_oil_sticker/local_store/schema/v1.ex` line 63 includes `active_vehicle_id` in `@prefs_keys` with the explicit comment 'active_vehicle_id was added after v1 shipped. Additive, so no version bump'. Grep confirms live usage in `sticker_live.ex`, `vehicle_picker_live.ex`, `oil_change_live.ex`, `garage_switcher_test.exs`, and `local_store/session.ex`. The FR-2 deliverable is code-complete in a different milestone but the card still describes it as pending work on",
+        "action": "Mark FR-2 as DONE \u2014 landed with M09 in `app/lib/digital_oil_sticker/local_store/schema/v1.ex` `@prefs_keys` and enforced at read time by `DigitalOilStickerWeb.LocalStore.Session.active_vehicle/1`, which honors `prefs.active_vehicle_id` only when it names a non-archived vehicle and otherwise falls back. Note in the card that the M08 multi-vehicle enablement no longer needs to add this field; the remaining work is whatever guard still prevents saving a second vehicle. Also flag the broader mismatch: the whole card is written against a server-side `local_profiles` Ecto table that was superseded b"
+      }
+    ],
+    "DOS-M08-002": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "- Master prompt \u00a77 \"Target implementation architecture\": expected LiveViews/components (`AppShell`, `StickerLive`, `VehiclePickerLive`, `VehicleSummary`, `DueStatus`, `CascadeSelect`, consistent empty/error/recovery components); one Mob root WebView and Phoenix route stack for product navigation.\n- Master prompt \u00a74.1: Mob LiveView runs Phoenix in a native WebView on device loopback \u2014 the tablist i",
+        "reason": "planning/issues/DOS-M08-002.md lines 15-16 \u2014 Context and source of truth cites the Mob-in-native-WebView-on-device-loopback architecture as authoritative. That architecture was superseded by ADR-0004 (accepted 2026-08-01, 'Supersedes for MVP: ADR-0001'): the MVP is now a Phoenix LiveView app hosted on Fly.io served over the public internet; INV-1 (native only) and INV-2 (loopback) were flagged for re-ratification and Constitution 2.0.0 amended them. There is no root Mob WebView in the MVP. PIVOT line 142 marks this card RESCOPE: 'Respecify the tabbed pattern as an accessible web navigation pat",
+        "action": "Rewrite planning/issues/DOS-M08-002.md \u00a7\"Context and source of truth\" to remove the Master-prompt \u00a77 loopback-WebView and \u00a74.1 native-WebView citations and replace them with ADR-0004 (browser-first, Fly.io-hosted Phoenix LiveView, decisions \u00a71-6 and the client-storage + LiveView hydration protocol) plus the M09 milestone in PIVOT-2026-08-01-ROADMAP-RECLASSIFICATION.md. Reframe FR-1 from \"ARIA-compliant tablist in the LiveView WebView\" to an accessible web navigation pattern with real per-vehicle URLs (e.g. /garage/<vehicle_id>) that survive reload, deep link, and browser back/forward. Delete t"
+      },
+      {
+        "category": "contradicts-adr",
+        "severity": "major",
+        "quote": "- Airplane-mode session proving the entire garage UX (including add vehicle from the bundled catalog) is fully offline.",
+        "reason": "planning/issues/DOS-M08-002.md line 136 (Manual/device matrix) \u2014 this test presupposes both (a) the app works offline and (b) a bundled catalog exists on the client. ADR-0004 \u00a7Consequences states 'The app does not work offline at all. LiveView renders on the server, so with no connection there is no UI beyond a disconnected shell' and 'No bundled offline catalog. INV-6's promise cannot hold.' Airplane mode in the browser MVP produces a disconnected shell, not a working garage. The test as written cannot pass and cannot be made to pass without a service worker (explicitly deferred by ADR-0004 a",
+        "action": "Rewrite planning/issues/DOS-M08-002.md line 136 to remove the airplane-mode/bundled-catalog test row that contradicts ADR-0004 \u00a7Consequences. Two acceptable replacements: (a) delete the row entirely, since the ADR withdraws INV-6's bundled-offline-catalog promise for the MVP; or (b) substitute an ADR-0004-honest test such as \"With network dropped, the garage renders the phx-disconnected shell, IndexedDB records remain readable per the hydration protocol, and the no-implied-backup / storage-loss messaging is unambiguous (per ADR-0004 \u00a7First-paint and empty-state rules).\" If offline garage funct"
+      }
+    ],
+    "DOS-M08-003": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "- Master prompt \u00a77: context boundaries (`DigitalOilSticker.Maintenance`, `DigitalOilSticker.Forecasting` as deterministic pure functions, `DigitalOilSticker.Reminders`); the local event contract (`service_event_recorded`, `odometer_recorded`, `forecast_changed`, `reminders_reconciled`); the rule against perpetual background GenServers \u2014 recompute synchronously/on a supervised foreground task after",
+        "reason": "planning/issues/DOS-M08-003.md lines 15-16 \u2014 the source of truth for per-vehicle isolation is stated as `UserRepo` tables on device, but ADR-0004 \u00a7Decision (4) eliminated `UserRepo` from the deployment. History/readings/usage/forecasts live in IndexedDB per the M09 storage schema; the isolation invariants have to be enforced client-side in the hydration payload shape and server-side in socket assigns for the socket lifetime. PIVOT line 143 marks this RESCOPE: 'Per-vehicle isolation must be enforced in the client store and in the hydration payload shape, since there is no server-side row scopin",
+        "action": "Rewrite DOS-M08-003 \u00a7Context source-of-truth to cite ADR-0004 \u00a7Storage layout (IndexedDB dos_local object stores) and the hydration/mutation/multi-tab protocol instead of Master prompt \u00a77/\u00a78 UserRepo tables. Restate FR-1 through FR-6 in terms of IndexedDB object stores plus per-socket assigns lifetimes (with the compare-and-set seq protocol governing cross-tab isolation), keep the pure forecast functions but describe them as invoked over hydrated assigns rather than aggregated from UserRepo. In \u00a7Test plan, delete the \"Foreground-recompute check on both platforms: background the app, mutate tim"
+      }
+    ],
+    "DOS-M08-005": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "FR-4: Embed only public verification keys in the signed native app. Private keys reside in protected/offline release custody, never Netlify, the repository, CI logs, the catalog pack, or the application.",
+        "reason": "planning/issues/DOS-M08-005.md line 54 (and the whole card, whose premise is the `.dospack` client-verified pack with the trust root in a signed native binary) \u2014 there is no signed native app in the MVP; ADR-0004 ships a hosted Phoenix LiveView from Fly.io. ADR-0004 \u00a7'Catalog database on Fly' bakes SQLite read-only into the deploy image so 'catalog replacement is a deploy. Atomic by construction.' There is no client that downloads a pack, so a client verifier, embedded trust root, anti-rollback client state, and pack format have no consumer in the current architecture. PIVOT line 145 marks RES",
+        "action": "Rewrite DOS-M08-005 as \"Build-time signing, reproducibility, and provenance for the catalog artifact baked into the Fly deploy image\" \u2014 keeping the reproducible-build discipline, manifest schema (versions, provenance, hashes, row counts, per-table digests), Ed25519 signing, key ceremony/rotation/revocation documentation, error-code catalog, and cross-implementation validation vectors, but scoped to build-and-deploy-time verification of the immutable Fly image release. Drop the .dospack archive format, client-side verifier interface, embedded trust root in a native binary, client-persisted anti"
+      }
+    ],
+    "DOS-M08-006": [
+      {
+        "category": "contradicts-adr",
+        "severity": "critical",
+        "quote": "- Master prompt \u00a74.3 \"Netlify is a static boundary\": Netlify hosts the static site, deploy previews, and \"immutable versioned catalog packages and their signed manifest\"; build and test catalogs in GitHub Actions; Netlify is not an always-on Elixir/Phoenix host.",
+        "reason": "planning/issues/DOS-M08-006.md line 14 (and every FR/AC targeting Netlify content-addressed pack paths, signed latest.json pointers, and the CDN header contract) \u2014 ADR-0004 amends ADR-0002 \u00a75: the apex `digitaloilsticker.com` now points at the Fly application, catalog serving is on Fly, and Netlify keeps only static marketing/support/privacy/attribution content. The Netlify catalog-pack publishing role that this issue implements was withdrawn. PIVOT line 146 marks RESCOPE: 'Content-addressed immutable publish, canary verification, and pointer rollback survive as concepts but target the Fly cat",
+        "action": "Rewrite DOS-M08-006 against the Fly release channel per ADR-0004 \u00a7\"Catalog database on Fly\" and PIVOT line 146: reproducible SQLite build in GitHub Actions, signed/attested container images with immutable Fly release identifiers (aligning with DOS-M07-005's rescope), canary against a preview Fly app, promote to production Fly app, rollback by redeploying the prior image. Remove FR-6 through FR-12's Netlify content-addressed path/header/CORS contract, remove `latest.json` pointer promotion (a browser client that queries server-side has no pointer to poll), and remove the native-device fetch evi"
+      }
+    ]
+  }
+}
