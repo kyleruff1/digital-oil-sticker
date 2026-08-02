@@ -228,7 +228,7 @@ issues:
     target: Gate
     sequence: 106
   - id: DOS-M01-000
-    title: "DOS-M01-000 — Establish a reproducible, offline-safe engineering platform"
+    title: "DOS-M01-000 — Establish a reproducible, browser-first engineering platform"
     type: epic
     variant: standard
     milestone: M01
@@ -243,7 +243,7 @@ issues:
     target: MVP
     sequence: 200
   - id: DOS-M01-001
-    title: "DOS-M01-001 — Create the pinned repository and cross-platform toolchain baseline"
+    title: "DOS-M01-001 — Create the pinned repository and browser-first toolchain baseline"
     type: child
     variant: standard
     milestone: M01
@@ -273,7 +273,7 @@ issues:
     target: MVP
     sequence: 202
   - id: DOS-M01-003
-    title: "DOS-M01-003 — Define `CatalogRepo` and `UserRepo` SQLite schemas with Ecto migrations"
+    title: "DOS-M01-003 — Define the read-only `CatalogRepo` SQLite schema and build-time migrations"
     type: child
     variant: standard
     milestone: M01
@@ -303,17 +303,17 @@ issues:
     target: MVP
     sequence: 204
   - id: DOS-M01-005
-    title: "DOS-M01-005 — Implement the on-device Mob/LiveView shell and separate Netlify support site"
+    title: "DOS-M01-005 — Implement the hosted Phoenix/LiveView shell and separate Netlify support site"
     type: child
     variant: standard
     milestone: M01
     parent: DOS-M01-000
     blocked_by: DOS-M00-002, DOS-M00-004, DOS-M01-001, DOS-M01-002, DOS-M01-003, DOS-M01-004
-    labels: kind:feature, platform:ios, platform:android, platform:netlify, quality:security
+    labels: kind:feature, platform:netlify, quality:security
     body: planning/issues/DOS-M01-005.md
     status: Backlog
     priority: P1 High
-    workstream: Mob/iOS/Android
+    workstream: Architecture
     risk: 
     target: MVP
     sequence: 205
@@ -324,7 +324,7 @@ issues:
     milestone: M01
     parent: DOS-M01-000
     blocked_by: DOS-M01-001, DOS-M01-002, DOS-M01-003, DOS-M01-004, DOS-M01-005
-    labels: kind:task, needs:qa, platform:ios, platform:android
+    labels: kind:task, needs:qa
     body: planning/issues/DOS-M01-006.md
     status: Backlog
     priority: P1 High
