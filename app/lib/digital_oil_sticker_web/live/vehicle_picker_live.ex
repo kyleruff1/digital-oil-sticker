@@ -58,13 +58,39 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
           # A different build can mean a different engine class, which means a
           # different grade suggestion and a different recommendation. Oil
           # answers do not survive a change of engine.
-          socket |> reset_oil() |> assign(:configuration_key, config_key)
+          socket
+          |> reset_oil()
+          |> assign(:configuration_key, config_key)
+          |> apply_oil_defaults()
 
         true ->
           socket
       end
 
     {:noreply, socket}
+  end
+
+  # Fill the oil answers the moment a configuration is chosen: full synthetic
+  # as the base stock, the top suggested grade for the engine class. The
+  # confirmable state is reached without a second click, and the calculated
+  # recommendation appears immediately — the base-stock radios stay visible
+  # for override, but "less options in the setup menu" means fewer choices
+  # the user is required to make, not fewer choices they have available.
+  #
+  # Full synthetic is the default because it produces the longest defensible
+  # interval for every engine class we model, so a user who leaves it alone
+  # gets the model's own upper bound; a user who knows better shortens it.
+  # For BEVs and other :not_applicable configurations the defaults do not
+  # apply — there is no engine oil to plan for.
+  defp apply_oil_defaults(socket) do
+    if is_binary(socket.assigns.configuration_key) and
+         selected_status(socket.assigns) != :not_applicable do
+      socket
+      |> assign(:base_stock, "full_synthetic")
+      |> assign(:grade, auto_grade_for(socket.assigns))
+    else
+      socket
+    end
   end
 
   def handle_event("oil_change", %{"oil" => oil}, socket) do

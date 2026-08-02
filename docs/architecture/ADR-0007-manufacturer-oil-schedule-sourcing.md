@@ -1,8 +1,12 @@
 # ADR-0007 — Manufacturer oil-schedule sourcing lane
 
-**Status:** Proposed — 2026-08-02 (awaiting owner sign-off) · **Cites:** INV-11, INV-15, INV-16, INV-20, INV-21 ([CONSTITUTION.md](../product/CONSTITUTION.md)) · **Governed by:** [FACTUAL_USE_AND_MARKS_POLICY.md](../data/FACTUAL_USE_AND_MARKS_POLICY.md), [RECOMMENDATION_CLAIMS_POLICY.md](../product/RECOMMENDATION_CLAIMS_POLICY.md), [DOS-M03-001](../../planning/issues/DOS-M03-001.md) rights matrix
+**Status:** Accepted in part — 2026-08-02 (lane and spike authorization decided; three questions remain open) · **Cites:** INV-11, INV-15, INV-16, INV-20, INV-21 ([CONSTITUTION.md](../product/CONSTITUTION.md)) · **Governed by:** [FACTUAL_USE_AND_MARKS_POLICY.md](../data/FACTUAL_USE_AND_MARKS_POLICY.md), [RECOMMENDATION_CLAIMS_POLICY.md](../product/RECOMMENDATION_CLAIMS_POLICY.md), [DOS-M03-001](../../planning/issues/DOS-M03-001.md) rights matrix
 
-> **This ADR is Proposed, not Accepted.** It names the sourcing options honestly and their costs. It does not choose one. The Decision required section at the bottom lists what the owner must decide before this ADR moves to Accepted. When a lane is selected and its consequences ratified, this ADR is amended to Accepted with the chosen lane and [ADR-0005](ADR-0005-own-oil-model.md) is amended to note the `:manufacturer` clause is now sourced.
+> **Owner decision, 2026-08-02.** Lane **(b)** — commercial license — is the chosen sourcing lane. The DOS-M03-007 §FR-2 sample/contract spike with MOTOR (or approved equivalent) is authorized to begin: capture delivery format, authentication, rate limits, change semantics, measured coverage over the shipped 33,273-configuration corpus, provider vehicle IDs, one-time and update pricing, and every embedding/retention/hosted-serving/termination right; write everything back into [DOS-M03-001](../../planning/issues/DOS-M03-001.md).
+>
+> The remaining Decision-required questions (coverage floor, behavior for uncovered vehicles, budget ceiling, rights-revocation) are held open until the spike returns. This ADR moves to Accepted (full) when they are answered; when it does, [ADR-0005](ADR-0005-own-oil-model.md) is amended to note the `:manufacturer` clause is now sourced.
+>
+> DOS-M03-007 is moved off its gated state for lane (b) only. Lanes (a), (c), (d), (e) remain not selected.
 
 ---
 
@@ -158,19 +162,16 @@ Regardless of which lane is chosen, the shipped row must carry, per the `mainten
 
 ## Decision required
 
-The owner must answer the following before this ADR can move to Accepted. This ADR does not prejudge any answer.
+Two of the six answered on 2026-08-02; four remain open until the spike returns. Owner Q4 is a policy question that can be answered independently and is being requested with the spike.
 
-1. **The two axes.** The lane is fixed by two independent yes/no answers, not by a single letter choice:
-   1a. **Licensed corpus?** Purchase a MOTOR-class licensed schedule/fluids feed — yes or no.
-   1b. **Independent manual verification of shipped rows against OEM manuals?** Operate a documented-facts extraction/second-review workflow that verifies (or produces from scratch) every shipped row — yes or no.
-   The three actionable cells are (a) = "no license / verified", (b) = "license / unverified", (d) = "license / verified"; the "no license / unverified" cell is the current shipping posture and cannot supply a manufacturer basis. Lanes (c) and (e) are not on the table for the reasons in the lane sections above.
-2. **If (b) or (d), authorization to run the DOS-M03-007 §FR-2 sample/contract spike.** The spike is a precondition for pricing this ADR. It must capture, back into the DOS-M03-001 matrix, one-time and update pricing and every embedding, retention, hosted-serving, and termination right. Absent that spike, lanes (b) and (d) cost "unknown" and cannot be selected.
-3. **Commitment to name a coverage floor after the measurement passes return.** The coverage achievable per lane is precisely what the DOS-M03-001 free-source PoC (DOS-M03-007 §Included / DOS-M03-001 AC-4) and the DOS-M03-007 §FR-2 provider spike quantify. A specific percentage or make × year subset cannot be named before those return without inventing a number. What can be named now is the commitment: the owner agrees to name a threshold — either a percentage of the 33,273 configurations, or an explicit make × year subset — within a stated window after the spike/PoC results land, and the DOS-M03-007 publication gate does not turn on until that threshold is named. Turning the manufacturer basis on for a partial catalog is legitimate — the UI already distinguishes bases — but the threshold must be an exit criterion, not a pre-measurement guess.
-4. **What happens for vehicles NOT covered.** Two live options: (i) fall back to our model with the existing `Our estimate, not manufacturer guidance` copy; or (ii) refuse to show a due date at all for those vehicles until the user enters one. Option (i) preserves current usefulness; option (ii) removes any risk that a partial rollout appears to endorse our estimate for a vehicle a manufacturer schedule would have contradicted.
-5. **Budget class and ceiling.** Whether this lane's cost lives in staff-days (lane a), licensing dollars (lane b), or both (lane d), and the ceiling the owner is willing to authorize once the measurements Q2 and Q3 depend on return. For lane (a), the staff-days figure additionally depends on the timed pilot named in Lane (a) §"Coverage math to price"; before that pilot returns, no dollar-equivalent ceiling can be defended.
-6. **Rights-revocation behavior for lane (b) or (d).** After a license terminates, must covered vehicles retain their manufacturer-basis row (per contractual continued-distribution terms) or revert to our model? DOS-M03-007 states the UI fallback on revocation is user-entered data; the owner must confirm that is acceptable for vehicles that had previously shown a manufacturer number, given ADR-0005's snapshot rule that "revising the model never silently changes an interval a user has already been shown."
+1. **The two axes.** ✓ Answered 2026-08-02. **Licensed corpus: yes. Independent manual verification of shipped rows: no** — lane **(b)**. Lane (d)'s hybrid is not selected; a subsequent ADR may revisit adding verification if the spike's coverage or extraction-quality evidence is thin.
+2. **If (b) or (d), authorization to run the DOS-M03-007 §FR-2 sample/contract spike.** ✓ Authorized 2026-08-02. The spike is the precondition for answering Q3, Q5, and Q6, and must land its measurements in the DOS-M03-001 matrix before this ADR moves to Accepted (full).
+3. **OPEN — Coverage floor.** Held until the spike returns. Owner will name a threshold (percentage of the 33,273-configuration corpus, or an explicit make × year subset) within a stated window after the spike results land; the DOS-M03-007 publication gate remains off until then.
+4. **OPEN — Behavior for uncovered vehicles.** Options: (i) fall back to our model with the existing `Our estimate, not manufacturer guidance` copy; (ii) refuse to show a due date for uncovered vehicles until the user enters one. Answerable now in principle; the spike's coverage measurement will inform whether (ii) is livable in practice.
+5. **OPEN — Budget class and ceiling.** Lane (b) is a licensing-dollars line item; the ceiling is decidable when the spike returns pricing.
+6. **OPEN — Rights-revocation behavior.** Whether covered vehicles retain their manufacturer-basis row (per contractual continued-distribution terms) or revert to our model after license termination. Answerable when contract terms are proposed in the spike.
 
-Once these are answered, this ADR is amended to Accepted with the chosen lane, and DOS-M03-007 is moved off its gated state for that lane only.
+When Q3–Q6 land, this ADR is amended to Accepted (full).
 
 ## Research anchors
 

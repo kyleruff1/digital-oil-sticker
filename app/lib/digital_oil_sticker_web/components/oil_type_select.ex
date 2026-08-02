@@ -57,12 +57,12 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
               checked={@base_stock == stock.code}
               class="mt-1"
             />
-            <span>
-              <span class="block text-sm font-semibold">{stock.display_name}</span>
-              <span class="block text-xs text-base-content/70">
-                {Copy.miles_range(stock.published_miles_low, stock.published_miles_high)}
-              </span>
-            </span>
+            <%!-- Just the name. The generic "X–Y miles typical" range under
+                 each option previewed the answer BEFORE the user had asked a
+                 question of it; the estimate should read as a calculated
+                 result of THIS vehicle × THIS oil, shown once above after
+                 selection, not four hypothetical previews shown before. --%>
+            <span class="block text-sm font-semibold">{stock.display_name}</span>
           </label>
 
           <label
@@ -79,12 +79,7 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
               checked={@unknown?}
               class="mt-1"
             />
-            <span>
-              <span class="block text-sm font-semibold">{Copy.intake_oil_unknown()}</span>
-              <span class="block text-xs text-base-content/70">
-                {Copy.intake_oil_unknown_note()}
-              </span>
-            </span>
+            <span class="block text-sm font-semibold">{Copy.intake_oil_unknown()}</span>
           </label>
         </div>
       </fieldset>

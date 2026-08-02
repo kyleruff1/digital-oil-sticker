@@ -69,18 +69,12 @@ defmodule DigitalOilStickerWeb.SavePathTest do
       "configuration_key" => row.key
     })
 
-    # The oil step is not skippable: confirming before answering it must
-    # refuse rather than save a vehicle with no interval basis.
-    html = render_click(view, "confirm", %{})
-    assert html =~ "Choose what oil the vehicle uses first"
-    refute_push_event(view, "local_store:put", %{})
-
-    render_change(view, "oil_change", %{
-      "oil" => %{"base_stock" => "full_synthetic", "grade" => "5W-30"}
-    })
-
-    # The click must not crash the view, and must push a put with the
-    # vehicle record the browser will store.
+    # Confirming immediately after the cascade must save — the oil step is
+    # no longer a required question because defaults are filled in the moment
+    # a configuration is chosen (full synthetic + top suggested grade for the
+    # engine class). "Skipping" the oil step means accepting the defaults;
+    # explicit overrides are still available via the radios and the grade
+    # dropdown.
     render_click(view, "confirm", %{})
     assert_push_event(view, "local_store:put", payload)
 
@@ -96,11 +90,14 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     assert vehicle["archived"] == false
     assert is_binary(vehicle["vehicle_id"])
 
-    # The intake answer travels with the vehicle: this is what the sticker's
-    # recommendation and the log form's pre-fill are derived from.
+    # The default answer travels with the vehicle: this is what the sticker's
+    # recommendation and the log form's pre-fill are derived from. Full
+    # synthetic is the default because it produces the longest defensible
+    # interval for every engine class we model — the user who leaves it alone
+    # gets the model's upper bound, and the user who knows better shortens it.
     assert vehicle["maintenance_plan"]["planned_oil"] == "selected"
     assert vehicle["maintenance_plan"]["planned_base_stock"] == "full_synthetic"
-    assert vehicle["maintenance_plan"]["planned_grade"] == "5W-30"
+    assert is_binary(vehicle["maintenance_plan"]["planned_grade"])
 
     # Saving a vehicle also selects it — otherwise a garage with an existing
     # car keeps that one active and every following page is about the wrong
