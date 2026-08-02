@@ -406,23 +406,23 @@ defmodule DigitalOilSticker.ProductionPostureTest do
       refute mix =~ "cookie:", "mix.exs pins a release cookie"
     end
 
-    @tag :skip
     test "the release turns Erlang distribution off" do
-      # SKIPPED — GENUINE GAP, not a test bug. `mix release` defaults
-      # RELEASE_DISTRIBUTION to "sname", so `bin/server` starts epmd and a
-      # distributed node with the cookie baked into the image at
-      # releases/COOKIE. Nothing in this repo asks for that; nothing turns it
-      # off either, and the test above can only prove that no file *enables* it.
+      # This was skipped as a genuine gap when the suite was written, and the
+      # gap has since been closed. `mix release` defaults RELEASE_DISTRIBUTION
+      # to "sname", so the release started epmd and a distributed node with the
+      # cookie baked into the image — on purely because it is the default, since
+      # DNSCluster is `:ignore`, PubSub is local, and nothing calls Node or
+      # :rpc. The test above can only prove no file *enables* distribution;
+      # this one proves something turns it off.
       #
-      # Turning it off is one file: rel/env.sh exporting
-      # RELEASE_DISTRIBUTION=none. Fly does not publish epmd or the distribution
-      # port to the internet, so this is not an open door today — it is reachable
-      # only from inside the organisation's private network. It is left visible
-      # here rather than quietly asserted away, and it stays skipped until
-      # rel/env.sh exists.
-      env_sh = Path.join(@app_root, "rel/env.sh")
+      # The template is `rel/env.sh.eex`, not `rel/env.sh`: Elixir renders the
+      # .eex into the release, and a plain env.sh is ignored — which would fail
+      # silently, leaving distribution on while this test read as green.
+      env_sh = Path.join(@app_root, "rel/env.sh.eex")
 
-      assert File.exists?(env_sh), "rel/env.sh does not exist, so the release default applies"
+      assert File.exists?(env_sh),
+             "rel/env.sh.eex does not exist, so mix release's sname default applies"
+
       assert File.read!(env_sh) =~ "RELEASE_DISTRIBUTION=none"
     end
 
