@@ -343,6 +343,36 @@ defmodule DigitalOilStickerWeb.DefaultedOilTest do
 
       refute html =~ "data-test=\"log-form-needs-oil\""
     end
+
+    test "shows a distinct banner for an unknown-at-intake plan", %{conn: conn} do
+      {:ok, view, _} = live(conn, ~p"/service/new")
+
+      html = log_hydrate(view, %{"planned_oil" => "unknown"})
+
+      # Banner is present…
+      assert html =~ "data-test=\"log-form-needs-oil\""
+      # …with the unknown-specific copy, not the "no oil was recorded" copy
+      # that would lie about what intake stored.
+      assert html =~ "You said you didn&#39;t know the oil type at intake"
+      refute html =~ "No oil type was recorded at intake"
+      # And a machine-readable marker for which kind fired.
+      assert html =~ ~s(data-prompt-kind="unknown")
+    end
+
+    test "the defaulted banner carries its own kind marker", %{conn: conn} do
+      {:ok, view, _} = live(conn, ~p"/service/new")
+
+      html =
+        log_hydrate(view, %{
+          "planned_oil" => "defaulted",
+          "planned_base_stock" => "full_synthetic",
+          "planned_grade" => "5W-30"
+        })
+
+      assert html =~ ~s(data-prompt-kind="defaulted")
+      assert html =~ "No oil type was recorded at intake"
+      refute html =~ "You said you didn&#39;t know"
+    end
   end
 
   describe "the picker's touch tracking" do

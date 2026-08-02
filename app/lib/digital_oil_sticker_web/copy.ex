@@ -136,6 +136,15 @@ defmodule DigitalOilStickerWeb.Copy do
       "the record and the sticker match what actually went in."
   end
 
+  # Same shape, different truth: at intake the user answered "I don't know
+  # yet" — which is an answer, not an absence — and the log form is where
+  # they finally record what actually went in. Copy that says "no oil was
+  # recorded" would lie about intake; this variant says what is on file.
+  def log_form_intake_was_unknown do
+    "You said you didn't know the oil type at intake. Record what actually " <>
+      "went in below so the sticker reflects it."
+  end
+
   def intake_oil_unknown, do: "I don't know yet"
 
   def intake_oil_unknown_note do

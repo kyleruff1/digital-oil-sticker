@@ -255,15 +255,21 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   # went in. If the intake was defaulted, the user picks the oil here.
   defp planned_selected?(assigns), do: planned(assigns)["planned_oil"] == "selected"
 
-  # Rendered when the vehicle's intake was defaulted AND the user has not yet
-  # picked oil on THIS form. An empty oil section on a "selected"-plan vehicle
-  # means the user cleared the pre-fill deliberately; an empty oil section on
-  # a "defaulted"-plan vehicle means nobody has ever said what this vehicle
-  # uses. The two states render identically without this cue.
-  defp needs_oil_prompt?(assigns) do
-    planned(assigns)["planned_oil"] == "defaulted" and
-      is_nil(effective_base_stock(assigns)) and
-      not assigns.manual_grade?
+  # Which kind of "you should pick oil here" prompt to render, or nil for none.
+  #
+  # An empty oil section on a "selected"-plan vehicle means the user cleared
+  # the pre-fill deliberately — no prompt needed. On a "defaulted"-plan
+  # vehicle it means nobody ever answered — the amber banner explains that.
+  # On an "unknown"-plan vehicle the user DID answer at intake, just as
+  # unknown; the two states use different copy so the banner doesn't lie
+  # about which one is on file.
+  defp oil_prompt_kind(assigns) do
+    cond do
+      is_binary(effective_base_stock(assigns)) or assigns.manual_grade? -> nil
+      planned(assigns)["planned_oil"] == "defaulted" -> :defaulted
+      planned(assigns)["planned_oil"] == "unknown" -> :unknown
+      true -> nil
+    end
   end
 
   # Once the form has been touched, the assigns hold what the rendered
@@ -387,18 +393,26 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
           <.odometer_input id="oil-odometer" value={@odo_value} unit={@odo_unit} errors={@odo_errors} />
 
-          <%!-- When the vehicle's intake was never answered (planned_oil ==
-               "defaulted"), the log form starts with no oil pre-filled — but
-               the empty radios are the same empty state a user would see if
-               they'd already recorded a change and re-visited. This banner
-               distinguishes the two, and points at the fix. --%>
+          <%!-- When the intake step didn't produce a specific oil answer for
+               this vehicle — either because the user never touched the form
+               (:defaulted) or because they explicitly picked "I don't know
+               yet" (:unknown) — the log form starts with empty radios that
+               look indistinguishable from radios a user cleared. This banner
+               distinguishes them, with copy that matches which of the two
+               states is on file so the message never lies about intake. --%>
           <div
-            :if={needs_oil_prompt?(assigns)}
+            :if={oil_prompt_kind(assigns) != nil}
             class="rounded border border-amber-400 bg-amber-50 p-3 text-sm text-amber-900"
             role="status"
             data-test="log-form-needs-oil"
+            data-prompt-kind={oil_prompt_kind(assigns)}
           >
-            {Copy.log_form_needs_oil()}
+            <%= case oil_prompt_kind(assigns) do %>
+              <% :defaulted -> %>
+                {Copy.log_form_needs_oil()}
+              <% :unknown -> %>
+                {Copy.log_form_intake_was_unknown()}
+            <% end %>
           </div>
 
           <.oil_type_select
