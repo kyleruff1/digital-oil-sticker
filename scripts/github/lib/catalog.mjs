@@ -7,8 +7,10 @@ export const HASHES_PATH = 'planning/hashes.json'
 export const MAX_BODY_BYTES = 60_000
 
 // Pivot 2026-08-01 added M09 (browser platform): 10 children + 1 epic.
-export const EXPECTED_CHILD_COUNTS = { M00: 6, M01: 6, M02: 8, M03: 10, M04: 10, M05: 7, M06: 7, M07: 7, M08: 7, M09: 10 }
-export const EXPECTED_TOTAL = 88
+// M10 (shop integration) adds 4 drafted children + 1 epic; DOS-M10-005..009
+// are allocated in the epic's Included roster but not yet drafted on disk.
+export const EXPECTED_CHILD_COUNTS = { M00: 6, M01: 6, M02: 8, M03: 10, M04: 10, M05: 7, M06: 7, M07: 7, M08: 7, M09: 10, M10: 4 }
+export const EXPECTED_TOTAL = 93
 
 export const H2_SECTIONS = [
   'Outcome',

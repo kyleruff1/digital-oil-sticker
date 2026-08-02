@@ -1,0 +1,87 @@
+{
+  "milestone": "M10",
+  "milestoneTitle": "M10 — Shop integration and printed sticker codes",
+  "issues": [
+    {
+      "id": "DOS-M10-000",
+      "title": "DOS-M10-000 — Shop integration and printed sticker codes",
+      "type": "epic",
+      "variant": "standard",
+      "labels": [
+        "kind:epic"
+      ],
+      "workstream": "Architecture",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": "High",
+      "targetOverride": "Post-MVP"
+    },
+    {
+      "id": "DOS-M10-001",
+      "title": "DOS-M10-001 — Build the refusing intake resolver",
+      "type": "child",
+      "variant": "standard",
+      "labels": [
+        "kind:feature",
+        "quality:privacy"
+      ],
+      "workstream": "Domain Rules",
+      "blockedBy": [],
+      "priorityOverride": null,
+      "riskOverride": "High",
+      "targetOverride": "Post-MVP"
+    },
+    {
+      "id": "DOS-M10-002",
+      "title": "DOS-M10-002 — Build the MCP server on the existing origin",
+      "type": "child",
+      "variant": "standard",
+      "labels": [
+        "kind:feature",
+        "quality:security",
+        "quality:privacy"
+      ],
+      "workstream": "Architecture",
+      "blockedBy": [
+        "DOS-M10-001"
+      ],
+      "priorityOverride": null,
+      "riskOverride": "High",
+      "targetOverride": "Post-MVP"
+    },
+    {
+      "id": "DOS-M10-003",
+      "title": "DOS-M10-003 — Specify the shop integration surface",
+      "type": "child",
+      "variant": "standard",
+      "labels": [
+        "kind:docs",
+        "needs:design"
+      ],
+      "workstream": "Product",
+      "blockedBy": [
+        "DOS-M10-002"
+      ],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": "Post-MVP"
+    },
+    {
+      "id": "DOS-M10-004",
+      "title": "DOS-M10-004 — Measure scannability and ratify SCAN_MATRIX.md",
+      "type": "child",
+      "variant": "standard",
+      "labels": [
+        "kind:task",
+        "needs:qa"
+      ],
+      "workstream": "QA",
+      "blockedBy": [
+        "DOS-M10-003"
+      ],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": "Post-MVP"
+    }
+  ]
+}

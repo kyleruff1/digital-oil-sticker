@@ -1,8 +1,8 @@
 # Digital Oil Sticker — Roadmap
 
-The roadmap is dependency-driven: nine milestones, each led by an epic issue with child issues. The machine-readable plan lives in [`planning/roadmap.yml`](../../planning/roadmap.yml). After the GitHub sync, GitHub Issues and the GitHub Project are the live tracker; this document is orientation, not status.
+The roadmap is dependency-driven: eleven milestones, each led by an epic issue with child issues. The machine-readable plan lives in [`planning/roadmap.yml`](../../planning/roadmap.yml). After the GitHub sync, GitHub Issues and the GitHub Project are the live tracker; this document is orientation, not status.
 
-Issue totals: 9 epics plus 68 children = 77 issues. Per-milestone child counts: M00 = 6, M01 = 6, M02 = 8, M03 = 10, M04 = 10, M05 = 7, M06 = 7, M07 = 7, M08 = 7.
+Issue totals: 11 epics plus 82 children = 93 issues. Per-milestone child counts: M00 = 6, M01 = 6, M02 = 8, M03 = 10, M04 = 10, M05 = 7, M06 = 7, M07 = 7, M08 = 7, M09 = 10, M10 = 4.
 
 ## Milestones
 
@@ -42,6 +42,14 @@ The single-vehicle app is accessible, private, secure, supportable, performant, 
 
 A user can maintain many fully isolated vehicles, switch among them through an accessible tabbed garage, and receive correctly budgeted reminders for each. The data team can build, sign, publish, audit, roll back, and retire public catalog packs on Netlify; clients can verify and atomically activate them without risking private vehicle/history data or losing offline operation.
 
+### M09 — Hosted Browser Platform and Anonymous Client Storage (DOS-M09-000, 10 children)
+
+Deliver the 2026-08-01 browser-first pivot: the Phoenix LiveView application runs on Fly.io behind a custom domain and TLS, and a visitor's vehicles and service history live only in their own browser through an anonymous, versioned IndexedDB store hydrated into LiveView socket assigns by an explicit protocol. The server keeps a read-only, impersonal catalog query layer, is hardened for the open internet, and holds no account, identifier, or personal record. Includes the pre-hydration, storage-denied, quota, and eviction states, the browser support and storage-behavior conformance matrix, a dated PWA/Web Push go/no-go, and the data-source authorization gate for hosted network serving.
+
+### M10 — Shop Integration and Printed Sticker Codes (DOS-M10-000, 4 children)
+
+A shop captures the vehicle and service values it already holds and prints a QR code on the customer's receipt; scanning it populates the digital sticker in the customer's own browser. The mechanism is split so personal values never cross our wire: an impersonal resolution surface — the refusing intake resolver and an MCP server projecting the read-only catalog — accepts year/make/model/engine selectors and nothing else, while a distributed codec composes the personal half inside the shop's own system. The integration surface and print contract are specified rather than improvised, and scannability is measured on real printers and scanners and ratified in SCAN_MATRIX.md before any claim is made. The milestone is gated on a ratified constitution revision, ADR-0006, and a third source-rights re-review for machine-to-machine redistribution; closing unstarted with that disposition recorded is a legitimate outcome.
+
 ## Epic-level dependency DAG
 
 ```mermaid
@@ -57,6 +65,9 @@ flowchart TD
     M03 --> M07["M07: Hardening and release"]
     M06 --> M07
     M07 --> M08["M08: Post-MVP expansion"]
+    M02 --> M09["M09: Hosted browser platform"]
+    M04 --> M09
+    M09 --> M10["M10: Shop integration and printed codes"]
 ```
 
 ## Parallelism
