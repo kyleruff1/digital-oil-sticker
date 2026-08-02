@@ -18,8 +18,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
   import DigitalOilStickerWeb.Components.Sticker
   import DigitalOilStickerWeb.Components.StickerQr
-  alias DigitalOilSticker.Catalog.OilModel
-  alias DigitalOilSticker.{IntervalPolicy, StickerCode, Units}
+  alias DigitalOilSticker.{Due, StickerCode}
   alias DigitalOilStickerWeb.{Copy, Hosts}
 
   @impl true
@@ -45,7 +44,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
         <p
           :if={@view.mode == :sticker and @view.qualifier}
-          class="mt-3 text-center text-sm text-zinc-500"
+          class="mt-3 text-center text-sm text-base-content/70"
         >
           {@view.qualifier}
         </p>
@@ -54,7 +53,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
         <div :if={@view.mode == :empty} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.empty_heading()}</h1>
-          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-base-content/80">
             {Copy.empty_body()}
           </p>
           <.link navigate={~p"/vehicle/select"} class="btn btn-primary mt-6">Set up a vehicle</.link>
@@ -62,7 +61,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
         <div :if={@view.mode == :data_missing} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.data_missing_heading()}</h1>
-          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-base-content/80">
             {Copy.data_missing_body()}
           </p>
           <.link navigate={~p"/settings/storage"} class="btn btn-primary mt-6">Import a file</.link>
@@ -70,7 +69,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
         <div :if={@view.mode == :hydration_refused} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.hydration_refused_heading()}</h1>
-          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-base-content/80">
             {Copy.hydration_refused_body(@cap_error)}
           </p>
           <.link navigate={~p"/settings/storage"} class="btn btn-primary mt-6">Export a file</.link>
@@ -78,7 +77,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
         <div :if={@view.mode == :storage_unavailable} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.storage_unavailable_heading()}</h1>
-          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-base-content/80">
             {Copy.storage_unavailable_body()}
           </p>
           <.link navigate={~p"/vehicle/select"} class="btn mt-6">Look up a vehicle</.link>
@@ -89,7 +88,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
           <.link navigate={~p"/history"} class="btn btn-ghost">History</.link>
         </div>
 
-        <p :if={@view.mode == :sticker} class="mt-6 text-center text-xs text-zinc-600">
+        <p :if={@view.mode == :sticker} class="mt-6 text-center text-xs text-base-content/80">
           {Copy.does_not_notify()}
         </p>
       </div>
@@ -129,17 +128,16 @@ defmodule DigitalOilStickerWeb.StickerLive do
       %{@blank | mode: :empty}
     else
       last = last_event(garage, vehicle["vehicle_id"])
-      plan = vehicle["maintenance_plan"] || %{}
-      due = due_values(last, plan, vehicle)
+      due = Due.compute(vehicle, last)
 
       %{
         @blank
         | mode: :sticker,
-          date: due.date,
-          mileage: due.mileage,
+          date: due.date_text,
+          mileage: due.mileage_text,
           grade: grade_of(last),
-          changed: changed_on(last),
-          qualifier: due.qualifier,
+          changed: due.changed_on && Calendar.strftime(due.changed_on, "%b %d, %Y"),
+          qualifier: qualifier_for(last, due),
           qr: qr_for(vehicle, last)
       }
     end
@@ -158,7 +156,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
   defp qr_for(vehicle, last) do
     sticker = %{
       configuration_key: vehicle["configuration_key"],
-      changed_on: performed_date(last),
+      changed_on: Due.performed_date(last),
       odometer_m: last && last["odometer_m"],
       grade: last && last["oil_viscosity"],
       base_stock: last && last["oil_base_stock"]
@@ -170,15 +168,6 @@ defmodule DigitalOilStickerWeb.StickerLive do
       # in between (INV-26); a fragment is never sent to the server at all.
       {:ok, code} -> %{code: code, payload: "https://#{Hosts.canonical()}/s##{code}"}
       {:error, _} -> nil
-    end
-  end
-
-  defp performed_date(nil), do: nil
-
-  defp performed_date(event) do
-    case Date.from_iso8601(String.slice(event["performed_at"] || "", 0, 10)) do
-      {:ok, date} -> date
-      _ -> nil
     end
   end
 
@@ -195,72 +184,11 @@ defmodule DigitalOilStickerWeb.StickerLive do
     |> List.first()
   end
 
-  # DATE/MILEAGE come from the last change plus the resolved interval. With no
-  # change recorded there is nothing to count from, so we say that rather than
-  # showing a due date measured from nothing.
-  defp due_values(nil, _plan, _vehicle),
-    do: %{date: nil, mileage: nil, qualifier: "No oil change recorded yet."}
-
-  defp due_values(event, plan, vehicle) do
-    unit = event["input_unit"] || "mi"
-
-    case IntervalPolicy.for_vehicle(plan, model_interval(vehicle, event)) do
-      :not_applicable ->
-        %{date: nil, mileage: nil, qualifier: Copy.not_applicable_ev()}
-
-      resolved ->
-        %{
-          date: due_date(event, resolved.months),
-          mileage: due_mileage(event, resolved.miles, unit),
-          qualifier: qualifier(resolved)
-        }
-    end
-  end
-
-  # Our model needs to know what went in last time; without a base stock we
-  # cannot pick a rule, and guessing one would be inventing the input.
-  defp model_interval(vehicle, event) do
-    case event["oil_base_stock"] do
-      stock when is_binary(stock) ->
-        OilModel.interval(vehicle["engine_class_code"], stock, service_condition(vehicle))
-
-      _ ->
-        nil
-    end
-  end
-
-  defp service_condition(vehicle) do
-    case get_in(vehicle, ["maintenance_plan", "service_condition"]) do
-      "severe" -> "severe"
-      _ -> "normal"
-    end
-  end
-
-  defp due_date(event, months) do
-    with m when is_integer(m) <- months,
-         {:ok, performed} <- Date.from_iso8601(String.slice(event["performed_at"] || "", 0, 10)) do
-      performed |> shift_months(m) |> Calendar.strftime("%b %d, %Y")
-    else
-      _ -> nil
-    end
-  end
-
-  defp due_mileage(event, miles, unit) do
-    with mi when is_integer(mi) <- miles,
-         m when is_integer(m) <- event["odometer_m"] do
-      due_m = m + round(mi * 1609.344)
-      "#{format_int(round(Units.from_metres(due_m, unit_atom(unit))))} #{unit}"
-    else
-      _ -> nil
-    end
-  end
-
-  # Matched rather than converted with String.to_existing_atom/1. The atom only
-  # "already exists" once Units happens to have been loaded, so that call
-  # crashed or not depending on module load order — the sticker rendering fine
-  # in one process and raising in another with identical data.
-  defp unit_atom("km"), do: :km
-  defp unit_atom(_), do: :mi
+  # The numbers come from DigitalOilSticker.Due; saying WHOSE interval produced
+  # them is a sourcing claim (INV-20/21) and stays here, with the copy catalog.
+  defp qualifier_for(nil, _due), do: "No oil change recorded yet."
+  defp qualifier_for(_event, %{resolved: :not_applicable}), do: Copy.not_applicable_ev()
+  defp qualifier_for(_event, %{resolved: resolved}), do: qualifier(resolved)
 
   # The sticker never shows a number without saying whose interval it is.
   defp qualifier(%{basis: :none}),
@@ -288,34 +216,4 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
   defp grade_of(nil), do: nil
   defp grade_of(event), do: event["oil_viscosity"]
-
-  # The date the oil was actually changed. Unlike DATE and MILEAGE above it,
-  # this is a record of something the user did, not an estimate we derived —
-  # so it needs no qualifier and carries no basis.
-  defp changed_on(nil), do: nil
-
-  defp changed_on(event) do
-    case Date.from_iso8601(String.slice(event["performed_at"] || "", 0, 10)) do
-      {:ok, date} -> Calendar.strftime(date, "%b %d, %Y")
-      _ -> nil
-    end
-  end
-
-  defp shift_months(date, months) do
-    total = date.year * 12 + (date.month - 1) + months
-    year = div(total, 12)
-    month = rem(total, 12) + 1
-    day = min(date.day, :calendar.last_day_of_the_month(year, month))
-    Date.new!(year, month, day)
-  end
-
-  defp format_int(n) when n >= 1000 do
-    n
-    |> Integer.to_string()
-    |> String.reverse()
-    |> String.replace(~r/(\d{3})(?=\d)/, "\\1,")
-    |> String.reverse()
-  end
-
-  defp format_int(n), do: Integer.to_string(n)
 end
