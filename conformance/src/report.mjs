@@ -53,7 +53,7 @@ export class Report {
     }
   }
 
-  toJSON(finishedAt) {
+  toJSON(finishedAt, baseline = []) {
     const engines = [...this.engines.values()].map(e => ({
       ...e,
       totals: countBy(e.assertions),
@@ -66,7 +66,8 @@ export class Report {
       finished_at: finishedAt,
       matrix_revision: this.matrix.revision,
       engines,
-      verdict: verdict(engines),
+      baseline_entries: baseline.length,
+      verdict: verdict(engines, baseline),
     }
   }
 }
@@ -82,9 +83,24 @@ function countBy(assertions) {
  * The release gate. A Tier 1 engine must be all-pass; anything else — a
  * failure, an assertion that did not run, a stale engine, or an engine that
  * could not be launched at all — blocks. Tier 2 is reported and does not block.
+ *
+ * `baseline` names assertions that are unproven for a known structural reason
+ * (see `conformance/baseline.json`). Those do not block, for one reason: a
+ * check that is permanently red is a check nobody reads, and then the next real
+ * regression lands in a run everyone has learned to ignore.
+ *
+ * It is not an ignore-list, and three rules keep it from decaying into one:
+ * a baselined assertion is still reported as unproven everywhere it appears; a
+ * FAILING assertion is never excused, because the baseline is for assertions
+ * that cannot RUN, not for ones that run and come out wrong; and a baselined
+ * assertion that starts PASSING blocks, so the entry gets removed as part of
+ * the work that fixed it.
  */
-export function verdict(engines) {
+export function verdict(engines, baseline = []) {
+  const baselined = new Map(baseline.map(entry => [entry.id, entry]))
   const blocking = []
+  const accepted = []
+  const unseen = new Set(baselined.keys())
 
   for (const engine of engines) {
     if (engine.tier !== 1) continue
@@ -99,14 +115,45 @@ export function verdict(engines) {
     if (engine.stale) {
       blocking.push({ engine: engine.key, reason: 'tier 1 engine last run is older than the staleness window', status: UNPROVEN })
     }
+
     for (const a of engine.assertions) {
-      if (a.status !== PASS) {
-        blocking.push({ engine: engine.key, assertion: a.id, reason: a.detail, status: a.status })
+      const entry = baselined.get(a.id)
+      if (entry) unseen.delete(a.id)
+
+      if (a.status === PASS) {
+        if (entry) {
+          blocking.push({
+            engine: engine.key,
+            assertion: a.id,
+            status: PASS,
+            reason:
+              'this assertion is baselined as unproven but it PASSED. Remove it from ' +
+              `conformance/baseline.json — the reason it was accepted ("${entry.reason}") no longer holds.`,
+          })
+        }
+        continue
       }
+
+      if (a.status === FAIL || !entry) {
+        blocking.push({ engine: engine.key, assertion: a.id, reason: a.detail, status: a.status })
+        continue
+      }
+
+      accepted.push({ engine: engine.key, assertion: a.id, runnable_when: entry.runnable_when })
     }
   }
 
-  return { release_blocked: blocking.length > 0, blocking }
+  // An entry naming an assertion this suite no longer produces is dead weight
+  // that would quietly widen the exemption if that id ever came back.
+  for (const id of unseen) {
+    blocking.push({
+      assertion: id,
+      status: UNPROVEN,
+      reason: 'conformance/baseline.json names an assertion this suite does not produce',
+    })
+  }
+
+  return { release_blocked: blocking.length > 0, blocking, accepted_unproven: accepted }
 }
 
 /**

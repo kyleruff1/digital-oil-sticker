@@ -1,0 +1,49 @@
+{
+  "_comment": [
+    "Assertions that are currently UNPROVEN for a known structural reason, with the",
+    "work that would make each runnable.",
+    "",
+    "This exists to stop the gate from being permanently red, which is the failure",
+    "mode that matters: a check that is always failing is a check nobody reads, and",
+    "then a real regression arrives and nobody notices. With this baseline, a red run",
+    "means something CHANGED.",
+    "",
+    "It is deliberately not an ignore-list. The runner still reports every entry as",
+    "unproven, in the report and in the terminal, and it FAILS if a baselined",
+    "assertion starts passing — a baseline that outlives its reason is how these rot.",
+    "Removing the entry is part of the work that fixed it.",
+    "",
+    "Nothing that is FAILING may be baselined. Only assertions that cannot be run at",
+    "all belong here."
+  ],
+  "unproven": [
+    {
+      "id": "export.round-trip",
+      "requirement": "FR-14",
+      "reason": "the app ships export but no import, so the round trip cannot be exercised",
+      "runnable_when": "DOS-M05-007 (#53) adds the import path",
+      "accepted_on": "2026-08-01"
+    },
+    {
+      "id": "import.catalog-references-re-resolved",
+      "requirement": "FR-15",
+      "reason": "depends on the import path, which does not exist",
+      "runnable_when": "DOS-M05-007 (#53) adds the import path",
+      "accepted_on": "2026-08-01"
+    },
+    {
+      "id": "migration.forward-from-recorded-fixtures",
+      "requirement": "FR-9",
+      "reason": "schema_version 1 is the only version ever shipped, so there is no prior-version fixture to migrate from",
+      "runnable_when": "the first LocalStore schema bump, which must ship a recorded v1 fixture alongside it",
+      "accepted_on": "2026-08-01"
+    },
+    {
+      "id": "a11y.screen-reader-operability",
+      "requirement": "AC-17",
+      "reason": "screen-reader operability cannot be driven by automation",
+      "runnable_when": "never automatically — a human runs NVDA, JAWS, or VoiceOver per the manual matrix in DOS-M09-008",
+      "accepted_on": "2026-08-01"
+    }
+  ]
+}

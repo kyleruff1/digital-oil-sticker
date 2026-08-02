@@ -131,3 +131,71 @@ test('a clean tier 1 run does not block', () => {
 
   assert.equal(v.release_blocked, false)
 })
+
+// -- baseline behaviour ------------------------------------------------------
+//
+// The baseline exists so the gate is not permanently red. These assert it
+// cannot quietly become a permission slip.
+
+import { readFileSync } from 'node:fs'
+
+const BASELINE = JSON.parse(readFileSync(join(REPO_ROOT, 'conformance', 'baseline.json'), 'utf8')).unproven
+
+test('every baseline entry says why it is unrunnable and what would make it runnable', () => {
+  for (const entry of BASELINE) {
+    assert.ok(entry.id, 'entry has no assertion id')
+    assert.ok(entry.reason && entry.reason.length > 10, `${entry.id} has no reason`)
+    assert.ok(entry.runnable_when && entry.runnable_when.length > 10, `${entry.id} does not say what would make it runnable`)
+    assert.match(entry.accepted_on, /^\d{4}-\d{2}-\d{2}$/, `${entry.id} has no acceptance date`)
+  }
+})
+
+test('a baselined unproven assertion does not block', () => {
+  const v = verdict(
+    [{ key: 'chromium', tier: 1, launched: true, assertions: [{ id: 'known', status: UNPROVEN, detail: 'cannot run' }] }],
+    [{ id: 'known', reason: 'x', runnable_when: 'y' }]
+  )
+
+  assert.equal(v.release_blocked, false)
+  assert.equal(v.accepted_unproven.length, 1)
+})
+
+test('an unproven assertion that is NOT baselined still blocks', () => {
+  const v = verdict(
+    [{ key: 'chromium', tier: 1, launched: true, assertions: [{ id: 'new', status: UNPROVEN, detail: 'cannot run' }] }],
+    [{ id: 'known', reason: 'x', runnable_when: 'y' }]
+  )
+
+  assert.equal(v.release_blocked, true)
+})
+
+test('a FAILING assertion blocks even when its id is baselined', () => {
+  // The baseline is for assertions that cannot RUN. One that runs and comes
+  // out wrong is a regression, and no entry may excuse it.
+  const v = verdict(
+    [{ key: 'chromium', tier: 1, launched: true, assertions: [{ id: 'known', status: FAIL, detail: 'broke' }] }],
+    [{ id: 'known', reason: 'x', runnable_when: 'y' }]
+  )
+
+  assert.equal(v.release_blocked, true)
+})
+
+test('a baselined assertion that starts passing blocks, so the entry gets removed', () => {
+  const v = verdict(
+    [{ key: 'chromium', tier: 1, launched: true, assertions: [{ id: 'known', status: PASS }] }],
+    [{ id: 'known', reason: 'the import path does not exist', runnable_when: 'y' }]
+  )
+
+  assert.equal(v.release_blocked, true)
+  assert.match(v.blocking[0].reason, /baselined as unproven but it PASSED/)
+})
+
+test('a baseline entry naming an assertion the suite no longer produces blocks', () => {
+  const v = verdict(
+    [{ key: 'chromium', tier: 1, launched: true, assertions: [{ id: 'real', status: PASS }] }],
+    [{ id: 'deleted-long-ago', reason: 'x', runnable_when: 'y' }]
+  )
+
+  assert.equal(v.release_blocked, true)
+  assert.match(v.blocking[0].reason, /does not produce/)
+})

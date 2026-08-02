@@ -8,7 +8,7 @@
 // anything other than a pass — including an engine that could not be launched
 // at all, which is the failure mode a "skip" would hide.
 
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as playwright from 'playwright'
@@ -61,6 +61,7 @@ function parseArgs(argv) {
     else if (flag === '--out') args.out = value
     else if (flag === '--engine') args.only = value
     else if (flag === '--rehearse-red') args.rehearseRed = true
+    else if (flag === '--no-baseline') args.noBaseline = true
   }
   return args
 }
@@ -154,7 +155,7 @@ ${engineRow.key} ${engineEntry.version}${engineRow.proxy ? ' (proxy)' : ''}`)
   report.fillUnrun(expected, 'engine did not run this assertion')
 
   const finished = new Date().toISOString()
-  const json = report.toJSON(finished)
+  const json = report.toJSON(finished, loadBaseline(args))
 
   mkdirSync(args.out, { recursive: true })
   const file = join(args.out, `conformance-${args.release}-${finished.replace(/[:.]/g, '-')}.json`)
@@ -165,6 +166,16 @@ ${engineRow.key} ${engineEntry.version}${engineRow.proxy ? ' (proxy)' : ''}`)
   console.error(`\nreport: ${file}`)
 
   process.exit(json.verdict.release_blocked ? 1 : 0)
+}
+
+// Structurally-unrunnable assertions, accepted so the gate is not permanently
+// red. `--no-baseline` reports the raw truth, which is what a release review
+// should look at.
+function loadBaseline(args) {
+  if (args.noBaseline) return []
+  const path = join(HERE, '..', 'baseline.json')
+  if (!existsSync(path)) return []
+  return JSON.parse(readFileSync(path, 'utf8')).unproven ?? []
 }
 
 function firstLine(message) {
