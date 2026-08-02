@@ -1,13 +1,15 @@
 {
   "milestone": "M03",
-  "milestoneTitle": "M03 — Data acquisition and offline catalog",
+  "milestoneTitle": "M03 \u2014 Data acquisition and offline catalog",
   "issues": [
     {
       "id": "DOS-M03-000",
-      "title": "DOS-M03-000 — Data Acquisition & Offline Catalog",
+      "title": "DOS-M03-000 \u2014 Data Acquisition & Offline Catalog",
       "type": "epic",
       "variant": "standard",
-      "labels": ["kind:epic"],
+      "labels": [
+        "kind:epic"
+      ],
       "workstream": "vPIC/Data",
       "blockedBy": [],
       "priorityOverride": null,
@@ -16,10 +18,14 @@
     },
     {
       "id": "DOS-M03-001",
-      "title": "DOS-M03-001 — Approve the data-source and redistribution rights matrix",
+      "title": "DOS-M03-001 \u2014 Approve the data-source and redistribution rights matrix",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:task", "needs:decision", "needs:license"],
+      "labels": [
+        "kind:task",
+        "needs:decision",
+        "needs:license"
+      ],
       "workstream": "vPIC/Data",
       "blockedBy": [],
       "priorityOverride": "P0 Critical",
@@ -28,10 +34,14 @@
     },
     {
       "id": "DOS-M03-002",
-      "title": "DOS-M03-002 — Freeze the catalog vocabulary, identity rules, and field-level provenance contract",
+      "title": "DOS-M03-002 \u2014 Freeze the catalog vocabulary, identity rules, and field-level provenance contract",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:task", "needs:decision", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:decision",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
       "blockedBy": [],
       "priorityOverride": "P0 Critical",
@@ -40,94 +50,148 @@
     },
     {
       "id": "DOS-M03-003",
-      "title": "DOS-M03-003 — Build an immutable raw-data landing zone and reproducible ingest ledger",
+      "title": "DOS-M03-003 \u2014 Build an immutable raw-data landing zone and reproducible ingest ledger",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-001", "DOS-M03-002"],
+      "blockedBy": [
+        "DOS-M03-001",
+        "DOS-M03-002"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
     },
     {
       "id": "DOS-M03-004",
-      "title": "DOS-M03-004 — Implement a courteous, contract-tested vPIC acquisition client",
+      "title": "DOS-M03-004 \u2014 Implement a courteous, contract-tested vPIC acquisition client",
       "type": "child",
       "variant": "standard",
-      "labels": ["kind:task"],
+      "labels": [
+        "kind:task"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-002", "DOS-M03-003"],
+      "blockedBy": [
+        "DOS-M03-002",
+        "DOS-M03-003"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": null,
+      "statusOverride": "Done"
     },
     {
       "id": "DOS-M03-005",
-      "title": "DOS-M03-005 — Acquire the rolling 30-year vPIC vehicle identity corpus",
+      "title": "DOS-M03-005 \u2014 Acquire the rolling 30-year vPIC vehicle identity corpus",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-004"],
+      "blockedBy": [
+        "DOS-M03-004"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": null,
+      "statusOverride": "Done"
     },
     {
       "id": "DOS-M03-006",
-      "title": "DOS-M03-006 — Normalize vehicle configurations and create auditable cross-source identities",
+      "title": "DOS-M03-006 \u2014 Normalize vehicle configurations and create auditable cross-source identities",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-002", "DOS-M03-005"],
+      "blockedBy": [
+        "DOS-M03-002",
+        "DOS-M03-005"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
     },
     {
       "id": "DOS-M03-007",
-      "title": "DOS-M03-007 — Gate and ingest rights-approved OEM-derived oil-service schedules and lubricant requirements",
+      "title": "DOS-M03-007 \u2014 Gate and ingest rights-approved OEM-derived oil-service schedules and lubricant requirements",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:license", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:license",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-003"],
+      "blockedBy": [
+        "DOS-M03-001",
+        "DOS-M03-002",
+        "DOS-M03-003"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
     },
     {
       "id": "DOS-M03-008",
-      "title": "DOS-M03-008 — Gate and ingest the API EOLCS licensed-product directory",
+      "title": "DOS-M03-008 \u2014 Gate and ingest the API EOLCS licensed-product directory",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:license", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:license",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-003"],
+      "blockedBy": [
+        "DOS-M03-001",
+        "DOS-M03-002",
+        "DOS-M03-003"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
     },
     {
       "id": "DOS-M03-009",
-      "title": "DOS-M03-009 — Gate and ingest rights-approved filter products, applications, and reference data",
+      "title": "DOS-M03-009 \u2014 Gate and ingest rights-approved filter products, applications, and reference data",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:license", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:license",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-003"],
+      "blockedBy": [
+        "DOS-M03-001",
+        "DOS-M03-002",
+        "DOS-M03-003"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
     },
     {
       "id": "DOS-M03-010",
-      "title": "DOS-M03-010 — Compile, quality-gate, and publish a deterministic offline catalog release",
+      "title": "DOS-M03-010 \u2014 Compile, quality-gate, and publish a deterministic offline catalog release",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:data-validation", "needs:qa", "platform:ios", "platform:android"],
+      "labels": [
+        "kind:task",
+        "needs:data-validation",
+        "needs:qa",
+        "platform:ios",
+        "platform:android"
+      ],
       "workstream": "vPIC/Data",
       "blockedBy": [
         "DOS-M03-001",
@@ -142,16 +206,26 @@
       ],
       "priorityOverride": null,
       "riskOverride": null,
-      "targetOverride": null
+      "targetOverride": null,
+      "statusOverride": "Done"
     },
     {
       "id": "DOS-M03-011",
-      "title": "DOS-M03-011 — Measure automated OEM owner's-manual extraction and dispose the ADR-0007 lane (d) hybrid path",
+      "title": "DOS-M03-011 \u2014 Measure automated OEM owner's-manual extraction and dispose the ADR-0007 lane (d) hybrid path",
       "type": "child",
       "variant": "data",
-      "labels": ["kind:task", "needs:decision", "needs:license", "needs:data-validation"],
+      "labels": [
+        "kind:task",
+        "needs:decision",
+        "needs:license",
+        "needs:data-validation"
+      ],
       "workstream": "vPIC/Data",
-      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-006"],
+      "blockedBy": [
+        "DOS-M03-001",
+        "DOS-M03-002",
+        "DOS-M03-006"
+      ],
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null

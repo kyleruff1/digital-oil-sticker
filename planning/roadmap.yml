@@ -536,7 +536,7 @@ issues:
     blocked_by: DOS-M03-002, DOS-M03-003
     labels: kind:task
     body: planning/issues/DOS-M03-004.md
-    status: Backlog
+    status: Done
     priority: P1 High
     workstream: vPIC/Data
     risk: 
@@ -551,7 +551,7 @@ issues:
     blocked_by: DOS-M03-004
     labels: kind:task, needs:data-validation
     body: planning/issues/DOS-M03-005.md
-    status: Backlog
+    status: Done
     priority: P1 High
     workstream: vPIC/Data
     risk: 
@@ -626,7 +626,7 @@ issues:
     blocked_by: DOS-M03-001, DOS-M03-002, DOS-M03-003, DOS-M03-004, DOS-M03-005, DOS-M03-006, DOS-M03-007, DOS-M03-008, DOS-M03-009
     labels: kind:task, needs:data-validation, needs:qa, platform:ios, platform:android
     body: planning/issues/DOS-M03-010.md
-    status: Backlog
+    status: Done
     priority: P1 High
     workstream: vPIC/Data
     risk: 
@@ -686,7 +686,7 @@ issues:
     blocked_by: DOS-M03-002, DOS-M04-001
     labels: kind:task, needs:data-validation
     body: planning/issues/DOS-M04-002.md
-    status: Backlog
+    status: Done
     priority: P1 High
     workstream: vPIC/Data
     risk: 
@@ -716,7 +716,7 @@ issues:
     blocked_by: DOS-M04-001, DOS-M04-002
     labels: kind:task, platform:ios, platform:android
     body: planning/issues/DOS-M04-004.md
-    status: Backlog
+    status: Done
     priority: P1 High
     workstream: Architecture
     risk: 
