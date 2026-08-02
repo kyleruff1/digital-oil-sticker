@@ -126,8 +126,28 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   # Same event the sticker page's folder uses. Kept in sync so a switch here
   # is a switch everywhere — the log form and the sticker record their
   # target vehicle the same way (prefs.active_vehicle_id).
+  #
+  # Also RESETS the form's vehicle-specific state: odometer, oil radios,
+  # grade, filter, notes. Verified on tablet before the fix — a user who
+  # typed 50,000 for the Camry then clicked the Navigator tab would save
+  # 50,000 against the Naviger. The date stays because it's a real-world
+  # calendar day, not a per-vehicle fact; form_touched? also resets so
+  # pre-fill from the new vehicle's plan (if selected) can take effect.
   def handle_event("switch_vehicle", %{"vehicle-id" => id}, socket) do
+    current_id =
+      case Session.active_vehicle(socket.assigns.garage) do
+        %{"vehicle_id" => existing} -> existing
+        _ -> nil
+      end
+
     cond do
+      # Clicking the already-active tab must not reset the form the user is
+      # filling in. Buttons fire on every click regardless of aria-selected,
+      # so this guard is load-bearing — without it, the tap that "confirmed"
+      # the current vehicle would silently wipe the odometer they just typed.
+      id == current_id ->
+        {:noreply, socket}
+
       not Session.mutations_enabled?(socket) ->
         {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
 
@@ -142,8 +162,27 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
         {socket, _mutation_id} =
           Session.stage_mutation(socket, [%{"store" => "prefs", "record" => prefs}], [])
 
-        {:noreply, socket}
+        {:noreply, reset_form_for_switch(socket)}
     end
+  end
+
+  defp reset_form_for_switch(socket) do
+    socket
+    |> assign(:odo_value, nil)
+    |> assign(:odo_unit, "mi")
+    |> assign(:base_stock, nil)
+    |> assign(:grade, nil)
+    |> assign(:show_all_grades?, false)
+    |> assign(:manual_grade?, false)
+    |> assign(:manual_grade, nil)
+    |> assign(:filter_text, nil)
+    |> assign(:notes, "")
+    |> assign(:date_errors, [])
+    |> assign(:odo_errors, [])
+    |> assign(:duplicate_pending, nil)
+    |> assign(:form_touched?, false)
+    |> assign(:form_token, Ecto.UUID.generate())
+    |> assign(:submitted_token, nil)
   end
 
   def handle_event("duplicate_cancel", _params, socket) do

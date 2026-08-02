@@ -163,6 +163,75 @@ defmodule DigitalOilStickerWeb.LogFormDefaultsTest do
       assert html =~
                ~s(aria-selected="true" phx-click="switch_vehicle" phx-value-vehicle-id="#{@car_two}")
     end
+
+    test "clicking the already-active tab does not reset the form", %{conn: conn} do
+      # The button fires on every click regardless of aria-selected, so a
+      # user who confirmed their vehicle by clicking its already-highlighted
+      # tab must not lose the values they just typed.
+      {:ok, view, _} = live(conn, ~p"/service/new")
+
+      hydrate(view, %{
+        "vehicles" => [vehicle(@car_one, "Toyota", "Camry"), vehicle(@car_two, "BMW", "328i")],
+        "prefs" => %{"active_vehicle_id" => @car_one}
+      })
+
+      render_change(view, "form_change", %{
+        "service_date" => %{"month" => "8", "day" => "2", "year" => "2026"},
+        "odometer" => %{"value" => "50000", "unit" => "mi"},
+        "oil" => %{"base_stock" => "conventional", "grade" => ""},
+        "notes" => ""
+      })
+
+      # Click the SAME tab (car_one, which is active).
+      render_click(view, "switch_vehicle", %{"vehicle-id" => @car_one})
+
+      # Nothing was pushed (no prefs write), and the form values survived.
+      refute_push_event(view, "local_store:put", %{})
+
+      html = render(view)
+      assert html =~ ~s(value="50000")
+      assert html =~ ~s(value="conventional" checked)
+    end
+
+    test "switching resets the form so typed values do not leak to the new vehicle", %{
+      conn: conn
+    } do
+      # This was reproduced on tablet before the fix: a user types 50,000 in
+      # the odometer for the Camry, clicks the Navigator tab, and the
+      # 50,000 stays — a submit at that point records the Camry's typed
+      # values against the Navigator's vehicle_id. The switch handler now
+      # resets the vehicle-specific form state; the date stays because it's
+      # a real-world calendar day, not a per-vehicle fact.
+      {:ok, view, _} = live(conn, ~p"/service/new")
+
+      hydrate(view, %{
+        "vehicles" => [vehicle(@car_one, "Toyota", "Camry"), vehicle(@car_two, "BMW", "328i")],
+        "prefs" => %{"active_vehicle_id" => @car_one}
+      })
+
+      render_change(view, "form_change", %{
+        "service_date" => %{"month" => "8", "day" => "2", "year" => "2026"},
+        "odometer" => %{"value" => "50000", "unit" => "mi"},
+        "oil" => %{"base_stock" => "conventional", "grade" => ""},
+        "notes" => "some notes"
+      })
+
+      render_click(view, "switch_vehicle", %{"vehicle-id" => @car_two})
+
+      html = render(view)
+
+      # Vehicle-specific state cleared: no selected radio, no odometer value,
+      # no notes, no filter.
+      refute html =~ ~s(value="conventional" checked)
+      refute html =~ ~s(value="50000")
+      refute html =~ ">some notes<"
+
+      # Save with no oil now produces a nil-oil event (the plan is
+      # "selected" full_synthetic — that WOULD pre-fill because the switch
+      # target's plan is selected). This asserts the negative more
+      # importantly: nothing from the old vehicle survives.
+      refute html =~ ~s(value="50,000")
+    end
   end
 
   describe "no per-radio range previews on the log form" do
