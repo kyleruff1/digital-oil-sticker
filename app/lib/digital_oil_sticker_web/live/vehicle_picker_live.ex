@@ -318,6 +318,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
               <.oil_type_select
                 base_stocks={@base_stocks}
                 base_stock={@base_stock}
+                defaulted?={not @oil_touched? and is_binary(@base_stock)}
                 suggested_grades={elem(picker_grades(assigns), 0)}
                 other_grades={elem(picker_grades(assigns), 1)}
                 grade={@grade}

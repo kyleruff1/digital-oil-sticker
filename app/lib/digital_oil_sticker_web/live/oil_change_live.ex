@@ -255,6 +255,17 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   # went in. If the intake was defaulted, the user picks the oil here.
   defp planned_selected?(assigns), do: planned(assigns)["planned_oil"] == "selected"
 
+  # Rendered when the vehicle's intake was defaulted AND the user has not yet
+  # picked oil on THIS form. An empty oil section on a "selected"-plan vehicle
+  # means the user cleared the pre-fill deliberately; an empty oil section on
+  # a "defaulted"-plan vehicle means nobody has ever said what this vehicle
+  # uses. The two states render identically without this cue.
+  defp needs_oil_prompt?(assigns) do
+    planned(assigns)["planned_oil"] == "defaulted" and
+      is_nil(effective_base_stock(assigns)) and
+      not assigns.manual_grade?
+  end
+
   # Once the form has been touched, the assigns hold what the rendered
   # controls showed (the change params absorb the pre-fill), so the fallback
   # stops — otherwise clearing a pre-filled field is impossible.
@@ -375,6 +386,20 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
           />
 
           <.odometer_input id="oil-odometer" value={@odo_value} unit={@odo_unit} errors={@odo_errors} />
+
+          <%!-- When the vehicle's intake was never answered (planned_oil ==
+               "defaulted"), the log form starts with no oil pre-filled — but
+               the empty radios are the same empty state a user would see if
+               they'd already recorded a change and re-visited. This banner
+               distinguishes the two, and points at the fix. --%>
+          <div
+            :if={needs_oil_prompt?(assigns)}
+            class="rounded border border-amber-400 bg-amber-50 p-3 text-sm text-amber-900"
+            role="status"
+            data-test="log-form-needs-oil"
+          >
+            {Copy.log_form_needs_oil()}
+          </div>
 
           <.oil_type_select
             base_stocks={@base_stocks}

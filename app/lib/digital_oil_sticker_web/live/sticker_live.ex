@@ -420,11 +420,20 @@ defmodule DigitalOilStickerWeb.StickerLive do
   # honestly: the number is our estimate, ASSUMING that oil, not "based on
   # your answer." Same math the picker's recommendation showed; the label
   # keeps the assumption visible on every subsequent render.
+  #
+  # Two clauses: :our_model is the common case (pure model interval), and
+  # the fallthrough catches :mixed — where the user set one dimension and the
+  # model supplied the other from the assumed oil. Missing the :mixed head
+  # dropped the "assuming" caveat entirely for any vehicle where the user had
+  # set months but left miles blank.
   defp qualifier_for(
          _event,
          %{oil_basis: :planned_default, resolved: %{basis: :our_model, miles: mi, months: mo}}
        ),
        do: "#{Copy.estimated_due_date()} — #{ceiling_line(mi, mo)}. #{Copy.assumed_oil_note()}"
+
+  defp qualifier_for(_event, %{oil_basis: :planned_default, resolved: resolved}),
+    do: "#{qualifier(resolved)} #{Copy.assumed_oil_note()}"
 
   defp qualifier_for(_event, %{resolved: resolved}), do: qualifier(resolved)
 

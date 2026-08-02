@@ -101,6 +101,42 @@ defmodule DigitalOilStickerWeb.DefaultedOilTest do
       refute html =~ "based on Your interval"
     end
 
+    test "a defaulted plan with a user-set months-only interval still says \"assuming\"", %{
+      conn: conn
+    } do
+      # Reachable state: intake defaulted; user set only interval_months on
+      # the vehicle page; user logs a change without picking oil. The user's
+      # 6-month cap wins over the model's 12-month cap; the model still
+      # supplies the miles ceiling from the ASSUMED full-synthetic rule.
+      # basis resolves to :mixed. Without the :mixed clause on
+      # :planned_default, this state dropped the "assuming" caveat entirely.
+      {:ok, view, _} = live(conn, ~p"/")
+
+      html =
+        hydrate(view, %{
+          "vehicles" => [
+            vehicle(%{
+              "planned_oil" => "defaulted",
+              "planned_base_stock" => "full_synthetic",
+              "planned_grade" => "5W-30",
+              "interval_months" => 6
+            })
+          ],
+          "events" => [
+            %{
+              "event_id" => "22222222-2222-4222-8222-222222222222",
+              "vehicle_id" => @vehicle_id,
+              "performed_at" => "2026-06-15",
+              "odometer_m" => 80_467_200,
+              "input_unit" => "mi",
+              "provenance_mode" => "manual"
+            }
+          ]
+        })
+
+      assert html =~ "assuming full synthetic"
+    end
+
     test "a selected plan still reads with the plain \"Our estimate\" attribution", %{conn: conn} do
       {:ok, view, _} = live(conn, ~p"/")
 
@@ -128,6 +164,46 @@ defmodule DigitalOilStickerWeb.DefaultedOilTest do
       # Explicitly NOT the assumption clause — the user chose this oil.
       refute html =~ "assuming full synthetic"
       assert html =~ "Our estimate"
+    end
+  end
+
+  describe "the vehicle profile page" do
+    test "shows the assumed-oil note when the plan is defaulted", %{conn: conn} do
+      {:ok, view, _} = live(conn, ~p"/vehicle")
+
+      html =
+        hydrate(view, %{
+          "vehicles" => [
+            vehicle(%{
+              "planned_oil" => "defaulted",
+              "planned_base_stock" => "full_synthetic",
+              "planned_grade" => "5W-30"
+            })
+          ],
+          "prefs" => %{"active_vehicle_id" => @vehicle_id}
+        })
+
+      # Same "assuming" note the sticker shows, on the page a user goes to
+      # precisely to inspect and change their vehicle's assumptions.
+      assert html =~ "assuming full synthetic"
+    end
+
+    test "does NOT show the assumed-oil note for a selected plan", %{conn: conn} do
+      {:ok, view, _} = live(conn, ~p"/vehicle")
+
+      html =
+        hydrate(view, %{
+          "vehicles" => [
+            vehicle(%{
+              "planned_oil" => "selected",
+              "planned_base_stock" => "full_synthetic",
+              "planned_grade" => "5W-30"
+            })
+          ],
+          "prefs" => %{"active_vehicle_id" => @vehicle_id}
+        })
+
+      refute html =~ "assuming full synthetic"
     end
   end
 
@@ -224,6 +300,48 @@ defmodule DigitalOilStickerWeb.DefaultedOilTest do
         })
 
       assert html =~ ~s(value="full_synthetic" checked)
+    end
+
+    test "shows a needs-oil banner when the intake was defaulted, hides it after selection", %{
+      conn: conn
+    } do
+      {:ok, view, _} = live(conn, ~p"/service/new")
+
+      html =
+        log_hydrate(view, %{
+          "planned_oil" => "defaulted",
+          "planned_base_stock" => "full_synthetic",
+          "planned_grade" => "5W-30"
+        })
+
+      assert html =~ "data-test=\"log-form-needs-oil\""
+      assert html =~ "No oil type was recorded at intake"
+
+      # Once the user picks something, the banner should be gone — the state
+      # it existed to distinguish (unrecorded vs cleared) is no longer
+      # ambiguous.
+      html =
+        render_change(view, "form_change", %{
+          "service_date" => %{"month" => "", "day" => "", "year" => ""},
+          "odometer" => %{"value" => "", "unit" => "mi"},
+          "oil" => %{"base_stock" => "conventional", "grade" => ""},
+          "notes" => ""
+        })
+
+      refute html =~ "data-test=\"log-form-needs-oil\""
+    end
+
+    test "no needs-oil banner for a selected plan", %{conn: conn} do
+      {:ok, view, _} = live(conn, ~p"/service/new")
+
+      html =
+        log_hydrate(view, %{
+          "planned_oil" => "selected",
+          "planned_base_stock" => "full_synthetic",
+          "planned_grade" => "5W-30"
+        })
+
+      refute html =~ "data-test=\"log-form-needs-oil\""
     end
   end
 

@@ -19,6 +19,17 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
   attr :base_stocks, :list, required: true
   attr :base_stock, :string, default: nil
 
+  attr :defaulted?, :boolean,
+    default: false,
+    doc: """
+    The current base_stock is an app-chosen suggestion, not a user pick. The
+    label of the checked option carries a "(suggested)" tag and the border
+    uses a dashed muted style instead of the solid emerald selection border
+    — so a defaulted radio can be distinguished at a glance from a positive
+    choice, matching the "defaulted" vs "selected" distinction the plan
+    records downstream.
+    """
+
   attr :show_miles_range?, :boolean,
     default: false,
     doc: """
@@ -58,7 +69,8 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
             :for={stock <- @base_stocks}
             class={[
               "flex min-h-11 cursor-pointer items-start gap-2 rounded border px-3 py-2",
-              @base_stock == stock.code && "border-2 border-emerald-700"
+              (@base_stock == stock.code and @defaulted?) && "border-dashed border-emerald-700/40",
+              (@base_stock == stock.code and not @defaulted?) && "border-2 border-emerald-700"
             ]}
           >
             <input
@@ -74,7 +86,15 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
                  the log form where there is no such recommendation and the
                  range is the only in-place context. --%>
             <span>
-              <span class="block text-sm font-semibold">{stock.display_name}</span>
+              <span class="block text-sm font-semibold">
+                {stock.display_name}
+                <span
+                  :if={@base_stock == stock.code and @defaulted?}
+                  class="ml-1 text-xs font-normal italic text-base-content/70"
+                >
+                  (suggested)
+                </span>
+              </span>
               <span :if={@show_miles_range?} class="block text-xs text-base-content/70">
                 {Copy.miles_range(stock.published_miles_low, stock.published_miles_high)}
               </span>

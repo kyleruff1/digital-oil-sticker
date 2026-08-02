@@ -116,11 +116,24 @@ defmodule DigitalOilStickerWeb.Copy do
   end
 
   # --- The oil step at vehicle intake -----------------------------------------
-  def intake_oil_heading, do: "What oil does it use?"
+  # Heading is a noun phrase, not a question: under the defaults-then-track-
+  # touch flow the app has already filled in an oil before the user reads
+  # this, and posing it as a question the user must answer misattributes the
+  # calculated number below to a choice they did not make.
+  def intake_oil_heading, do: "Oil type for the estimate"
 
   def intake_oil_why do
-    "The type of oil is what sets how far an interval can stretch, so choosing " <>
-      "it here is what lets us put a number on the sticker."
+    "The type of oil sets how far the interval can stretch. We've started with " <>
+      "full synthetic because that gives the longest interval we model for this " <>
+      "engine — change it below if that's not what goes in."
+  end
+
+  # Rendered above the log form's oil section when the vehicle's intake was
+  # never answered (planned_oil == "defaulted"). Names the state honestly —
+  # nobody has told the app what this vehicle uses — and points to the fix.
+  def log_form_needs_oil do
+    "No oil type was recorded at intake for this vehicle. Pick one below so " <>
+      "the record and the sticker match what actually went in."
   end
 
   def intake_oil_unknown, do: "I don't know yet"

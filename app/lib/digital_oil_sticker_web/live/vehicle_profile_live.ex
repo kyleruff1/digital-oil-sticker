@@ -221,6 +221,16 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
               {Copy.interval_summary(@estimate.miles_recommended, @estimate.months_cap)}
             </p>
             <p class="mt-1 text-xs text-base-content/70">{@estimate.reasoning}</p>
+            <%!-- Same "assuming" clause the sticker renders for the same
+                 defaulted-plan state, one navigation away. Without it, THIS
+                 page — the one a user visits precisely to inspect and change
+                 what the app is assuming — reads as a confirmed choice. --%>
+            <p
+              :if={@estimate[:oil_basis] == :planned_default}
+              class="mt-2 text-xs text-amber-700"
+            >
+              {Copy.assumed_oil_note()}
+            </p>
             <p :if={@estimate.basis == :fallback_lowest_published} class="mt-2 text-xs text-amber-700">
               {Copy.lowest_published_used()}
             </p>
@@ -479,9 +489,14 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
   defp estimate_for(vehicle, garage) do
     last = Session.last_oil_change(garage, vehicle["vehicle_id"])
 
+    # The oil_basis is carried alongside the interval so the render pass can
+    # attribute honestly — a :planned_default interval must say "assuming" the
+    # same way the sticker does, or this page contradicts a sticker one
+    # navigation away. The whole point of extracting Due was one calculation,
+    # one label; dropping the label here re-created the divergence.
     case Due.oil_rule(vehicle, last) do
-      {{:ok, interval}, _basis} ->
-        interval
+      {{:ok, interval}, basis} ->
+        Map.put(interval, :oil_basis, basis)
 
       {:not_applicable, _basis} ->
         :not_applicable
@@ -492,7 +507,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                @default_base_stock,
                condition_of(vehicle)
              ) do
-          {:ok, interval} -> interval
+          {:ok, interval} -> Map.put(interval, :oil_basis, :none)
           :not_applicable -> :not_applicable
           {:error, _} -> nil
         end
