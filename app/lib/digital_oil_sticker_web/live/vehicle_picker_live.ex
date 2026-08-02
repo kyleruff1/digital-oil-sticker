@@ -70,11 +70,23 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   def handle_event("oil_change", %{"oil" => oil}, socket) do
     {grade, show_all?, manual?} = grade_choice(oil["grade"], socket.assigns)
     unknown? = oil["base_stock"] == "__unknown__"
+    new_base_stock = if unknown?, do: nil, else: presence(oil["base_stock"])
+
+    # Auto-select the top suggested grade the moment a base stock is chosen,
+    # if the user hasn't picked a grade themselves. This is the closest thing
+    # to a per-vehicle recommendation our current data supports — the picker
+    # walks the vehicle's engine class through OilModel.grades_for_class, and
+    # takes the first entry. Not the same as a manufacturer spec (see
+    # ADR-0007), and never overrides an explicit choice.
+    grade =
+      if is_nil(grade) and is_binary(new_base_stock) and not manual?,
+        do: auto_grade_for(socket.assigns),
+        else: grade
 
     {:noreply,
      socket
      |> assign(:oil_unknown?, unknown?)
-     |> assign(:base_stock, if(unknown?, do: nil, else: presence(oil["base_stock"])))
+     |> assign(:base_stock, new_base_stock)
      |> assign(grade: grade, show_all_grades?: show_all?, manual_grade?: manual?)
      |> assign(:manual_grade, presence(oil["manual_grade"]))}
   end
@@ -460,6 +472,22 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
     case selected_config(assigns) do
       %{engine_class_code: code} -> OilModel.grade_choices(code)
       _ -> {[], []}
+    end
+  end
+
+  # Top of the class's suggested list. Returns nil for an unclassified vehicle
+  # rather than picking from another class — an unknown engine must not
+  # silently borrow another engine's grade.
+  defp auto_grade_for(assigns) do
+    case selected_config(assigns) do
+      %{engine_class_code: code} ->
+        case OilModel.grades_for_class(code) do
+          [%{code: grade} | _] -> grade
+          _ -> nil
+        end
+
+      _ ->
+        nil
     end
   end
 

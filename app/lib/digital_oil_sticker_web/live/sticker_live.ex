@@ -419,23 +419,49 @@ defmodule DigitalOilStickerWeb.StickerLive do
   defp qualifier_for(_event, %{resolved: resolved}), do: qualifier(resolved)
 
   # The sticker never shows a number without saying whose interval it is.
+  #
+  # And it now shows the two ceilings explicitly. Otherwise a 10,000 mi / 12 mo
+  # rule for a truck engine reads as "just added a year" on the DATE row, when
+  # the truth is that the calendar cap governed because the mileage cap is far
+  # away — two ceilings joined by OR, not a mechanical add.
   defp qualifier(%{basis: :none}),
     do: "Record what type of oil went in, or set #{Copy.your_interval()}, to see a due estimate."
 
-  defp qualifier(%{basis: :user}),
+  defp qualifier(%{basis: :user, miles: mi, months: mo}),
     do:
-      "#{Copy.estimated_due_date()} — based on #{Copy.your_interval()}, not manufacturer guidance."
+      "#{Copy.estimated_due_date()} — #{ceiling_line(mi, mo)}. Based on #{Copy.your_interval()}, not manufacturer guidance."
 
-  defp qualifier(%{basis: :our_model}),
-    do: "#{Copy.estimated_due_date()} — #{Copy.our_model_label()}, not manufacturer guidance."
-
-  defp qualifier(%{basis: :manufacturer}),
-    do: "#{Copy.estimated_due_date()} — from your vehicle maker's own schedule."
-
-  defp qualifier(%{miles_basis: miles_basis, months_basis: months_basis}),
+  defp qualifier(%{basis: :our_model, miles: mi, months: mo}),
     do:
-      "#{Copy.estimated_due_date()} — mileage from #{basis_name(miles_basis)}, " <>
-        "date from #{basis_name(months_basis)}. Whichever comes first."
+      "#{Copy.estimated_due_date()} — #{ceiling_line(mi, mo)}. #{Copy.our_model_label()}, not manufacturer guidance."
+
+  defp qualifier(%{basis: :manufacturer, miles: mi, months: mo}),
+    do:
+      "#{Copy.estimated_due_date()} — #{ceiling_line(mi, mo)}. From your vehicle maker's own schedule."
+
+  defp qualifier(%{miles: mi, months: mo, miles_basis: miles_basis, months_basis: months_basis}),
+    do:
+      "#{Copy.estimated_due_date()} — #{ceiling_line(mi, mo)}. Mileage from #{basis_name(miles_basis)}, date from #{basis_name(months_basis)}."
+
+  # Whichever ceiling is present, named in miles-then-months order joined by
+  # "or". Both nil is unreachable — resolve/1 would return basis :none, which
+  # the clause above catches — but the fallthrough is harmless.
+  defp ceiling_line(mi, mo) when is_integer(mi) and is_integer(mo),
+    do: "#{format_int(mi)} miles or #{mo} months, whichever comes first"
+
+  defp ceiling_line(mi, nil) when is_integer(mi), do: "#{format_int(mi)} miles"
+  defp ceiling_line(nil, mo) when is_integer(mo), do: "#{mo} months"
+  defp ceiling_line(_, _), do: "no ceiling"
+
+  defp format_int(n) when n >= 1000 do
+    n
+    |> Integer.to_string()
+    |> String.reverse()
+    |> String.replace(~r/(\d{3})(?=\d)/, "\\1,")
+    |> String.reverse()
+  end
+
+  defp format_int(n), do: Integer.to_string(n)
 
   defp basis_name(:user), do: Copy.your_interval()
   defp basis_name(:our_model), do: Copy.our_model_label()
