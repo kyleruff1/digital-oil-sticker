@@ -150,3 +150,70 @@
     transform: none;
   }
 }
+
+/* Sticker geometry, in CSS rather than style="" attributes.
+ *
+ * It lived in inline attributes until the report-only CSP was deployed and the
+ * browser reported 56 violations of `style-src 'self'` — every viewport, on
+ * every render. Enforcing that policy would have stripped the positioning and
+ * collapsed the sticker. FR-2 prohibits 'unsafe-inline' in every directive, and
+ * a nonce cannot cover a style ATTRIBUTE (nonces apply to elements), so the
+ * only real fix is to stop writing styles inline.
+ *
+ * The percentages are the brand README's, and the vertical bounds are the
+ * artwork's: the white card body ends at 75.6%, so nothing may extend past it.
+ * A regression test reads these values back out of this file. */
+.dos-sticker {
+  aspect-ratio: 1320 / 640;
+}
+
+.dos-vp {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #101820;
+}
+
+/* NEXT SERVICE DUE — what we estimate. */
+.dos-vp-date {
+  left: 14.24%;
+  top: 50.5%;
+  width: 30.15%;
+  height: 12%;
+}
+
+.dos-vp-mileage {
+  left: 55.61%;
+  top: 50.5%;
+  width: 30.15%;
+  height: 12%;
+}
+
+.dos-vp-or {
+  position: absolute;
+  left: 46.5%;
+  top: 53%;
+  color: #101820;
+}
+
+/* The stamped band — what actually happened. Ends at 74.6%, a percent clear of
+ * the card's 75.6% edge, because the stamp's ink rule needs the room. */
+.dos-vp-changed {
+  left: 8%;
+  top: 62.6%;
+  width: 28%;
+  height: 12%;
+}
+
+.dos-vp-grade {
+  left: 38.03%;
+  top: 62.6%;
+  width: 23.94%;
+  height: 12%;
+}
+
+.dos-skeleton {
+  background: #10182022;
+}

@@ -30,7 +30,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
     ~H"""
     <div class="dos-sticker-frame">
       <%!-- Full lockup ≥ 320 CSS px (brand minimum). --%>
-      <div class="dos-sticker relative w-full" style="aspect-ratio: 1320 / 640;">
+      <div class="dos-sticker relative w-full">
         <img
           src={~p"/images/dos-logo.svg"}
           alt=""
@@ -42,12 +42,11 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           label="Date"
           value={@date_value}
           skeleton={@skeleton}
-          style="left:14.24%; top:50.5%; width:30.15%; height:12%;"
+          geometry="dos-vp-date"
           test_id="sticker-date"
         />
         <span
-          class="absolute font-bold text-[2.2cqw] tracking-wide"
-          style="left:46.5%; top:53%; color:#101820;"
+          class="dos-vp-or font-bold text-[2.2cqw] tracking-wide"
           aria-hidden="true"
         >
           OR
@@ -56,7 +55,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           label="Mileage"
           value={@mileage_value}
           skeleton={@skeleton}
-          style="left:55.61%; top:50.5%; width:30.15%; height:12%;"
+          geometry="dos-vp-mileage"
           test_id="sticker-mileage"
         />
         <%!-- The bottom band records what HAPPENED, in contrast to the row
@@ -68,7 +67,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           value={@changed_value}
           skeleton={@skeleton}
           stamped
-          style="left:8.0%; top:62.6%; width:28.0%; height:12%;"
+          geometry="dos-vp-changed"
           test_id="sticker-changed"
         />
         <%!-- Inside the printable card, which the artwork ends at 75.6%
@@ -83,7 +82,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           value={@grade_value}
           skeleton={@skeleton}
           stamped
-          style="left:38.03%; top:62.6%; width:23.94%; height:12%;"
+          geometry="dos-vp-grade"
           test_id="sticker-grade"
         />
       </div>
@@ -123,30 +122,25 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
     default: false,
     doc: "render as an applied stamp rather than printed card text"
 
-  attr :style, :string, required: true
+  attr :geometry, :string, required: true, doc: "CSS class carrying this viewport's position"
   attr :test_id, :string, required: true
 
   defp viewport(assigns) do
     ~H"""
     <div
-      class={["absolute flex flex-col items-center justify-center", @stamped && "dos-stamp"]}
-      style={@style}
+      class={["dos-vp", @geometry, @stamped && "dos-stamp"]}
       data-test={@test_id}
     >
-      <span class="text-[1.6cqw] font-bold uppercase tracking-widest" style="color:#101820;">
-        {@label}
-      </span>
+      <span class="text-[1.6cqw] font-bold uppercase tracking-widest">{@label}</span>
       <span
         :if={not @skeleton}
         class="w-full truncate text-center text-[2.6cqw] font-semibold leading-tight"
-        style="color:#101820;"
       >
         {@value || "—"}
       </span>
       <span
         :if={@skeleton}
         class="dos-skeleton h-[2.6cqw] w-3/4 animate-pulse rounded"
-        style="background:#10182022;"
         aria-hidden="true"
       ></span>
       <span :if={@skeleton} class="sr-only">{Copy.sr_checking()}</span>
