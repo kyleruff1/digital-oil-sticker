@@ -30,6 +30,10 @@ export const H2_SECTIONS = [
   'Risks, decisions, and open questions',
   'Definition of done',
 ]
+// A RESCOPE card may append one optional trailing section that preserves the
+// pre-pivot spec verbatim for the historical record. The heading is fixed so
+// authors cannot smuggle in arbitrary trailing sections under a similar name.
+export const OPTIONAL_TRAILING_H2 = 'Superseded pre-pivot spec (historical record)'
 const H3_STANDARD = [
   'Components and ownership boundaries',
   'Data and persistence',
@@ -176,15 +180,20 @@ export function validateCatalog(catalog) {
 
     const secs = sectionsOf(body)
     const titles = secs.map(s => s.title)
-    if (JSON.stringify(titles) !== JSON.stringify(H2_SECTIONS)) {
+    const isRescope =
+      titles.length === H2_SECTIONS.length + 1 &&
+      titles[titles.length - 1] === OPTIONAL_TRAILING_H2
+    const canonicalTitles = isRescope ? [...H2_SECTIONS, OPTIONAL_TRAILING_H2] : H2_SECTIONS
+    if (JSON.stringify(titles) !== JSON.stringify(canonicalTitles)) {
       p(`${where}: H2 sections differ from canonical template (got: ${titles.join(' | ') || 'none'})`)
     } else {
-      for (const s of secs) {
+      const validatedSecs = isRescope ? secs.slice(0, -1) : secs
+      for (const s of validatedSecs) {
         const text = s.content.replace(/^###.+$/gm, '').trim()
         if (text === '' && s.h3.length === 0) p(`${where}: section "${s.title}" is empty (use "N/A — reason")`)
       }
-      const tech = secs.find(s => s.title === 'Technical implementation contract')
-      const test = secs.find(s => s.title === 'Test plan')
+      const tech = validatedSecs.find(s => s.title === 'Technical implementation contract')
+      const test = validatedSecs.find(s => s.title === 'Test plan')
       if (issue.type === 'child') {
         const wanted = issue.variant === 'spike' ? H3_SPIKE : H3_STANDARD
         for (const h of wanted) if (!tech.h3.includes(h)) p(`${where}: missing "### ${h}"`)
@@ -194,8 +203,8 @@ export function validateCatalog(catalog) {
           p(`${where}: Test plan needs one of ${H3_MANUAL_MATRIX.map(h => `"### ${h}"`).join(' or ')}`)
         }
       }
-      const fr = secs.find(s => s.title === 'Functional requirements')
-      const ac = secs.find(s => s.title === 'Acceptance criteria')
+      const fr = validatedSecs.find(s => s.title === 'Functional requirements')
+      const ac = validatedSecs.find(s => s.title === 'Acceptance criteria')
       if (!/FR-\d+/.test(fr.content) && !/N\/A — /.test(fr.content)) p(`${where}: functional requirements must be numbered FR-*`)
       if (!/- \[ \] AC-\d+/.test(ac.content)) p(`${where}: acceptance criteria must be "- [ ] AC-n:" checkboxes`)
       if (issue.variant === 'data' && !/(license|rights|provenance|attribution)/i.test(ac.content)) {
