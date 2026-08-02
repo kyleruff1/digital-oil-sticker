@@ -21,6 +21,16 @@ defmodule DigitalOilStickerWeb.Plugs.SecurityHeaders do
   not a secret and not an identifier — it changes every response, so it cannot
   correlate two visits (INV-26).
 
+  ## Why this replaces `put_secure_browser_headers` rather than joining it
+
+  Both set a CSP, so running both served TWO policies — and the one actually
+  being ENFORCED was Phoenix's weak default while ours sat in report-only. That
+  is worse than either alone: it reads like a policy is in force, and the one
+  in force constrains almost nothing. Found by curling the deployment, not by
+  reading the code. This plug now owns every header in the set, and it sits at
+  the endpoint so the API routes get them too — the router pipeline only covers
+  `:browser`.
+
   ## Report-only first
 
   FR-3 requires the policy ship in report-only mode, be reviewed, and only then
@@ -47,6 +57,9 @@ defmodule DigitalOilStickerWeb.Plugs.SecurityHeaders do
     |> put_resp_header("x-content-type-options", "nosniff")
     |> put_resp_header("permissions-policy", permissions_policy())
     |> put_resp_header("x-frame-options", "DENY")
+    # Carried over from Phoenix's put_secure_browser_headers, which this plug
+    # replaces: legacy Flash/PDF cross-domain policy files.
+    |> put_resp_header("x-permitted-cross-domain-policies", "none")
   end
 
   @doc """

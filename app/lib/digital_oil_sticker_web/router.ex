@@ -7,7 +7,9 @@ defmodule DigitalOilStickerWeb.Router do
     plug :fetch_live_flash
     plug :put_root_layout, html: {DigitalOilStickerWeb.Layouts, :root}
     plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    # No :put_secure_browser_headers — DigitalOilStickerWeb.Plugs.SecurityHeaders
+    # owns the whole set at the endpoint level. Running both served two CSP
+    # headers, and the enforcing one was Phoenix's weak default.
   end
 
   pipeline :api do
