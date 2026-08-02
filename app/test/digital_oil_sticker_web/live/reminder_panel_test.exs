@@ -78,8 +78,10 @@ defmodule DigitalOilStickerWeb.ReminderPanelTest do
     assert html =~ "BEGIN:VCALENDAR"
     # Due: 2026-06-15 + 6 months (user interval is shorter than the model's 12).
     assert html =~ "DTSTART;VALUE=DATE:20261215"
-    # Default lead: one week.
-    assert html =~ "TRIGGER:-P7D"
+    # Default lead: one week — at nine in the morning, not midnight. An
+    # all-day event's relative trigger counts from local midnight, so a plain
+    # -P7D would fire at 00:00. 7*24-9 = 159 hours.
+    assert html =~ "TRIGGER:-PT159H"
   end
 
   test "changing the lead persists the choice and rebuilds the alarm", %{conn: conn} do
@@ -95,7 +97,14 @@ defmodule DigitalOilStickerWeb.ReminderPanelTest do
     assert record["lead_value"] == 14
     assert record["lead_unit"] == "days"
 
-    assert html =~ "TRIGGER:-P14D"
+    # 14 * 24 - 9 = 327.
+    assert html =~ "TRIGGER:-PT327H"
+
+    # And SEQUENCE advanced past the day-count fallback: the reminder record's
+    # updated_at now drives it, so a client that honors SEQUENCE treats the
+    # re-download as a replacement instead of ignoring it.
+    [_, seq] = Regex.run(~r/SEQUENCE:(\d+)/, html)
+    assert String.to_integer(seq) > 100_000
   end
 
   test "a stored lead is what the panel and the file start from", %{conn: conn} do
@@ -117,7 +126,8 @@ defmodule DigitalOilStickerWeb.ReminderPanelTest do
         ]
       })
 
-    assert html =~ "TRIGGER:-P30D"
+    # 30 * 24 - 9 = 711.
+    assert html =~ "TRIGGER:-PT711H"
   end
 
   test "a lead we do not offer is refused, not stored", %{conn: conn} do

@@ -118,18 +118,24 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
       # Saving a vehicle also SELECTS it, in the same write. Without this, a
       # garage that already has a car keeps that one active, and the user
       # lands on the next page looking at a different vehicle than the one
-      # they just added.
-      prefs =
-        (socket.assigns.garage.prefs || %{})
-        |> Map.put("active_vehicle_id", vehicle_id)
+      # they just added. Skipped when prefs is quarantined — overwriting an
+      # unreadable singleton destroys its content, and the new vehicle still
+      # saves; only the selection falls back.
+      prefs_upsert =
+        if Session.prefs_quarantined?(socket) do
+          []
+        else
+          prefs =
+            (socket.assigns.garage.prefs || %{})
+            |> Map.put("active_vehicle_id", vehicle_id)
+
+          [%{"store" => "prefs", "record" => prefs}]
+        end
 
       {socket, _mutation_id} =
         Session.stage_mutation(
           socket,
-          [
-            %{"store" => "vehicles", "record" => vehicle},
-            %{"store" => "prefs", "record" => prefs}
-          ],
+          [%{"store" => "vehicles", "record" => vehicle} | prefs_upsert],
           [],
           navigate_to:
             if(result.status == :not_applicable, do: ~p"/vehicle", else: ~p"/service/new")

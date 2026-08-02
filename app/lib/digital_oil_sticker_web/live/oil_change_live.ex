@@ -45,6 +45,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
      |> assign(:odo_errors, [])
      |> assign(:duplicate_pending, nil)
      |> assign(:submitted_token, nil)
+     |> assign(:form_touched?, false)
      |> assign(:base_stocks, OilModel.base_stocks())}
   end
 
@@ -67,6 +68,12 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
     socket =
       socket
+      # From here on the FORM is the authority on the oil fields. The change
+      # params carry whatever the rendered controls showed — including the
+      # pre-filled values — so the standing answer has been absorbed, and the
+      # pre-fill must stop re-asserting itself or clearing a field becomes
+      # impossible: every clear would fall back to the plan again.
+      |> assign(:form_touched?, true)
       |> assign(month: month, day: day, year: year, date_announce: announce, date_errors: [])
       |> assign(
         odo_value: presence(odo["value"]),
@@ -241,17 +248,26 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     end
   end
 
+  # Once the form has been touched, the assigns hold what the rendered
+  # controls showed (the change params absorb the pre-fill), so the fallback
+  # stops — otherwise clearing a pre-filled field is impossible.
+  defp effective_base_stock(%{form_touched?: true} = assigns), do: assigns.base_stock
+
   defp effective_base_stock(assigns),
     do: assigns.base_stock || planned(assigns)["planned_base_stock"]
 
-  # Only a grade we actually list pre-selects. A manual grade from intake would
-  # need this form silently switched into manual mode to show it — implicit
-  # state a user did not ask for — so it simply starts unselected instead.
+  defp effective_listed_grade(%{form_touched?: true} = assigns), do: assigns.grade
+
+  # Only a grade the select actually SHOWS for this vehicle pre-selects — the
+  # suggested list, since that is what renders before any interaction. A
+  # planned grade outside it (or a manual one) starts unselected: pre-selecting
+  # a value the visible options do not contain shows "Choose…" on screen while
+  # saving the invisible value underneath.
   defp effective_listed_grade(assigns) do
     assigns.grade ||
       case planned(assigns)["planned_grade"] do
         grade when is_binary(grade) ->
-          if Enum.any?(OilModel.grades(), &(&1.code == grade)), do: grade
+          if Enum.any?(assigns.suggested_grades, &(&1.code == grade)), do: grade
 
         _ ->
           nil

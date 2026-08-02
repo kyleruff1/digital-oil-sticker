@@ -226,6 +226,131 @@ defmodule DigitalOilStickerWeb.GarageSwitcherTest do
     end
   end
 
+  describe "after the last vehicle is deleted" do
+    test "the next mount reads as an empty garage, not as lost records", %{conn: conn} do
+      # Deleting everything leaves the meta singleton behind — that is what an
+      # INTENTIONAL emptying looks like, versus eviction which takes meta too.
+      # Before this distinction, the next mount resolved :data_missing: a
+      # screen accusing the browser of losing records the user chose to
+      # remove, in a state that refuses every write — no way to start again.
+      {:ok, view, _} = live(conn, ~p"/")
+
+      html =
+        hydrate(view, %{
+          "meta" => %{"schema_version" => 1, "seq" => 7},
+          "vehicles" => [],
+          "events" => []
+        })
+
+      assert html =~ "Set up your first vehicle"
+      refute html =~ "stored records are gone"
+    end
+
+    test "a truly wiped store still reads as lost records", %{conn: conn} do
+      # No meta at all + a boot hint that says data existed: that is eviction,
+      # and it must keep saying so.
+      {:ok, view, _} = live(conn, ~p"/")
+
+      html =
+        render_hook(view, "local_store:hydrate", %{
+          "envelope" => "dos_local",
+          "schema_version" => 1,
+          "seq" => 0,
+          "tab_id" => "t",
+          "generated_at" => "2026-08-01T00:00:00Z",
+          "data" => %{
+            "meta" => nil,
+            "vehicles" => [],
+            "events" => [],
+            "readings" => [],
+            "usage" => [],
+            "reminders" => [],
+            "prefs" => nil
+          },
+          "storage" => %{"mode" => "idb", "boot_hint" => "has_data"}
+        })
+
+      assert html =~ "stored records are gone"
+    end
+  end
+
+  describe "what the qualifier attributes" do
+    test "a user interval that beats the unknown-oil floor is credited to the user", %{conn: conn} do
+      # Intake answered "I don't know yet", then the user set their own,
+      # SHORTER interval. Shortest-wins means the user's number is what the
+      # sticker shows — and the label must say so. The floor sentence here
+      # would attribute their number to our model and promise that recording
+      # the oil extends it, false on both counts.
+      {:ok, view, _} = live(conn, ~p"/")
+
+      floor_beating_vehicle =
+        vehicle(@car_one, "Toyota", "Camry")
+        |> Map.put("engine_class_code", "gas_direct_injection")
+        |> Map.put("maintenance_plan", %{
+          "planned_oil" => "unknown",
+          "interval_miles" => 1000,
+          "interval_months" => 2
+        })
+
+      html =
+        hydrate(view, %{
+          "vehicles" => [floor_beating_vehicle],
+          "events" => [
+            event("22222222-2222-4222-8222-222222222222", @car_one)
+            |> Map.put("oil_base_stock", nil)
+          ]
+        })
+
+      assert html =~ "Your interval"
+      refute html =~ "shortest interval we model"
+    end
+  end
+
+  describe "what a staged write persists" do
+    test "a record hydrated with unknown fields writes them back FLAT", %{conn: conn} do
+      # A newer release wrote prefs with a field this one does not know. It
+      # hydrates nested under __unknown__; persisting it that way would
+      # shadow the field forever. The write-back must restore the flat wire
+      # shape.
+      {:ok, view, _} = live(conn, ~p"/")
+
+      hydrate(view, %{
+        "vehicles" => [vehicle(@car_one, "Toyota", "Camry"), vehicle(@car_two, "BMW", "328i")],
+        "prefs" => %{"unit_system" => "mi", "future_field" => "kept"}
+      })
+
+      render_click(view, "toggle_garage", %{})
+      render_click(view, "switch_vehicle", %{"vehicle-id" => @car_two})
+
+      assert_push_event(view, "local_store:put", payload)
+      assert [%{"store" => "prefs", "record" => prefs}] = payload["upserts"]
+
+      assert prefs["future_field"] == "kept"
+      refute Map.has_key?(prefs, "__unknown__")
+      assert prefs["active_vehicle_id"] == @car_two
+    end
+  end
+
+  describe "when prefs cannot be read" do
+    test "switching refuses instead of destroying the quarantined record", %{conn: conn} do
+      {:ok, view, _} = live(conn, ~p"/")
+
+      # unit_system "nmi" fails validation, so the singleton quarantines and
+      # garage.prefs hydrates nil. A switch would then write a fresh record
+      # over content the contract promises stays exportable.
+      hydrate(view, %{
+        "vehicles" => [vehicle(@car_one, "Toyota", "Camry"), vehicle(@car_two, "BMW", "328i")],
+        "prefs" => %{"unit_system" => "nmi", "time_zone" => "America/Denver"}
+      })
+
+      render_click(view, "toggle_garage", %{})
+      html = render_click(view, "switch_vehicle", %{"vehicle-id" => @car_two})
+
+      refute_push_event(view, "local_store:put", %{})
+      assert html =~ "Could not read this browser&#39;s stored settings"
+    end
+  end
+
   # The put payload's deletes may arrive as wire pairs; normalize for `in`.
   defp to_wire(deletes) do
     Enum.map(deletes, fn

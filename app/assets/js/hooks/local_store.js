@@ -23,6 +23,11 @@ export const LocalStore = {
     this.handleEvent("local_store:put", payload => this.applyPut(payload))
     this.handleEvent("local_store:request_persist", () => this.requestPersist())
     this.handleEvent("local_store:export", () => this.exportData())
+    // Conflict recovery: the server saw a write lose the seq compare-and-set
+    // (another tab committed first) and needs the newer state. Before this
+    // handler existed the event was pushed and silently dropped, leaving the
+    // losing tab a skeleton until its broadcast handler happened to race in.
+    this.handleEvent("local_store:rehydrate", () => this.hydrate())
 
     this.hydrate()
   },

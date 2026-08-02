@@ -37,17 +37,26 @@ defmodule DigitalOilStickerWeb.StickerLive do
   end
 
   def handle_event("switch_vehicle", %{"vehicle-id" => id}, socket) do
-    if Session.mutations_enabled?(socket) do
-      prefs =
-        (socket.assigns.garage.prefs || %{})
-        |> Map.put("active_vehicle_id", id)
+    cond do
+      not Session.mutations_enabled?(socket) ->
+        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
 
-      {socket, _mutation_id} =
-        Session.stage_mutation(socket, [%{"store" => "prefs", "record" => prefs}], [])
+      # A quarantined prefs singleton means the stored record holds content
+      # this release cannot read. Writing over it would destroy that content
+      # — settings a newer release wrote, kept exportable by the validation
+      # contract — so the switch is refused rather than made destructive.
+      Session.prefs_quarantined?(socket) ->
+        {:noreply, put_flash(socket, :error, Copy.prefs_unreadable())}
 
-      {:noreply, assign(socket, :garage_open?, false)}
-    else
-      {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+      true ->
+        prefs =
+          (socket.assigns.garage.prefs || %{})
+          |> Map.put("active_vehicle_id", id)
+
+        {socket, _mutation_id} =
+          Session.stage_mutation(socket, [%{"store" => "prefs", "record" => prefs}], [])
+
+        {:noreply, assign(socket, :garage_open?, false)}
     end
   end
 
@@ -77,11 +86,16 @@ defmodule DigitalOilStickerWeb.StickerLive do
           dependent_deletes(garage.reminders, "reminder_id", "reminders", id)
 
       # If the deleted vehicle was the explicitly chosen one, the stored choice
-      # is cleared in the same write rather than left dangling.
+      # is cleared in the same write rather than left dangling — unless prefs
+      # sits in quarantine, where writing would destroy unreadable content. A
+      # dangling id is harmless by design (active_vehicle falls back), so
+      # skipping the cleanup costs nothing.
       upserts =
         case garage.prefs do
           %{"active_vehicle_id" => ^id} = prefs ->
-            [%{"store" => "prefs", "record" => Map.delete(prefs, "active_vehicle_id")}]
+            if Session.prefs_quarantined?(socket),
+              do: [],
+              else: [%{"store" => "prefs", "record" => Map.delete(prefs, "active_vehicle_id")}]
 
           _ ->
             []
@@ -393,10 +407,13 @@ defmodule DigitalOilStickerWeb.StickerLive do
   defp qualifier_for(nil, _due), do: "No oil change recorded yet."
   defp qualifier_for(_event, %{resolved: :not_applicable}), do: Copy.not_applicable_ev()
 
-  # The oil type was answered "I don't know yet" at intake, so the number is
-  # the model's floor for this engine — a distinct claim from a modelled
-  # interval, and one worth its own sentence.
-  defp qualifier_for(_event, %{oil_basis: :unknown_oil}),
+  # The oil type was answered "I don't know yet" at intake AND the floor is
+  # what actually supplied the numbers. Both conditions, not just the first:
+  # when the user's own shorter interval wins in IntervalPolicy, this sentence
+  # would attribute their number to our model and promise that recording the
+  # oil extends it — false on both counts, since shortest-wins keeps their
+  # interval in force whatever oil is recorded (INV-20/21).
+  defp qualifier_for(_event, %{oil_basis: :unknown_oil, resolved: %{basis: :our_model}}),
     do: "#{Copy.estimated_due_date()} — #{Copy.unknown_oil_qualifier()}"
 
   defp qualifier_for(_event, %{resolved: resolved}), do: qualifier(resolved)

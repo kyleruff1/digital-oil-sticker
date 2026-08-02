@@ -151,6 +151,13 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   def stage_mutation(socket, upserts, deletes, opts \\ [])
 
   def stage_mutation(socket, upserts, deletes, opts) when is_list(opts) do
+    # Restored to the flat wire shape at this single choke point. Hydration
+    # nests keys this release does not know under "__unknown__"; persisting a
+    # record in that nested form would permanently shadow fields a NEWER
+    # release wrote flat — the exact forward-compatibility the schema's
+    # carry-through exists to provide, silently broken on every write.
+    upserts = Enum.map(upserts, &restore_record/1)
+
     mutation_id = generate_id()
     seq = socket.assigns.seq + 1
 
@@ -214,15 +221,37 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   def handle_conflict(socket, _params) do
     # A newer write exists in this browser (another tab). Ask the client to
     # re-hydrate; show the reload notice.
+    #
+    # The deadline is RE-ARMED here. The first hydrate cancelled it, so
+    # without a new one this :hydrating has no timeout escape — a dropped or
+    # failed rehydrate left the tab a skeleton forever, with every mutation
+    # disabled and only a manual reload out. Now it degrades to
+    # :storage_unavailable like any other hydration that never arrives.
+    ref = make_ref()
+    Process.send_after(self(), {:local_store_deadline, ref}, @hydration_deadline_ms)
+
     socket
     |> assign(:local_state, :hydrating)
     |> assign(:conflict_notice, true)
+    |> assign(:hydration_deadline_ref, ref)
     |> Phoenix.LiveView.push_event("local_store:rehydrate", %{})
   end
 
   def mutations_enabled?(socket) do
     socket.assigns.local_state in [:loaded, :empty] and not socket.assigns.read_only and
       socket.assigns.storage_mode != :session_only
+  end
+
+  @doc """
+  Whether the prefs singleton failed validation and sits in quarantine.
+
+  A caller about to write prefs must check this and skip the write: the
+  staged record REPLACES the singleton wholesale, and replacing a quarantined
+  record destroys content the validation contract promises to preserve (a
+  newer release's settings, say) with no quarantine trace left to export.
+  """
+  def prefs_quarantined?(socket) do
+    Enum.any?(socket.assigns.quarantine || [], &(&1.store == "prefs"))
   end
 
   # -- internals ---------------------------------------------------------------
@@ -236,6 +265,12 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       %{"store" => store} = m -> {store, Map.fetch!(m, value_key)}
     end)
   end
+
+  defp restore_record(%{"store" => _, "record" => record} = upsert),
+    do: %{upsert | "record" => DigitalOilSticker.LocalStore.Schema.V1.restore_unknown(record)}
+
+  defp restore_record({store, record}),
+    do: {store, DigitalOilSticker.LocalStore.Schema.V1.restore_unknown(record)}
 
   # A staged write is reflected in `garage` immediately, so a LiveView that
   # stays on the page after saving shows what the user just did instead of the
@@ -356,9 +391,20 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   defp resolve_state(data, storage) do
     empty? = data.vehicles == [] and data.events == [] and data.readings == []
 
+    # Empty stores with the meta singleton intact is what an INTENTIONAL
+    # emptying looks like — deleting the last vehicle removes records, not the
+    # protocol bookkeeping. Eviction and cleared site data take meta with
+    # them. Without this distinction, deleting your last vehicle flipped the
+    # next mount into :data_missing ("your records are gone"), whose screen
+    # offers recovery and whose state refuses every write — the user who
+    # chose an empty garage was locked out of starting again.
+    emptied_on_purpose? =
+      empty? and is_map(data.meta) and is_integer(data.meta["seq"]) and data.meta["seq"] > 0
+
     cond do
       storage_mode(storage) == :session_only -> :storage_unavailable
       not empty? -> :loaded
+      emptied_on_purpose? -> :empty
       get_in(storage, ["boot_hint"]) == "has_data" -> :data_missing
       true -> :empty
     end

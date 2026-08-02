@@ -44,6 +44,7 @@ defmodule DigitalOilSticker.CalendarExport do
           optional(:due_mileage) => String.t() | nil,
           optional(:lead_days) => non_neg_integer(),
           optional(:changed_on) => Date.t() | nil,
+          optional(:sequence_at) => DateTime.t() | nil,
           optional(:now) => DateTime.t()
         }
 
@@ -154,16 +155,30 @@ defmodule DigitalOilSticker.CalendarExport do
   # would leave a stale event behind after every oil change.
   defp uid(vehicle_id), do: "oil-#{vehicle_id}@digitaloilsticker.com"
 
-  # Has to advance for a client to accept the replacement. Days since the epoch
-  # of the last change advances every time a change is logged, and never goes
-  # backwards, without needing anything stored.
+  # Has to advance for a client to accept the replacement — same UID with the
+  # same SEQUENCE is ignored by sequence-honoring clients, so every change a
+  # user expects to see replaced must bump it.
+  #
+  # `sequence_at` is the instant of the last action that changed the event's
+  # content (the lead choice's updated_at, the logged change's created_at,
+  # whichever is newer), in seconds since 2000. It dwarfs the day-count
+  # fallback below by orders of magnitude, so mixing the two forms across
+  # downloads still only ever moves the number up.
+  defp sequence(%{sequence_at: %DateTime{} = at}),
+    do: max(0, DateTime.diff(at, ~U[2000-01-01 00:00:00Z], :second))
+
   defp sequence(%{changed_on: %Date{} = changed_on}),
     do: Date.diff(changed_on, ~D[2000-01-01])
 
   defp sequence(_), do: 0
 
-  defp trigger(0), do: "PT0S"
-  defp trigger(days), do: "-P#{days}D"
+  # An all-day event's relative trigger counts from local MIDNIGHT, so a plain
+  # -P7D fires at 00:00 — technically on time and practically useless as a
+  # notification. Anchored to nine in the morning instead: "N days before"
+  # means 09:00 local, N days before the due date. (The reminders schema keeps
+  # a preferred_time field for making the hour a choice later.)
+  defp trigger(0), do: "PT9H"
+  defp trigger(days), do: "-PT#{days * 24 - 9}H"
 
   defp date(%Date{} = d), do: Calendar.strftime(d, "%Y%m%d")
 
@@ -179,6 +194,10 @@ defmodule DigitalOilSticker.CalendarExport do
     |> String.replace(";", "\\;")
     |> String.replace(",", "\\,")
     |> String.replace("\r\n", "\\n")
+    # A LONE carriage return, after the CRLF pairs are gone. Left alone it
+    # reaches the output as a raw control byte in a content line, which is an
+    # illegal file rather than an ugly one.
+    |> String.replace("\r", "\\n")
     |> String.replace("\n", "\\n")
   end
 

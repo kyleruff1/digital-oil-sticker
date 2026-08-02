@@ -140,6 +140,11 @@ defmodule DigitalOilStickerWeb.Copy do
   end
 
   # --- The vehicle switcher ----------------------------------------------------
+  def prefs_unreadable do
+    "Could not read this browser's stored settings, so the choice was not changed. " <>
+      "Exporting a file keeps everything, including what could not be read."
+  end
+
   def other_vehicles, do: "Other vehicles"
   def add_vehicle, do: "Add a vehicle"
   def delete_vehicle_heading, do: "Remove this vehicle?"

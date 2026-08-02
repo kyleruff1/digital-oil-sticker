@@ -63,7 +63,7 @@ defmodule DigitalOilSticker.Due do
   def compute(vehicle, event) do
     unit = unit_of(event)
     changed_on = performed_date(event)
-    {model, oil_basis} = model_interval(vehicle, event)
+    {model, oil_basis} = oil_rule(vehicle, event)
 
     case IntervalPolicy.for_vehicle(vehicle["maintenance_plan"] || %{}, model) do
       :not_applicable ->
@@ -99,32 +99,64 @@ defmodule DigitalOilSticker.Due do
 
   # -- internals ---------------------------------------------------------------
 
-  # Which oil the model reasons from, in order of how much we actually know:
-  #
-  #   1. what the last change RECORDS went in — a fact about this engine,
-  #   2. what the intake step says the vehicle USES — the user's standing answer,
-  #   3. "not known yet" from intake — the model's floor for this engine class,
-  #      never a guessed stock (guessing would invent the input).
-  #
-  # Also returns which of those it was, because "this number is the floor until
-  # you record the oil" is a claim the sticker page must be able to make.
-  defp model_interval(vehicle, event) do
+  @doc """
+  Which oil the model reasons from, in order of how much we actually know:
+
+    1. what the last change RECORDS went in — a fact about this engine,
+    2. what the intake step says the vehicle USES — the user's standing answer,
+    3. "not known yet" from intake — the model's floor for this engine class,
+       never a guessed stock (guessing would invent the input).
+
+  Also returns which of those it was, because "this number is the floor until
+  you record the oil" is a claim the sticker page must be able to make.
+
+  A stage that FAILS falls through rather than latching: an event whose
+  recorded stock this model does not know (a legacy value, an import) must not
+  erase what intake did tell us — "we cannot read that record" and "we know
+  nothing" are different amounts of knowledge. `:not_applicable` latches,
+  because having no engine oil service is a property of the engine, not of any
+  one source of oil knowledge.
+
+  Public because the vehicle page's estimate must reason from the same chain,
+  or the two surfaces quote different oils on the same screen.
+  """
+  @spec oil_rule(map(), map() | nil) ::
+          {{:ok, map()} | :not_applicable | nil, oil_basis()}
+  def oil_rule(vehicle, event) do
     class = vehicle["engine_class_code"]
     condition = service_condition(vehicle)
     plan = vehicle["maintenance_plan"] || %{}
 
-    cond do
-      is_map(event) and is_binary(event["oil_base_stock"]) ->
-        {OilModel.interval(class, event["oil_base_stock"], condition), :event}
+    [
+      event_stage(event, class, condition),
+      planned_stage(plan, class, condition),
+      unknown_stage(plan, class, condition)
+    ]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.reduce_while({nil, :none}, fn {result, basis}, acc ->
+      case result do
+        :not_applicable -> {:halt, {result, basis}}
+        {:ok, _} -> {:halt, {result, basis}}
+        _failed_stage -> {:cont, acc}
+      end
+    end)
+  end
 
-      is_binary(plan["planned_base_stock"]) ->
-        {OilModel.interval(class, plan["planned_base_stock"], condition), :planned}
+  defp event_stage(event, class, condition) do
+    if is_map(event) and is_binary(event["oil_base_stock"]) do
+      {OilModel.interval(class, event["oil_base_stock"], condition), :event}
+    end
+  end
 
-      plan["planned_oil"] == "unknown" ->
-        {OilModel.unknown_oil_interval(class, condition), :unknown_oil}
+  defp planned_stage(plan, class, condition) do
+    if is_binary(plan["planned_base_stock"]) do
+      {OilModel.interval(class, plan["planned_base_stock"], condition), :planned}
+    end
+  end
 
-      true ->
-        {nil, :none}
+  defp unknown_stage(plan, class, condition) do
+    if plan["planned_oil"] == "unknown" do
+      {OilModel.unknown_oil_interval(class, condition), :unknown_oil}
     end
   end
 

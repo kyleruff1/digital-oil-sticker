@@ -168,7 +168,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> assign(:vehicle, vehicle)
       |> assign(:engine_class, vehicle && OilModel.engine_class(vehicle["engine_class_code"]))
       |> assign(:condition, condition_of(vehicle))
-      |> assign(:estimate, estimate_for(vehicle))
+      |> assign(:estimate, estimate_for(vehicle, assigns.garage))
       |> assign(:severe_questions, severe_questions())
       |> assign(:reminder, reminder_view(assigns.garage, vehicle))
 
@@ -405,8 +405,9 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
   defp reminder_view(garage, vehicle) do
     id = vehicle["vehicle_id"]
     record = find_reminder(garage, id)
-    lead_days = (record && record["lead_value"]) || 7
-    due = Due.compute(vehicle, Session.last_oil_change(garage, id))
+    lead_days = sanitize_lead(record && record["lead_value"])
+    last = Session.last_oil_change(garage, id)
+    due = Due.compute(vehicle, last)
 
     ics =
       with %Date{} = due_on <- due.due_on,
@@ -417,7 +418,8 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                vehicle_label: snapshot_line(vehicle),
                due_mileage: due.mileage_text,
                changed_on: due.changed_on,
-               lead_days: lead_days
+               lead_days: lead_days,
+               sequence_at: sequence_instant(record, last)
              }) do
         ics
       else
@@ -425,6 +427,35 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       end
 
     %{lead_days: lead_days, ics: ics, applicable?: due.resolved != :not_applicable}
+  end
+
+  # A stored lead outside the offered set (an older release's option, a
+  # tampered record) falls back to the default instead of failing the build —
+  # a failed build rendered "Log an oil change first" over a garage that
+  # plainly has one, which is worse than a default lead.
+  defp sanitize_lead(value) when is_integer(value),
+    do: if(value in @lead_choices, do: value, else: 7)
+
+  defp sanitize_lead(value) when is_binary(value), do: sanitize_lead(parse_int(value) || -1)
+  defp sanitize_lead(_), do: 7
+
+  # The instant of the LAST user action that changed what the calendar event
+  # says — the lead choice or the logged change, whichever is newer. It drives
+  # SEQUENCE, which must advance on every re-download a client is meant to
+  # treat as a replacement.
+  defp sequence_instant(record, last_event) do
+    [record && record["updated_at"], last_event && last_event["created_at"]]
+    |> Enum.filter(&is_binary/1)
+    |> Enum.flat_map(fn iso ->
+      case DateTime.from_iso8601(iso) do
+        {:ok, dt, _offset} -> [dt]
+        _ -> []
+      end
+    end)
+    |> case do
+      [] -> nil
+      instants -> Enum.max(instants, DateTime)
+    end
   end
 
   defp condition_of(nil), do: "normal"
@@ -436,32 +467,35 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
     end
   end
 
-  defp estimate_for(nil), do: nil
+  defp estimate_for(nil, _garage), do: nil
 
-  # Quoted against the oil the vehicle actually uses when the intake step
-  # recorded one; the model's floor when it recorded "not known yet"; and only
-  # then the historical default.
-  defp estimate_for(vehicle) do
-    plan = vehicle["maintenance_plan"] || %{}
-    class = vehicle["engine_class_code"]
-    condition = condition_of(vehicle)
+  # The SAME knowledge chain the sticker uses (Due.oil_rule: recorded change,
+  # then intake's answer, then the unknown floor) — two derivations here meant
+  # this page's "Our estimate" could quote full synthetic while the sticker
+  # one navigation away, and the reminder file built on THIS page, were both
+  # computed from the conventional oil the last change recorded. The
+  # historical full-synthetic default remains only for the state where the
+  # chain knows nothing at all.
+  defp estimate_for(vehicle, garage) do
+    last = Session.last_oil_change(garage, vehicle["vehicle_id"])
 
-    result =
-      cond do
-        is_binary(plan["planned_base_stock"]) ->
-          OilModel.interval(class, plan["planned_base_stock"], condition)
+    case Due.oil_rule(vehicle, last) do
+      {{:ok, interval}, _basis} ->
+        interval
 
-        plan["planned_oil"] == "unknown" ->
-          OilModel.unknown_oil_interval(class, condition)
+      {:not_applicable, _basis} ->
+        :not_applicable
 
-        true ->
-          OilModel.interval(class, @default_base_stock, condition)
-      end
-
-    case result do
-      {:ok, interval} -> interval
-      :not_applicable -> :not_applicable
-      {:error, _} -> nil
+      {nil, :none} ->
+        case OilModel.interval(
+               vehicle["engine_class_code"],
+               @default_base_stock,
+               condition_of(vehicle)
+             ) do
+          {:ok, interval} -> interval
+          :not_applicable -> :not_applicable
+          {:error, _} -> nil
+        end
     end
   end
 

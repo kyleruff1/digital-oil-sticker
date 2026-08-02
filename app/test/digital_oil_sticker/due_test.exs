@@ -93,6 +93,34 @@ defmodule DigitalOilSticker.DueTest do
       assert due.resolved.basis == :none
       assert due.date_text == nil
     end
+
+    test "an event stock the model does not know falls through, not latches" do
+      # A legacy or imported record with "synthetic" — a string our tables do
+      # not carry. Store validation does not constrain the field, so the
+      # record hydrates cleanly. "We cannot read that record" must not erase
+      # what intake DID tell us: the chain falls through to the planned oil.
+      due =
+        Due.compute(
+          vehicle(%{"planned_oil" => "selected", "planned_base_stock" => "conventional"}),
+          event(%{"oil_base_stock" => "synthetic"})
+        )
+
+      {:ok, expected} = OilModel.interval(@class, "conventional", "normal")
+
+      assert due.oil_basis == :planned
+      assert due.resolved.miles == expected.miles_recommended
+    end
+
+    test "an unreadable event stock still reaches the unknown-oil floor" do
+      due =
+        Due.compute(
+          vehicle(%{"planned_oil" => "unknown"}),
+          event(%{"oil_base_stock" => "synthetic"})
+        )
+
+      assert due.oil_basis == :unknown_oil
+      assert is_integer(due.resolved.miles)
+    end
   end
 
   describe "the anchor" do

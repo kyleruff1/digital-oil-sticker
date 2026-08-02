@@ -175,6 +175,14 @@ defmodule DigitalOilSticker.LocalStore.Schema.V1 do
         {_not_a_map_or_nil, rest} -> {%{}, rest}
       end
 
+    # Keys THIS release knows are promoted back out of a carried submap. A
+    # record written while an older deployment was serving arrives with a
+    # newer field nested under "__unknown__"; without promotion the field
+    # stays nested forever — present in the data, invisible to every read.
+    # A flat value wins over a promoted one: flat is the more recent write.
+    {promoted, carried_unknown} = Map.split(carried_unknown, known_keys)
+    record = Map.merge(promoted, record)
+
     {known, unknown} = Map.split(record, known_keys)
     unknown = Map.merge(carried_unknown, unknown)
 
