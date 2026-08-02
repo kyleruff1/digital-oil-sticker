@@ -13,6 +13,11 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
   attr :date_value, :string, default: nil
   attr :mileage_value, :string, default: nil
   attr :grade_value, :string, default: nil
+
+  attr :changed_value, :string,
+    default: nil,
+    doc: "the date the oil was actually changed — a record, not an estimate"
+
   attr :skeleton, :boolean, default: false, doc: "pre-hydration: pulsing viewports, no claims"
 
   def sticker(assigns) do
@@ -48,11 +53,31 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           style="left:55.61%; top:50.5%; width:30.15%; height:12%;"
           test_id="sticker-mileage"
         />
+        <%!-- The bottom band records what HAPPENED, in contrast to the row
+             above it, which estimates what is due. Stamped rather than printed
+             for that reason: it reads as something added to the sticker after
+             the fact, the way a service shop writes on a real one. --%>
+        <.viewport
+          label="Date changed"
+          value={@changed_value}
+          skeleton={@skeleton}
+          stamped
+          style="left:8.0%; top:63.0%; width:28.0%; height:12%;"
+          test_id="sticker-changed"
+        />
+        <%!-- Inside the printable card, which the artwork ends at 75.6%
+             (the white body rect is y=36 h=448 of a 640-tall viewBox). The
+             brand README's 72%/8% placed this box at 72–80%, straddling that
+             edge, so the VALUE rendered below the card and was clipped — the
+             label sat inside and the number did not. Given the same height as
+             the other two viewports, since it carries the same label+value
+             stack. --%>
         <.viewport
           label="Grade"
           value={@grade_value}
           skeleton={@skeleton}
-          style="left:38.03%; top:72.0%; width:23.94%; height:8%;"
+          stamped
+          style="left:38.03%; top:63.0%; width:23.94%; height:12%;"
           test_id="sticker-grade"
         />
       </div>
@@ -87,13 +112,18 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
   attr :label, :string, required: true
   attr :value, :string, default: nil
   attr :skeleton, :boolean, default: false
+
+  attr :stamped, :boolean,
+    default: false,
+    doc: "render as an applied stamp rather than printed card text"
+
   attr :style, :string, required: true
   attr :test_id, :string, required: true
 
   defp viewport(assigns) do
     ~H"""
     <div
-      class="absolute flex flex-col items-center justify-center"
+      class={["absolute flex flex-col items-center justify-center", @stamped && "dos-stamp"]}
       style={@style}
       data-test={@test_id}
     >

@@ -129,17 +129,25 @@ export const cases = [
       await harness.clearAll(page)
       await app.setUpVehicle(page, baseUrl)
 
-      const cookies = await context.cookies()
-      const unexpected = cookies.filter(c => !/^_digital_oil_sticker_key$|^_csrf|^phx/i.test(c.name))
+      // Scoped to OUR origin. An unscoped `context.cookies()` returns every
+      // cookie the browser profile holds, which on a launched browser is just
+      // ours — and on a real device attached over CDP is the owner's entire
+      // browsing history's worth of ad-tech cookies. That difference made this
+      // assertion pass on desktop and fail on hardware for a reason that had
+      // nothing to do with the application.
+      const cookies = await context.cookies(baseUrl)
 
+      const unexpected = cookies.filter(c => !/^_digital_oil_sticker_key$|^_csrf|^phx/i.test(c.name))
       if (unexpected.length) {
-        return { status: FAIL, detail: `unexpected cookies: ${unexpected.map(c => c.name).join(', ')}` }
+        return { status: FAIL, detail: `unexpected cookies on the application origin: ${unexpected.map(c => c.name).join(', ')}` }
       }
-      const personal = cookies.filter(c => c.value.includes('87431'))
+
+      const personal = cookies.filter(c => c.value.includes(ODOMETER) || c.value.includes(NOTE))
       if (personal.length) {
-        return { status: FAIL, detail: 'a cookie carried a personal value' }
+        return { status: FAIL, detail: 'a cookie on the application origin carried a value the user entered' }
       }
-      return { status: PASS, evidence: { cookies: cookies.map(c => c.name) } }
+
+      return { status: PASS, evidence: { origin: new URL(baseUrl).origin, cookies: cookies.map(c => c.name) } }
     },
   },
 

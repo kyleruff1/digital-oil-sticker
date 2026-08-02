@@ -61,16 +61,21 @@ defmodule DigitalOilSticker.Catalog.RepoReadonlyTest do
   end
 
   test "query_only cannot be switched off by a session" do
-    # Even if a connection issues the pragma, a subsequent write must still fail
-    # (mode: :readonly is an independent layer below query_only).
-    _ = Ecto.Adapters.SQL.query(CatalogRepo, "PRAGMA query_only = OFF", [])
-    assert {:error, _} = Ecto.Adapters.SQL.query(CatalogRepo, "DELETE FROM makes", [])
+    # All three statements must run on ONE connection. The pragma is
+    # per-connection and Ecto hands out an arbitrary pooled connection per
+    # query, so without a checkout the OFF and the restoring ON can land on
+    # different connections — leaving one poisoned for whichever test picks it
+    # up next. That is not hypothetical: it broke the readiness check when it
+    # was added, and then broke this test.
+    CatalogRepo.checkout(fn ->
+      _ = Ecto.Adapters.SQL.query(CatalogRepo, "PRAGMA query_only = OFF", [])
 
-    # Put it back. The pragma is per-CONNECTION and the connection returns to a
-    # shared pool, so leaving it off poisons whichever test checks out that
-    # connection next — which is exactly how this test broke the readiness
-    # check when it was added.
-    _ = Ecto.Adapters.SQL.query(CatalogRepo, "PRAGMA query_only = ON", [])
+      # mode: :readonly is an independent layer below query_only, so the write
+      # must still be refused even with the pragma off.
+      assert {:error, _} = Ecto.Adapters.SQL.query(CatalogRepo, "DELETE FROM makes", [])
+
+      _ = Ecto.Adapters.SQL.query(CatalogRepo, "PRAGMA query_only = ON", [])
+    end)
   end
 
   test "the catalog fixture is present, queryable, and honestly empty where unlicensed" do

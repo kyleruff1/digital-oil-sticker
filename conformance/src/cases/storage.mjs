@@ -14,6 +14,10 @@ const DATA_MISSING = /stored records are gone/i
 export const cases = [
   {
     id: 'availability.ladder',
+    // Installs a context-level init script, which Playwright cannot remove.
+    // On a CDP-attached browser (real Android Chrome) that would leak into every
+    // later case, so the device runner restarts the browser around it.
+    needsFreshContext: true,
     requirement: 'FR-6',
     async run({ page, context, baseUrl }) {
       // Blocked IndexedDB must yield session-only + a banner, and must NOT
@@ -150,6 +154,10 @@ export const cases = [
 
   {
     id: 'quota.exhaustion-is-honest',
+    // Installs a context-level init script, which Playwright cannot remove.
+    // On a CDP-attached browser (real Android Chrome) that would leak into every
+    // later case, so the device runner restarts the browser around it.
+    needsFreshContext: true,
     requirement: 'FR-11',
     async run({ page, context, baseUrl }) {
       // Set a vehicle up on healthy storage first, so there is prior state
@@ -233,6 +241,10 @@ export const cases = [
 
   {
     id: 'multitab.safe-without-broadcastchannel',
+    // Installs a context-level init script, which Playwright cannot remove.
+    // On a CDP-attached browser (real Android Chrome) that would leak into every
+    // later case, so the device runner restarts the browser around it.
+    needsFreshContext: true,
     requirement: 'FR-13',
     async run({ context, baseUrl }) {
       await harness.removeBroadcastChannel(context)

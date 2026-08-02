@@ -103,3 +103,48 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* This file is for your main application CSS */
+
+/* The sticker is a container query context.
+ *
+ * Every viewport overlay sizes its text in `cqw` so the lockup scales with the
+ * sticker rather than the window. Without `container-type`, `cqw` silently
+ * falls back to the VIEWPORT, which is why the grade value rendered at 20.8px
+ * on an 800px-wide tablet instead of the 17.5px the sticker's own width calls
+ * for — and then overflowed the card. Declaring the container is what makes the
+ * units mean what the component says they mean. */
+.dos-sticker {
+  container-type: inline-size;
+}
+
+/* Applied-stamp treatment for the sticker's bottom band.
+ *
+ * That band records what HAPPENED — the date the oil was changed and the grade
+ * that went in — as opposed to the row above it, which estimates what is due.
+ * The visual difference carries that meaning: printed card text is the form,
+ * a stamp is what someone added to it afterwards.
+ *
+ * Kept deliberately restrained: a slight rotation, an ink-colored rule, and
+ * letterspacing. No texture or distress effect — this has to stay legible at
+ * small sizes and survive a 320px reflow, and a worn-rubber look is decoration
+ * that costs contrast. */
+.dos-stamp {
+  transform: rotate(-1.4deg);
+  transform-origin: center;
+}
+
+.dos-stamp > span:first-child {
+  color: #159447;
+}
+
+.dos-stamp > span:last-child {
+  border-bottom: 0.22cqw solid #15944766;
+  padding-bottom: 0.2cqw;
+}
+
+/* Rotation is decorative; it must not survive into a context where the text
+ * needs to be read straight, or where motion is unwelcome. */
+@media (prefers-reduced-motion: reduce) {
+  .dos-stamp {
+    transform: none;
+  }
+}

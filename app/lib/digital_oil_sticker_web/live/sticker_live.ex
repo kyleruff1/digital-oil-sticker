@@ -39,6 +39,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
           date_value={@view.date}
           mileage_value={@view.mileage}
           grade_value={@view.grade}
+          changed_value={@view.changed}
         />
 
         <p
@@ -89,16 +90,23 @@ defmodule DigitalOilStickerWeb.StickerLive do
   defp derive_view(assigns) do
     case assigns.local_state do
       :hydrating ->
-        %{mode: :skeleton, date: nil, mileage: nil, grade: nil, qualifier: nil}
+        %{mode: :skeleton, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
 
       :empty ->
-        %{mode: :empty, date: nil, mileage: nil, grade: nil, qualifier: nil}
+        %{mode: :empty, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
 
       :data_missing ->
-        %{mode: :data_missing, date: nil, mileage: nil, grade: nil, qualifier: nil}
+        %{mode: :data_missing, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
 
       :storage_unavailable ->
-        %{mode: :storage_unavailable, date: nil, mileage: nil, grade: nil, qualifier: nil}
+        %{
+          mode: :storage_unavailable,
+          date: nil,
+          mileage: nil,
+          grade: nil,
+          changed: nil,
+          qualifier: nil
+        }
 
       :loaded ->
         sticker_view(assigns.garage)
@@ -109,7 +117,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
     vehicle = active_vehicle(garage)
 
     if vehicle == nil do
-      %{mode: :empty, date: nil, mileage: nil, grade: nil, qualifier: nil}
+      %{mode: :empty, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
     else
       last = last_event(garage, vehicle["vehicle_id"])
       plan = vehicle["maintenance_plan"] || %{}
@@ -120,6 +128,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
         date: due.date,
         mileage: due.mileage,
         grade: grade_of(last),
+        changed: changed_on(last),
         qualifier: due.qualifier
       }
     end
@@ -224,6 +233,18 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
   defp grade_of(nil), do: nil
   defp grade_of(event), do: event["oil_viscosity"]
+
+  # The date the oil was actually changed. Unlike DATE and MILEAGE above it,
+  # this is a record of something the user did, not an estimate we derived —
+  # so it needs no qualifier and carries no basis.
+  defp changed_on(nil), do: nil
+
+  defp changed_on(event) do
+    case Date.from_iso8601(String.slice(event["performed_at"] || "", 0, 10)) do
+      {:ok, date} -> Calendar.strftime(date, "%b %d, %Y")
+      _ -> nil
+    end
+  end
 
   defp shift_months(date, months) do
     total = date.year * 12 + (date.month - 1) + months
