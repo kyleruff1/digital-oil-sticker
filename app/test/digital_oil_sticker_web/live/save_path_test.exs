@@ -86,7 +86,12 @@ defmodule DigitalOilStickerWeb.SavePathTest do
 
     assert payload["seq"] == 1
     assert is_binary(payload["mutation_id"])
-    assert [%{"store" => "vehicles", "record" => vehicle}] = payload["upserts"]
+
+    assert [
+             %{"store" => "vehicles", "record" => vehicle},
+             %{"store" => "prefs", "record" => prefs}
+           ] = payload["upserts"]
+
     assert vehicle["configuration_key"] == row.key
     assert vehicle["archived"] == false
     assert is_binary(vehicle["vehicle_id"])
@@ -96,6 +101,11 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     assert vehicle["maintenance_plan"]["planned_oil"] == "selected"
     assert vehicle["maintenance_plan"]["planned_base_stock"] == "full_synthetic"
     assert vehicle["maintenance_plan"]["planned_grade"] == "5W-30"
+
+    # Saving a vehicle also selects it — otherwise a garage with an existing
+    # car keeps that one active and every following page is about the wrong
+    # vehicle.
+    assert prefs["active_vehicle_id"] == vehicle["vehicle_id"]
   end
 
   test "saving Your interval pushes a put carrying the user-entered plan", %{conn: conn} do
