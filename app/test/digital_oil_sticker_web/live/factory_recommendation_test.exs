@@ -113,19 +113,27 @@ defmodule DigitalOilStickerWeb.FactoryRecommendationTest do
     # A vehicle carrying source-identifying data alongside the value the
     # badge certifies. The badge's whole contract is that we hold OEM
     # provenance without exposing whose data it is; the source must never
-    # ride out to the client, so we plant plausible source fields under the
-    # plan and assert none of them appear on-screen.
+    # ride out to the client, so we plant the actual ADR-0007 §"What every
+    # lane must preserve" row-level provenance fields — the ones the
+    # `maintenance_schedules` / `oil_requirements` DDL mandates
+    # (`source_locator`, `source_page`, `source_effective_date`,
+    # `source_id`, `verification_state`) — alongside a candidate
+    # publisher name, and assert none of them appear on-screen. Planting
+    # these under the plan simulates the failure mode the ingest must
+    # avoid: bundling per-row source metadata into the client vehicle
+    # payload.
     html =
       hydrate(view, %{
         "vehicles" => [
           vehicle(%{
             "manufacturer_viscosity" => "0W-20",
-            "manufacturer_viscosity_source_id" => "src_motor_2026_q3_row_88712",
-            "manufacturer_viscosity_source_publisher" => "MOTOR Information Systems",
-            "manufacturer_viscosity_source_url" =>
+            "manufacturer_viscosity_publisher" => "MOTOR Information Systems",
+            "manufacturer_viscosity_source_locator" =>
               "https://internal.example.invalid/motor/oem-schedules/88712",
+            "manufacturer_viscosity_source_page" => "OilSpecs, section 2.4",
             "manufacturer_viscosity_source_effective_date" => "2026-05-01",
-            "manufacturer_viscosity_source_revision" => "2026.05.rev1"
+            "manufacturer_viscosity_source_id" => "src_motor_2026_q3_row_88712",
+            "manufacturer_viscosity_verification_state" => "verified_second_review"
           })
         ],
         "prefs" => %{"active_vehicle_id" => @vehicle_id}
@@ -136,13 +144,20 @@ defmodule DigitalOilStickerWeb.FactoryRecommendationTest do
     assert html =~ "0W-20"
 
     # ...and no source-identifying token may appear anywhere in the HTML.
+    # These are the fields ADR-0007 §"What every lane must preserve"
+    # names as the row-level provenance every published schedule/
+    # requirement row carries — plus a candidate publisher name.
     refute html =~ "MOTOR"
     refute html =~ "motor"
     refute html =~ "src_motor_2026_q3_row_88712"
     refute html =~ "internal.example.invalid"
     refute html =~ "2026-05-01"
-    refute html =~ "2026.05.rev1"
+    refute html =~ "OilSpecs"
+    refute html =~ "verified_second_review"
+    refute html =~ "source_locator"
+    refute html =~ "source_page"
+    refute html =~ "source_id"
+    refute html =~ "verification_state"
     refute html =~ "publisher"
-    refute html =~ "source_url"
   end
 end
