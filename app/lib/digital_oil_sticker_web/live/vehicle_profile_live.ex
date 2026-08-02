@@ -273,7 +273,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                carries NO source information — publisher, URL, revision
                date — the promise is that we hold OEM-backed provenance,
                not that we expose whose data it came from. --%>
-          <section :if={is_binary(@manufacturer_viscosity) and @manufacturer_viscosity != ""} class="rounded border p-4">
+          <section
+            :if={is_binary(@manufacturer_viscosity) and @manufacturer_viscosity != ""}
+            class="rounded border p-4"
+          >
             <h2 class="font-semibold">{Copy.manufacturer_viscosity_heading()}</h2>
             <p class="mt-2 flex flex-wrap items-center gap-2">
               <span class="text-lg">{@manufacturer_viscosity}</span>

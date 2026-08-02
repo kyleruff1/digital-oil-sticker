@@ -18,3 +18,16 @@ app/*.db
 app/*.db-*
 app/priv/static/assets/
 tools/catalog/data/raw/
+
+# Secret-hygiene rules (DOS-M01-001 FR-10)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+fly-api-token*
+FLY_API_TOKEN*
+
+# Personal test exports (INV-23: personal data stays in the browser)
+exports/
+*.dos-export.json

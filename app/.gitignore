@@ -39,3 +39,8 @@ npm-debug.log
 *.db
 *.db-*
 
+# Secret-hygiene (DOS-M01-001 FR-10)
+.env
+.env.*
+!.env.example
+

@@ -166,6 +166,10 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     end
   end
 
+  def handle_event("duplicate_cancel", _params, socket) do
+    {:noreply, assign(socket, :duplicate_pending, nil)}
+  end
+
   defp reset_form_for_switch(socket) do
     socket
     |> assign(:odo_value, nil)
@@ -183,10 +187,6 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     |> assign(:form_touched?, false)
     |> assign(:form_token, Ecto.UUID.generate())
     |> assign(:submitted_token, nil)
-  end
-
-  def handle_event("duplicate_cancel", _params, socket) do
-    {:noreply, assign(socket, :duplicate_pending, nil)}
   end
 
   defp do_submit(socket, _params) do
