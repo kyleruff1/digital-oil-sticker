@@ -25,6 +25,7 @@ Support is a property of the **engine**, not the badge on the browser. Shells th
 | **Chromium** | Chrome, Edge, Brave, Opera, Android Chrome | 1 | Windows 11 | Playwright `chromium` |
 | **Gecko** | Firefox | 1 | Windows 11 | Playwright `firefox` |
 | **WebKit** | Safari (macOS), all iOS browsers | 1 | Windows 11 — **proxy, see below** | Playwright `webkit` |
+| **Chromium (Android)** | Android Chrome | 1 | Android 13 (SDK 33) — **real hardware** | CDP over adb, `conformance/bin/dos-conformance-device.mjs` |
 
 ### The WebKit caveat, stated plainly
 
@@ -55,9 +56,21 @@ A rule, not a list, so this file does not rot (FR-3):
 | Target | Tier | Status |
 | --- | --- | --- |
 | iOS Safari 16+ | 1 (intended) | **Unproven.** Exercised only through the WebKit engine proxy above. No physical-device run has been performed. |
-| Android Chrome | 1 (intended) | **Unproven.** Chromium engine assertions pass, but no physical-device run has been performed. |
+| Android Chrome | 1 | **Measured 2026-08-02** on a Lenovo TB125FU (Tab M10 Plus 3rd Gen), Android 13 / SDK 33, Chrome 150.0.7871.186, 1200×2000 @ 240dpi. 17 pass, 0 fail, 4 unproven — the same four structural gaps every engine reports, and identical to the desktop result. |
 
-Both remain at their intended tier in the constitution's §9 row. Neither may be reported as passing until the manual matrix in DOS-M09-008 runs on real hardware.
+**What the Android run is and is not.** It is the platform, not a stand-in for it: real Chrome on real hardware, driven over CDP through adb, running the same assertions as the desktop sweep. It is a single device, so it measures Android 13 on this tablet and nothing wider — not a phone form factor, not another OEM's Chrome build, not an older Android.
+
+iOS Safari remains unproven and may not be reported as passing until the manual matrix runs on real Apple hardware. Playwright's WebKit shares the engine and not the platform.
+
+### Running the device suite
+
+```
+adb pair <host>:<pairing-port>          # code from the tablet's wireless-debugging dialog
+adb connect <host>:<connect-port>
+ADB_PATH=<path-to-adb> node conformance/bin/dos-conformance-device.mjs   --serial <host>:<connect-port> --release <label>
+```
+
+Two constraints make this a separate runner rather than another engine in the main one. `browser.newContext()` is unavailable on an attached Android Chrome, so cases cannot each get a clean context; and `context.addInitScript()` works but cannot be removed, so a harness installed by one case would silently change every case after it. The runner obtains isolation by force-stopping and relaunching Chrome on the device, which is slow, so it does that only for the three cases that install an init script.
 
 ## Storage eviction
 
@@ -91,3 +104,4 @@ Asserted by the suite on every run (FR-22), because these are deferred by INV-6/
 | Date | Change |
 | --- | --- |
 | 2026-08-01 | Authored. Tier 1 engines named; WebKit recorded as a proxy; mobile and eviction recorded as unmeasured. |
+| 2026-08-02 | Android Chrome promoted from unproven to **measured** on a physical Lenovo TB125FU (Android 13, Chrome 150): 17 pass, 0 fail. iOS Safari and storage eviction remain unmeasured. |

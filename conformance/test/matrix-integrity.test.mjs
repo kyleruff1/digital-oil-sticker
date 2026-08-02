@@ -199,3 +199,28 @@ test('a baseline entry naming an assertion the suite no longer produces blocks',
   assert.equal(v.release_blocked, true)
   assert.match(v.blocking[0].reason, /does not produce/)
 })
+
+test('device-exercised rows are separated from launchable engines, not silently dropped', () => {
+  // The Android row lives in the same table because the matrix is the single
+  // authority, but the desktop sweep must not try to launch it. Before this was
+  // explicit, the row was excluded only because "**Chromium (Android)**" did
+  // not happen to match the engine regex — an accident, not an exclusion.
+  assert.ok(Array.isArray(matrix.devices), 'the matrix exposes no device rows')
+
+  const launchable = new Set(matrix.engines.map(e => e.key))
+  assert.equal(launchable.size, matrix.engines.length, 'an engine is listed twice')
+
+  for (const d of matrix.devices) {
+    assert.ok(d.engine && d.host_os, 'a device row is missing its engine or host')
+    assert.ok(Number.isInteger(d.tier), `${d.engine} has no tier`)
+  }
+})
+
+test('an engine row with no known driver is a loud failure, not a skip', () => {
+  // Guards the direction that matters: adding a browser to the matrix without
+  // teaching the runner to drive it must not quietly reduce coverage.
+  const source = readFileSync(join(REPO_ROOT, 'conformance', 'src', 'matrix.mjs'), 'utf8')
+
+  assert.match(source, /throw new Error\(/)
+  assert.match(source, /no known driver/)
+})

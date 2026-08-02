@@ -136,9 +136,11 @@
   color: #159447;
 }
 
+/* The underline is decoration and must not push the value out of the card, so
+ * it is drawn without taking layout height. The card's bottom edge is only a
+ * little over a percent below this band. */
 .dos-stamp > span:last-child {
-  border-bottom: 0.22cqw solid #15944766;
-  padding-bottom: 0.2cqw;
+  box-shadow: inset 0 -0.22cqw 0 -0.11cqw #15944766;
 }
 
 /* Rotation is decorative; it must not survive into a context where the text

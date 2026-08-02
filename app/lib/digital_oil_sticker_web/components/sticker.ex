@@ -62,7 +62,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           value={@changed_value}
           skeleton={@skeleton}
           stamped
-          style="left:8.0%; top:63.0%; width:28.0%; height:12%;"
+          style="left:8.0%; top:62.6%; width:28.0%; height:12%;"
           test_id="sticker-changed"
         />
         <%!-- Inside the printable card, which the artwork ends at 75.6%
@@ -77,7 +77,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
           value={@grade_value}
           skeleton={@skeleton}
           stamped
-          style="left:38.03%; top:63.0%; width:23.94%; height:12%;"
+          style="left:38.03%; top:62.6%; width:23.94%; height:12%;"
           test_id="sticker-grade"
         />
       </div>
