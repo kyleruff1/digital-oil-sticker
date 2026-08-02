@@ -143,6 +143,18 @@
       "priorityOverride": null,
       "riskOverride": null,
       "targetOverride": null
+    },
+    {
+      "id": "DOS-M03-011",
+      "title": "DOS-M03-011 — Measure automated OEM owner's-manual extraction and dispose the ADR-0007 lane (d) hybrid path",
+      "type": "child",
+      "variant": "data",
+      "labels": ["kind:task", "needs:decision", "needs:license", "needs:data-validation"],
+      "workstream": "vPIC/Data",
+      "blockedBy": ["DOS-M03-001", "DOS-M03-002", "DOS-M03-006"],
+      "priorityOverride": null,
+      "riskOverride": null,
+      "targetOverride": null
     }
   ]
 }

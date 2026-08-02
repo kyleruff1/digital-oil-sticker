@@ -2,7 +2,7 @@
 
 The roadmap is dependency-driven: eleven milestones, each led by an epic issue with child issues. The machine-readable plan lives in [`planning/roadmap.yml`](../../planning/roadmap.yml). After the GitHub sync, GitHub Issues and the GitHub Project are the live tracker; this document is orientation, not status.
 
-Issue totals: 11 epics plus 82 children = 93 issues. Per-milestone child counts: M00 = 6, M01 = 6, M02 = 8, M03 = 10, M04 = 10, M05 = 7, M06 = 7, M07 = 7, M08 = 7, M09 = 10, M10 = 4.
+Issue totals: 11 epics plus 83 children = 94 issues. Per-milestone child counts: M00 = 6, M01 = 6, M02 = 8, M03 = 11, M04 = 10, M05 = 7, M06 = 7, M07 = 7, M08 = 7, M09 = 10, M10 = 4.
 
 ## Milestones
 
@@ -18,7 +18,7 @@ Implement only the platform skeleton selected by M00: the Mob `0.7.20` on-device
 
 Produce implementation-ready flows, component/state specifications, content rules, accessibility expectations, and testable native-mobile prototypes for local onboarding, one active MVP vehicle, oil-change records, forecasts, and reminders. Preserve a clearly separated post-MVP design direction for multi-vehicle tabs/search without adding it to MVP implementation acceptance. Designs must show offline, missing-data, denied-permission, native-runtime failure, and destructive states—not only the happy path.
 
-### M03 — Data Acquisition & Offline Catalog (DOS-M03-000, 10 children)
+### M03 — Data Acquisition & Offline Catalog (DOS-M03-000, 11 children)
 
 Produce a reproducible, legally distributable, versioned, read-only offline catalog artifact for a rolling 30-model-year scope. The artifact supports deterministic vehicle lookup and, only where licensed evidence exists, oil-service schedules, vehicle lubricant requirements, API-licensed oil products, and oil-filter fitment.
 

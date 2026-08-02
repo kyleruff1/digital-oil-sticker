@@ -632,6 +632,21 @@ issues:
     risk: 
     target: MVP
     sequence: 410
+  - id: DOS-M03-011
+    title: "DOS-M03-011 — Measure automated OEM owner's-manual extraction and dispose the ADR-0007 lane (d) hybrid path"
+    type: child
+    variant: data
+    milestone: M03
+    parent: DOS-M03-000
+    blocked_by: DOS-M03-001, DOS-M03-002, DOS-M03-006
+    labels: kind:task, needs:decision, needs:license, needs:data-validation
+    body: planning/issues/DOS-M03-011.md
+    status: Backlog
+    priority: P1 High
+    workstream: vPIC/Data
+    risk: 
+    target: MVP
+    sequence: 411
   - id: DOS-M04-000
     title: "DOS-M04-000 — Local Domain & Persistence"
     type: epic
