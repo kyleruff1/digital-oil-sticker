@@ -5,7 +5,7 @@
 
 import {SCHEMA_VERSION} from "../local_store/schema.js"
 import * as idb from "../local_store/idb.js"
-import {readBootHint, markHasData} from "../local_store/boot_hint.js"
+import {readBootHint, markHasData, markNever} from "../local_store/boot_hint.js"
 import {openBroadcast, broadcastAvailable} from "../local_store/broadcast.js"
 import {buildEnvelope, emptyData} from "../local_store/envelope.js"
 import {exportFile} from "../local_store/export.js"
@@ -28,6 +28,7 @@ export const LocalStore = {
     // handler existed the event was pushed and silently dropped, leaving the
     // losing tab a skeleton until its broadcast handler happened to race in.
     this.handleEvent("local_store:rehydrate", () => this.hydrate())
+    this.handleEvent("local_store:erase", () => this.eraseEverything())
 
     this.hydrate()
   },
@@ -179,5 +180,23 @@ export const LocalStore = {
       storage: null,
     })
     await exportFile(envelope, nowIso)
+  },
+
+  /** User-confirmed erase of everything this origin stores. The confirmation
+   * happened in the LiveView modal before this event was pushed; by the time
+   * we are here the only job is to do it completely and reboot honestly. */
+  async eraseEverything() {
+    if (this.db) {
+      await idb.eraseAll(this.db)
+    }
+
+    // "never", not "has_data": the store is empty ON PURPOSE. Leaving the
+    // hint latched would make the next boot read as "your records are gone".
+    markNever()
+
+    // Full reload: every view re-mounts against the empty store and renders
+    // the first-visit state. Other tabs recover through the seq-conflict →
+    // rehydrate path on their next write.
+    window.location.reload()
   },
 }

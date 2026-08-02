@@ -155,6 +155,52 @@ defmodule DigitalOilStickerWeb.Copy do
       "There is no copy anywhere else, so this cannot be recovered."
   end
 
+  # --- Import and erase ---------------------------------------------------------
+  # Vocabulary discipline matters doubly here: this surface is exactly where
+  # "restore" and "backup" want to be written, and exactly where they would
+  # promise a service that does not exist. The file is a file the user kept.
+  def import_heading, do: "Import a file"
+
+  def import_body do
+    "Load an export file into this browser. The file is read on this device " <>
+      "and is not uploaded anywhere."
+  end
+
+  def import_choose_label, do: "Choose the export file"
+
+  def import_warning do
+    "Importing replaces everything stored in this browser with the file's " <>
+      "contents. Anything here that is not in the file will be gone."
+  end
+
+  def import_confirm_label, do: "Replace with the file's contents"
+
+  def import_invalid, do: "This is not a Digital Oil Sticker export file."
+
+  def import_damaged do
+    "This file does not match its own integrity hash — it was changed or " <>
+      "damaged after it was exported."
+  end
+
+  def import_newer do
+    "This file was made by a newer version of the app than this browser is " <>
+      "running. Load the app fresh and try again."
+  end
+
+  def import_storage_failed do
+    "This browser refused the write, so nothing was changed."
+  end
+
+  def erase_heading, do: "Erase everything stored in this browser"
+
+  def erase_body do
+    "Removes every vehicle, oil change, reading, reminder, and setting this " <>
+      "app has stored in this browser. Unless you exported a file, there is " <>
+      "no other copy anywhere."
+  end
+
+  def erase_confirm_label, do: "Erase everything"
+
   # --- The calendar reminder ---------------------------------------------------
   def reminder_heading, do: "Reminder"
 

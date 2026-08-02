@@ -260,6 +260,64 @@ export async function estimateQuota() {
 }
 
 /** Clear every store in one readwrite transaction (user-initiated erase). */
+/** Replace the ENTIRE store with an imported envelope's data, in one
+ * readwrite transaction: every store cleared, then the file's records written.
+ *
+ * Deliberately not CAS-guarded like applyPut: an import is the user explicitly
+ * choosing the file over whatever is here, stated in those words before this
+ * runs. A merge would need per-record conflict answers nobody can give for a
+ * store they can no longer see (the import exists for the evicted-store case).
+ *
+ * The meta singleton comes from the file when it has one, so the seq lineage
+ * and "data has existed here" signal survive the trip; a file without meta
+ * gets a minimal one, because meta's presence is what distinguishes an
+ * intentionally emptied store from an evicted one. */
+export function replaceAll(db, data, {schemaVersion, seq, nowIso}) {
+  return new Promise(resolve => {
+    let tx
+    try {
+      tx = db.transaction(STORE_NAMES, "readwrite")
+    } catch (err) {
+      return resolve(failFrom(err))
+    }
+    tx.onabort = () => resolve(failFrom(tx.error))
+    tx.onerror = () => {}
+    tx.oncomplete = () => resolve({ok: true})
+
+    try {
+      for (const name of STORE_NAMES) {
+        const def = STORES[name]
+        const os = tx.objectStore(name)
+        os.clear()
+
+        if (def.keyPath === null) {
+          // last_write_at is a META field; stamping it on prefs would smuggle
+          // an alien key into that record's __unknown__ carry-through.
+          const value =
+            name === META_KEY
+              ? {
+                  ...(data[name] || {schema_version: schemaVersion, seq: seq || 0, created_at: nowIso}),
+                  last_write_at: nowIso,
+                }
+              : data[name]
+          if (value) os.put(value, def.singletonKey)
+        } else {
+          for (const record of data[name] || []) {
+            os.put(record)
+          }
+        }
+      }
+    } catch (err) {
+      resolve(failFrom(err))
+      try {
+        tx.abort()
+      } catch {
+        // already aborted
+      }
+    }
+  })
+}
+
 export function eraseAll(db) {
   return new Promise(resolve => {
     let tx

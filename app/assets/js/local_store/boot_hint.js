@@ -22,3 +22,13 @@ export function markHasData() {
     // Blocked storage: the hint is best-effort and never fatal.
   }
 }
+
+/** After a user-chosen erase: the store is empty ON PURPOSE, so the next boot
+ * must read as a first visit, not as "your records are gone". */
+export function markNever() {
+  try {
+    localStorage.setItem(KEY, "never")
+  } catch {
+    // Blocked storage: the hint is best-effort and never fatal.
+  }
+}
