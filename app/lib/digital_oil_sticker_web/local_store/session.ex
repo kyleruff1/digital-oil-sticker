@@ -76,10 +76,15 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
         |> assign(:local_state, :loaded)
 
       {:error, {:cap_exceeded, cap}} ->
+        # NOT :storage_unavailable. That state means "we cannot tell whether
+        # anything is stored here", which would be a lie: we know exactly what
+        # happened, because we are the ones who refused the payload. FR-10 is
+        # explicit that a security control must never masquerade as data loss —
+        # the records are still in the browser, untouched.
         socket
         |> cancel_deadline()
         |> assign(:cap_error, cap)
-        |> assign(:local_state, :storage_unavailable)
+        |> assign(:local_state, :hydration_refused)
 
       {:error, _} ->
         socket

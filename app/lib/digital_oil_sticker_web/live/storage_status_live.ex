@@ -74,6 +74,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   defp state_line(:loaded, :durable_capable), do: "Records are stored in this browser."
   defp state_line(:empty, _), do: "Nothing is stored in this browser yet."
   defp state_line(:data_missing, _), do: Copy.data_missing_heading()
+  defp state_line(:hydration_refused, _), do: Copy.hydration_refused_heading()
   defp state_line(:storage_unavailable, _), do: Copy.storage_unavailable_heading()
   defp state_line(:hydrating, _), do: Copy.sr_checking()
   defp state_line(_, :session_only), do: Copy.session_only_banner()

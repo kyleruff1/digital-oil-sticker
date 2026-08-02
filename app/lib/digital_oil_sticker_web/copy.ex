@@ -45,6 +45,25 @@ defmodule DigitalOilStickerWeb.Copy do
       "is the only way to bring the records back."
   end
 
+  def hydration_refused_heading, do: "This browser holds more than we will load at once"
+
+  def hydration_refused_body(cap) do
+    "We stopped loading because #{cap_phrase(cap)}. Nothing was changed or " <>
+      "removed — your records are still in this browser exactly as they were. " <>
+      "Exporting a file still works, and is the safest next step."
+  end
+
+  defp cap_phrase(:payload_bytes),
+    do: "the records in this browser are larger than we load in one go"
+
+  defp cap_phrase(:vehicles), do: "this browser holds more vehicles than we load in one go"
+  defp cap_phrase(:events), do: "this browser holds more oil changes than we load in one go"
+
+  defp cap_phrase(:readings),
+    do: "this browser holds more odometer readings than we load in one go"
+
+  defp cap_phrase(_), do: "this browser holds more records than we load in one go"
+
   def storage_unavailable_heading, do: "This browser's storage could not be used"
 
   def storage_unavailable_body do

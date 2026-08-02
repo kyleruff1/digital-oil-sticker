@@ -65,6 +65,14 @@ defmodule DigitalOilStickerWeb.StickerLive do
           <.link navigate={~p"/settings/storage"} class="btn btn-primary mt-6">Import a file</.link>
         </div>
 
+        <div :if={@view.mode == :hydration_refused} class="py-10 text-center">
+          <h1 class="text-2xl font-bold">{Copy.hydration_refused_heading()}</h1>
+          <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
+            {Copy.hydration_refused_body(@cap_error)}
+          </p>
+          <.link navigate={~p"/settings/storage"} class="btn btn-primary mt-6">Export a file</.link>
+        </div>
+
         <div :if={@view.mode == :storage_unavailable} class="py-10 text-center">
           <h1 class="text-2xl font-bold">{Copy.storage_unavailable_heading()}</h1>
           <p class="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-zinc-600">
@@ -97,6 +105,16 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
       :data_missing ->
         %{mode: :data_missing, date: nil, mileage: nil, grade: nil, changed: nil, qualifier: nil}
+
+      :hydration_refused ->
+        %{
+          mode: :hydration_refused,
+          date: nil,
+          mileage: nil,
+          grade: nil,
+          changed: nil,
+          qualifier: nil
+        }
 
       :storage_unavailable ->
         %{

@@ -55,6 +55,14 @@ config :logger, :default_formatter,
   metadata: [:request_id]
 
 # Use Jason for JSON parsing in Phoenix
+# Nothing the user typed may reach a log sink (FR-11, INV-4). The default
+# filter list is a denylist of common credential names; this app's risk is
+# different — odometer readings, notes, dates, and vehicle identifiers are the
+# sensitive values here, and they arrive under names no default anticipates.
+# So the rule is inverted: drop every parameter, and let the allowlist grow by
+# review if a non-personal one is ever genuinely needed for support.
+config :phoenix, :filter_parameters, {:keep, []}
+
 config :phoenix, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom

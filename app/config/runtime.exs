@@ -75,6 +75,12 @@ if config_env() == :prod do
 
   config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
+    # An explicit list, never `true` or `false` (FR-5). `false` disables the
+    # check; `true` compares against :url above, which happens to be right
+    # today and goes silently wrong the moment a second hostname is served.
+    # The list lives in DigitalOilStickerWeb.Hosts so check_origin and the
+    # CSP's connect-src cannot disagree about which hosts are ours.
+    check_origin: DigitalOilStickerWeb.Hosts.allowed_origins(),
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.

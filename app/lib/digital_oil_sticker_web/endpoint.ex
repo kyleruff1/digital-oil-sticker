@@ -4,11 +4,20 @@ defmodule DigitalOilStickerWeb.Endpoint do
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
+  # Carries the CSRF token and live_socket_id, and nothing else — asserted by
+  # test. `secure` and `max_age` are set explicitly rather than inherited:
+  # whether a cookie crosses plain HTTP, and how long it outlives the visit,
+  # are not decisions to leave to a default (FR-7).
   @session_options [
     store: :cookie,
     key: "_digital_oil_sticker_key",
     signing_salt: "sN71ocqW",
-    same_site: "Lax"
+    same_site: "Lax",
+    http_only: true,
+    secure: Mix.env() == :prod,
+    # Short. There is no account and nothing to stay signed in to; the cookie
+    # exists for CSRF and socket identity, so a long life is pure exposure.
+    max_age: 60 * 60 * 8
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
@@ -52,5 +61,10 @@ defmodule DigitalOilStickerWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  # Ahead of the router on purpose: a response that never reaches a pipeline —
+  # a 404, a parser error — still needs the header set.
+  plug DigitalOilStickerWeb.Plugs.SecurityHeaders
+
   plug DigitalOilStickerWeb.Router
 end
