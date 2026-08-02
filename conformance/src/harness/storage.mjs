@@ -27,21 +27,29 @@ export async function blockIndexedDb(context) {
 }
 
 /**
- * Storage that accepts writes and then starts refusing them — approximates: a
- * profile that fills up mid-session, which is when a quota error actually
- * reaches a user. `afterWrites` lets the app's own start-up probe succeed, so
- * the app reaches its normal storage mode and the failure lands on a real
- * record write rather than on availability detection.
+ * Storage that refuses writes to the RECORD stores while still accepting the
+ * app's start-up probe — approximates: a profile that fills up mid-session,
+ * which is when a quota error actually reaches a user.
+ *
+ * Targeting by store rather than by a write COUNT is the whole point. Counting
+ * assumed every engine performs the same number of writes before the first
+ * real record lands, and it does not: the same magic number that reproduced a
+ * refusal on Chromium let the write straight through on WebKit, so the case
+ * reported a missing notice when there had been nothing to report. That is a
+ * harness reading as a product defect, which is worse than no harness.
+ *
+ * The app's probe writes to `meta` (see probeRoundTrip in idb.js), so leaving
+ * `meta` alone means storage detection succeeds and the failure lands exactly
+ * where it should — on the user's record.
  *
  * Does NOT approximate: real quota accounting, partial writes, or the browser
  * rolling back a transaction that already reported success. The genuinely
- * measured quota path needs a device with real storage pressure and is
+ * measured quota path needs a device under real storage pressure and is
  * scheduled in the manual matrix.
  */
-export async function failWritesAfter(context, errorName, afterWrites = 4) {
+export async function failWritesToRecordStores(context, errorName) {
   await context.addInitScript(
-    ({ name, after }) => {
-      let writes = 0
+    ({ name, targets }) => {
       const realOpen = indexedDB.open.bind(indexedDB)
       indexedDB.open = (...args) => {
         const request = realOpen(...args)
@@ -53,6 +61,8 @@ export async function failWritesAfter(context, errorName, afterWrites = 4) {
             if (mode !== 'readwrite') return tx
 
             for (const storeName of [].concat(stores)) {
+              if (!targets.includes(storeName)) continue
+
               let store
               try {
                 store = tx.objectStore(storeName)
@@ -62,19 +72,16 @@ export async function failWritesAfter(context, errorName, afterWrites = 4) {
               for (const op of ['put', 'add']) {
                 const real = store[op].bind(store)
                 store[op] = (...opArgs) => {
-                  writes += 1
                   const req = real(...opArgs)
-                  if (writes > after) {
-                    // Arrives asynchronously, the way a real rejection does.
-                    setTimeout(() => {
-                      const err = new DOMException('simulated quota exhaustion', name)
-                      Object.defineProperty(req, 'error', { configurable: true, get: () => err })
-                      req.dispatchEvent(new Event('error'))
-                      try {
-                        tx.abort()
-                      } catch {}
-                    }, 0)
-                  }
+                  // Arrives asynchronously, the way a real rejection does.
+                  setTimeout(() => {
+                    const err = new DOMException('simulated quota exhaustion', name)
+                    Object.defineProperty(req, 'error', { configurable: true, get: () => err })
+                    req.dispatchEvent(new Event('error'))
+                    try {
+                      tx.abort()
+                    } catch {}
+                  }, 0)
                   return req
                 }
               }
@@ -85,7 +92,7 @@ export async function failWritesAfter(context, errorName, afterWrites = 4) {
         return request
       }
     },
-    { name: errorName, after: afterWrites }
+    { name: errorName, targets: ['events', 'readings', 'vehicles'] }
   )
 }
 

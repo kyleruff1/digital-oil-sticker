@@ -168,10 +168,11 @@ export const cases = [
 
       const before = await app.readStore(page)
 
-      // 1, not 0: the app's own start-up probe spends one write proving the
-      // store is writable. Failing that would test availability again instead
-      // of the quota path, which is what happens to a store that fills mid-use.
-      await harness.failWritesAfter(context, 'QuotaExceededError', 1)
+      // Targeted at the record stores, not at a write count. A count assumed
+      // every engine performs the same number of writes before the first real
+      // record lands; it does not, and the same number that reproduced a
+      // refusal on Chromium let the write straight through on WebKit.
+      await harness.failWritesToRecordStores(context, 'QuotaExceededError')
       await app.gotoConnected(page, `${baseUrl}/service/new`)
 
       try {
