@@ -44,6 +44,14 @@ defmodule DigitalOilSticker.LocalStore.Schema.V1 do
   # revise the model. `oil_brand`/`oil_family` are legacy: brand was dropped
   # in favour of base stock + grade, but records written before that keep
   # rendering rather than sliding into `__unknown__`.
+  #
+  # `maintenance_plan` is a top-level key here, but its INNER map is
+  # unrestricted — canonicalize/validate treat it as an opaque submap and
+  # do not sweep unknown inner keys into `__unknown__` (that treatment is
+  # top-level only). New inner keys therefore survive round-trip without a
+  # schema bump. In particular `manufacturer_viscosity`, populated by
+  # DOS-M03-007 (ADR-0007 lane b) and read by `VehicleProfileLive` for the
+  # "Factory recommendation" display, needs no allowlist change here.
   @vehicle_keys ~w(vehicle_id nickname configuration_key catalog_data_version model_year
                    display_snapshot support_status engine_class_code oil_model_version
                    vin_last6 archived maintenance_plan created_at updated_at)

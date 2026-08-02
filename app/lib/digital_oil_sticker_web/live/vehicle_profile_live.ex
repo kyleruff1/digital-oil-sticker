@@ -171,6 +171,12 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> assign(:estimate, estimate_for(vehicle, assigns.garage))
       |> assign(:severe_questions, severe_questions())
       |> assign(:reminder, reminder_view(assigns.garage, vehicle))
+      # Ready but INERT: `manufacturer_viscosity` is a nullable inner key on
+      # `maintenance_plan` that DOS-M03-007 (ADR-0007 lane b) will populate
+      # once ingest lands. Until then this is always nil and the whole
+      # section below is suppressed — no placeholder, no "unknown". The
+      # display works the moment data lands with no further code changes.
+      |> assign(:manufacturer_viscosity, manufacturer_viscosity(vehicle))
 
     ~H"""
     <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
@@ -257,6 +263,22 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                 </tbody>
               </table>
             </details>
+          </section>
+
+          <%!-- Ready but INERT: renders only when DOS-M03-007 populates
+               `maintenance_plan.manufacturer_viscosity` with an OEM-sourced
+               value backed by per-row provenance in our internal source
+               register (ADR-0007 lane b, RECOMMENDATION_CLAIMS_POLICY.md
+               §"Factory recommendation label"). The badge deliberately
+               carries NO source information — publisher, URL, revision
+               date — the promise is that we hold OEM-backed provenance,
+               not that we expose whose data it came from. --%>
+          <section :if={is_binary(@manufacturer_viscosity) and @manufacturer_viscosity != ""} class="rounded border p-4">
+            <h2 class="font-semibold">{Copy.manufacturer_viscosity_heading()}</h2>
+            <p class="mt-2 flex flex-wrap items-center gap-2">
+              <span class="text-lg">{@manufacturer_viscosity}</span>
+              <Badges.factory_recommendation_badge />
+            </p>
           </section>
 
           <section :if={is_map(@estimate)} class="rounded border p-4">
@@ -555,6 +577,14 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
   defp current_interval(%{"maintenance_plan" => %{} = plan}, key), do: plan[key]
   defp current_interval(_, _), do: nil
+
+  # Returns the OEM-sourced viscosity string when the vehicle carries one
+  # and nil otherwise. Callers gate the badge on nil/"" — the field will be
+  # nil until DOS-M03-007 ingest populates it.
+  defp manufacturer_viscosity(nil), do: nil
+
+  defp manufacturer_viscosity(vehicle),
+    do: get_in(vehicle, ["maintenance_plan", "manufacturer_viscosity"])
 
   defp has_own_interval?(vehicle) do
     not is_nil(current_interval(vehicle, "interval_miles")) or

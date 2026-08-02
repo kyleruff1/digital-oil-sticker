@@ -65,4 +65,28 @@ defmodule DigitalOilStickerWeb.Components.Badges do
     </span>
     """
   end
+
+  # The "Factory recommendation" badge. Ready but INERT until DOS-M03-007
+  # activation (ADR-0007 lane b) populates an OEM-sourced value on the record
+  # this badge annotates. The three non-negotiables from
+  # RECOMMENDATION_CLAIMS_POLICY.md §"Factory recommendation label" are
+  # enforced here: the badge (a) only ever renders when the CALLER has an
+  # OEM-provenance-backed value to certify — no attr signals it, callers gate
+  # it with `:if={...}`; (b) renders NO source information — no publisher,
+  # no URL, no revision date — that stays in our internal source register;
+  # (c) is a badge next to the specific value it certifies, not sentence
+  # text. Emerald border-double weight distinguishes it visually from the
+  # other badges without color-alone (border style AND text differ); no
+  # third-party mark or certification-shape icon is used (the badges
+  # @moduledoc rule + FACTUAL_USE_AND_MARKS_POLICY "Never copy" list).
+  def factory_recommendation_badge(assigns) do
+    ~H"""
+    <span
+      class="inline-flex items-center gap-1 rounded border-2 border-double border-emerald-700 px-1.5 py-0.5 text-xs"
+      data-factory-recommendation="true"
+    >
+      {Copy.factory_recommendation_label()}
+    </span>
+    """
+  end
 end

@@ -271,6 +271,16 @@ defmodule DigitalOilStickerWeb.Copy do
   def not_listed_enter_myself, do: "Not listed — enter it myself"
   def no_longer_listed, do: "No longer listed in the catalog."
 
+  # The "Factory recommendation" badge (RECOMMENDATION_CLAIMS_POLICY.md
+  # §"Factory recommendation label"). Ready but INERT: the label only ever
+  # appears when a value was populated from OEM-sourced data with per-row
+  # provenance in our internal source register (DOS-M03-007 lane b / ADR-0007
+  # lane b). Until that card activates, every consumer's null-guard suppresses
+  # it — the string exists here so the copy-lint has one canonical source and
+  # so a future prohibited-vocabulary sweep can enforce the label wording.
+  def factory_recommendation_label, do: "Factory recommendation"
+  def manufacturer_viscosity_heading, do: "Manufacturer viscosity"
+
   # --- Our own oil model -------------------------------------------------------
   # These strings exist so an interval can never render without saying whose
   # model produced it. Nothing here may be phrased as manufacturer guidance.

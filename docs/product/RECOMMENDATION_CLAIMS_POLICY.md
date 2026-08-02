@@ -37,10 +37,23 @@ It therefore gets its own result status, `our_model`, which sits **outside** the
 | "Synthetic lasts 10,000 miles" (as a due date) | "Full synthetic: published 7,500–10,000 mi" (as model reasoning) |
 | "Guaranteed compatible" | "Exact configuration verified against [source]" |
 | "Safe for your warranty" | Do not make this claim |
+| "Factory recommended" (as a sentence, unattributed) | The **"Factory recommendation"** badge next to the specific value it certifies (see below) |
 
 "Meets the recorded requirements" is permitted **only** when every mandatory requirement has a source-backed match. If only viscosity matches, say exactly that.
 
 **Copy-lint prohibited terms** (build-failing, in addition to the storage-framing list): `best oil`, `guaranteed`, `warranty safe`, `manufacturer approved`, `API approved`, `recommended by`, `works with every`.
+
+## Factory recommendation label
+
+The **"Factory recommendation"** badge is the visual promise that a specific rendered value carries OEM-sourced provenance in our internal source register. It is bounded by three non-negotiable rules, each traceable to an existing invariant:
+
+1. **Provenance required.** The label appears **only** when the specific value being displayed came from OEM-sourced data with per-row provenance recorded in our internal source register — the `source_locator, source_page, source_effective_date, source_id, verification_state` fields that ADR-0007 §"What every lane must preserve" mandates on every published `maintenance_schedules` / `oil_requirements` row. In practice this is DOS-M03-007 lane **(b)** (commercial license) or the hybrid lane **(d)** ([ADR-0007](../architecture/ADR-0007-manufacturer-oil-schedule-sourcing.md)); other origins are excluded — no our-model estimate ([ADR-0005](../architecture/ADR-0005-own-oil-model.md), `result_status: our_model`), no user-entered value, and no nearest-match imputation (the "Never infer a manufacturer interval from a generic model family; never use a nearest engine/configuration match" rule in this document's Interval rules section is the on-point prohibition).
+2. **Source is not shown to the client.** No publisher name, no URL, no revision date, no source ID appears on-screen. Attribution stays inside our source register (`data_sources`, per ADR-0007). This is the promise the label makes: we hold OEM-backed provenance, we do not expose whose data it came from. The requirement is enforced by a negative render test.
+3. **Badge, not sentence text.** The label is a badge that renders **next to the specific value it certifies** (a viscosity grade, an interval number, a capacity), not as a standalone sentence. This distinguishes it from a vehicle-level endorsement — the badge scopes the OEM claim to one field, matching the field-level provenance in the source register.
+
+The label does not upgrade a vehicle's INV-11 support status (`identity_only`, `schedule_supported`, `full_product_supported`, `not_applicable`, `unsupported`): a vehicle whose viscosity carries the badge but whose interval schedule does not remains `identity_only` for scheduling purposes. Coverage is per row, not per vehicle.
+
+Implemented by `DigitalOilStickerWeb.Components.Badges.factory_recommendation_badge/1` with mandated text from `DigitalOilStickerWeb.Copy.factory_recommendation_label/0` ("Factory recommendation"); consumed today by `DigitalOilStickerWeb.VehicleProfileLive` gated on `maintenance_plan.manufacturer_viscosity` being non-nil (the field DOS-M03-007 activation populates). The display is READY but INERT until that ingest lands — no data path exists yet.
 
 ## Substantiation
 

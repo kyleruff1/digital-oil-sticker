@@ -173,6 +173,18 @@ Two of the six answered on 2026-08-02; four remain open until the spike returns.
 
 When Q3–Q6 land, this ADR is amended to Accepted (full).
 
+## Downstream — Factory recommendation label
+
+Independently of the four open questions above, the client-side display treatment for OEM-sourced values is now specified and shipped in an INERT state (no data path exists yet — the ingest this ADR gates activates it):
+
+- **Badge** — `DigitalOilStickerWeb.Components.Badges.factory_recommendation_badge/1` (`app/lib/digital_oil_sticker_web/components/badges.ex`). Follows the module's "text AND icon AND border weight — never color alone" rule via a distinctive `border-2 border-double border-emerald-700` weight. Carries no source information — no publisher, no URL, no revision date — per the policy rule below.
+- **Policy line** — `RECOMMENDATION_CLAIMS_POLICY.md` §"Factory recommendation label" defines the three non-negotiable rules: (1) label only when the value came from OEM-sourced data with per-row provenance in our internal source register — lane (b) or (d) here, never our-model, user-entered, or nearest-match; (2) source is not shown to the client — publisher/URL/revision date/id stay in the source register; (3) badge next to the specific value, not sentence text.
+- **Null-safe wire** — `DigitalOilStickerWeb.VehicleProfileLive` (`app/lib/digital_oil_sticker_web/live/vehicle_profile_live.ex`) already reads `maintenance_plan["manufacturer_viscosity"]` and renders the badge next to the value under a "Manufacturer viscosity" section, gated with `:if={is_binary(...) and ... != ""}`. Until DOS-M03-007 populates the field, the whole section is silent — no placeholder, no "unknown" — and the display activates automatically the moment data lands. No downstream deployment is required.
+- **Copy string** — `DigitalOilStickerWeb.Copy.factory_recommendation_label/0` returns the mandated "Factory recommendation" verbatim; the copy-lint gate scans it as the canonical source.
+- **Negative render test** — `app/test/digital_oil_sticker_web/live/factory_recommendation_test.exs` asserts that source-identifying fields planted on the vehicle record (publisher name, source URL, revision date, source id) never appear in the rendered HTML even when the badge is showing.
+
+The `maintenance_plan.manufacturer_viscosity` key is the first of the OEM-sourced inner-plan fields; DOS-M03-007's activation is what populates it (see that card's Included section). Additional OEM-sourced value fields — capacity, OEM specification code, per-configuration interval — will follow the same pattern: an inner-plan key gated by the same badge, per-row provenance carried server-side, no source shown to the client.
+
 ## Research anchors
 
 - `docs/product/CONSTITUTION.md` — INV-11, INV-15, INV-16, INV-20, INV-21.
