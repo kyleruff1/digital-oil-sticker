@@ -24,13 +24,26 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    # Most oil changes are logged the same day they happen, so today is a
+    # useful default. A user changing the oil yesterday can still pick a
+    # different day — the value is a pre-fill, not a decision.
+    #
+    # UTC today is what the server can honestly give: the client's local
+    # date is not yet reported on this page. For a user in a timezone
+    # meaningfully behind UTC (Pacific after 5pm), the pre-filled year and
+    # month can be tomorrow's local — still adjustable through the dropdowns,
+    # but a proper caller_local_date would fix it (DOS-M10-001 already names
+    # this as a required field for the MCP surface). Noting the seam rather
+    # than pretending it's clean.
+    today = Clock.today()
+
     {:ok,
      socket
      |> assign(:page_title, "Log an oil change")
      |> assign(:form_token, Ecto.UUID.generate())
-     |> assign(:month, nil)
-     |> assign(:day, nil)
-     |> assign(:year, nil)
+     |> assign(:month, today.month)
+     |> assign(:day, today.day)
+     |> assign(:year, today.year)
      |> assign(:odo_value, nil)
      |> assign(:odo_unit, "mi")
      |> assign(:base_stock, nil)
@@ -107,6 +120,29 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     case socket.assigns.duplicate_pending do
       nil -> {:noreply, socket}
       event -> {:noreply, stage_event(assign(socket, :duplicate_pending, nil), event)}
+    end
+  end
+
+  # Same event the sticker page's folder uses. Kept in sync so a switch here
+  # is a switch everywhere — the log form and the sticker record their
+  # target vehicle the same way (prefs.active_vehicle_id).
+  def handle_event("switch_vehicle", %{"vehicle-id" => id}, socket) do
+    cond do
+      not Session.mutations_enabled?(socket) ->
+        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+
+      Session.prefs_quarantined?(socket) ->
+        {:noreply, put_flash(socket, :error, Copy.prefs_unreadable())}
+
+      true ->
+        prefs =
+          (socket.assigns.garage.prefs || %{})
+          |> Map.put("active_vehicle_id", id)
+
+        {socket, _mutation_id} =
+          Session.stage_mutation(socket, [%{"store" => "prefs", "record" => prefs}], [])
+
+        {:noreply, socket}
     end
   end
 
@@ -233,6 +269,37 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
   end
 
   defp active_vehicle(garage), do: Session.active_vehicle(garage)
+
+  defp live_vehicles(assigns) do
+    Enum.reject(assigns.garage.vehicles, &(&1["archived"] == true))
+  end
+
+  # Same description shape the sticker page uses ("2015 BMW 328i · Trim") —
+  # kept in sync with StickerLive.vehicle_desc/1 rather than imported so a
+  # future change in one place doesn't silently drift.
+  defp vehicle_desc(nil), do: ""
+
+  defp vehicle_desc(vehicle) do
+    case vehicle["nickname"] do
+      name when is_binary(name) and name != "" ->
+        name
+
+      _ ->
+        snap = vehicle["display_snapshot"] || %{}
+        build = snap["build"]
+
+        head =
+          [snap["year"], snap["make"], snap["model"]]
+          |> Enum.reject(&is_nil/1)
+          |> Enum.join(" ")
+
+        if is_binary(build) and build != "" and not String.contains?(build, Copy.not_specified()) do
+          "#{head} · #{build}"
+        else
+          head
+        end
+    end
+  end
 
   # -- pre-fill from the intake step -------------------------------------------
   #
@@ -369,12 +436,80 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
   @impl true
   def render(assigns) do
-    assigns = assigns |> assign(:notes_limit, @notes_limit) |> grade_assigns()
+    assigns =
+      assigns
+      |> assign(:notes_limit, @notes_limit)
+      |> assign(:live_vehicles, live_vehicles(assigns))
+      |> assign(:active_vehicle, Session.active_vehicle(assigns.garage))
+      |> grade_assigns()
 
     ~H"""
     <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Log an oil change</h1>
+
+        <%!-- Vehicle context. Silent on the page before this — a user with
+             two vehicles who switched their front-page view but then opened
+             the log form had no on-page cue about which vehicle the change
+             was going to be recorded against. One vehicle is named; two or
+             more render as clickable pills, with the current one selected
+             and a click switching (same event the sticker folder uses). --%>
+        <div
+          :if={@active_vehicle && length(@live_vehicles) == 1}
+          class="mt-2 text-sm text-base-content/80"
+          data-test="log-form-vehicle-name"
+        >
+          Logging a change for <span class="font-semibold">{vehicle_desc(@active_vehicle)}</span>
+        </div>
+
+        <div
+          :if={length(@live_vehicles) > 1}
+          class="mt-3 flex flex-wrap gap-2"
+          role="tablist"
+          aria-label="Vehicle"
+          data-test="log-form-vehicle-tabs"
+        >
+          <button
+            :for={vehicle <- @live_vehicles}
+            type="button"
+            role="tab"
+            aria-selected={to_string(vehicle["vehicle_id"] == @active_vehicle["vehicle_id"])}
+            phx-click="switch_vehicle"
+            phx-value-vehicle-id={vehicle["vehicle_id"]}
+            class={[
+              "btn btn-sm normal-case",
+              if(vehicle["vehicle_id"] == @active_vehicle["vehicle_id"],
+                do: "btn-primary",
+                else: "btn-outline"
+              )
+            ]}
+            data-test="log-form-vehicle-tab"
+          >
+            {vehicle_desc(vehicle)}
+          </button>
+          <%!-- Add-vehicle from the log form. The route lives here rather
+               than inside the form so a mid-fill user does not lose typed
+               values by clicking it; it navigates away, and returning
+               resumes at the log form for the new vehicle. --%>
+          <.link
+            navigate={~p"/vehicle/select"}
+            class="btn btn-sm btn-outline gap-1 normal-case"
+            data-test="log-form-add-vehicle"
+          >
+            <.icon name="hero-plus" class="size-4" /> {Copy.add_vehicle()}
+          </.link>
+        </div>
+
+        <%!-- One-vehicle case gets the add link too, so a user with a single
+             car isn't stuck in that surface with no path to a second one. --%>
+        <.link
+          :if={length(@live_vehicles) == 1}
+          navigate={~p"/vehicle/select"}
+          class="mt-2 inline-flex items-center gap-1 text-sm text-base-content/70 hover:underline"
+          data-test="log-form-add-vehicle"
+        >
+          <.icon name="hero-plus" class="size-4" /> {Copy.add_vehicle()}
+        </.link>
 
         <form phx-change="form_change" phx-submit="submit" class="mt-6 space-y-5">
           <input type="hidden" name="form_token" value={@form_token} />
@@ -415,6 +550,11 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
             <% end %>
           </div>
 
+          <%!-- No show_miles_range? here. The per-radio "3,000–5,000 miles
+               typical" hints were removed at the user's direction: the range
+               calculation should come AFTER submitting, which nudges the
+               user toward Save rather than reading and interpreting numbers
+               here. Same information, different UX intent. --%>
           <.oil_type_select
             base_stocks={@base_stocks}
             base_stock={effective_base_stock(assigns)}
@@ -425,7 +565,6 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
             manual_grade?={@manual_grade?}
             manual_grade={@manual_grade}
             engine_class_name={@engine_class_name}
-            show_miles_range?
           />
 
           <div class="grid grid-cols-2 gap-2">
