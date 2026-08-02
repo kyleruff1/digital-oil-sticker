@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "phoenix",
+      "runtimeExecutable": "C:\\Users\\kyler\\.elixir-install\\installs\\elixir\\1.20.2-otp-28\\bin\\mix.bat",
+      "runtimeArgs": ["phx.server"],
+      "cwd": "app",
+      "port": 4000
+    }
+  ]
+}

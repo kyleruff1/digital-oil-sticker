@@ -263,17 +263,21 @@
 
 /* break-all, not break-word: the code has no word boundaries, and letting it
  * overflow instead would push the page into a horizontal scroll at 320px. */
+/* Theme-aware, not a fixed hex. The key is the durable half of this component
+ * — the part that still says something when the symbol will not scan — and a
+ * hardcoded near-black rendered it all but invisible against the dark theme. */
 .dos-qr-key {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.6875rem;
   line-height: 1.4;
   letter-spacing: 0.06em;
   word-break: break-all;
-  color: #101820;
+  color: var(--color-base-content);
 }
 
 .dos-qr-note {
   font-size: 0.6875rem;
   line-height: 1.5;
-  color: #52525b;
+  color: var(--color-base-content);
+  opacity: 0.72;
 }
