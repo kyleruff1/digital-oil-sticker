@@ -313,32 +313,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
     Enum.reject(assigns.garage.vehicles, &(&1["archived"] == true))
   end
 
-  # Same description shape the sticker page uses ("2015 BMW 328i · Trim") —
-  # kept in sync with StickerLive.vehicle_desc/1 rather than imported so a
-  # future change in one place doesn't silently drift.
-  defp vehicle_desc(nil), do: ""
-
-  defp vehicle_desc(vehicle) do
-    case vehicle["nickname"] do
-      name when is_binary(name) and name != "" ->
-        name
-
-      _ ->
-        snap = vehicle["display_snapshot"] || %{}
-        build = snap["build"]
-
-        head =
-          [snap["year"], snap["make"], snap["model"]]
-          |> Enum.reject(&is_nil/1)
-          |> Enum.join(" ")
-
-        if is_binary(build) and build != "" and not String.contains?(build, Copy.not_specified()) do
-          "#{head} · #{build}"
-        else
-          head
-        end
-    end
-  end
+  defp vehicle_desc(vehicle), do: DigitalOilStickerWeb.Vehicles.description(vehicle)
 
   # -- pre-fill from the intake step -------------------------------------------
   #
@@ -501,35 +476,40 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
           Logging a change for <span class="font-semibold">{vehicle_desc(@active_vehicle)}</span>
         </div>
 
-        <div
-          :if={length(@live_vehicles) > 1}
-          class="mt-3 flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Vehicle"
-          data-test="log-form-vehicle-tabs"
-        >
-          <button
-            :for={vehicle <- @live_vehicles}
-            type="button"
-            role="tab"
-            aria-selected={to_string(vehicle["vehicle_id"] == @active_vehicle["vehicle_id"])}
-            phx-click="switch_vehicle"
-            phx-value-vehicle-id={vehicle["vehicle_id"]}
-            class={[
-              "btn btn-sm normal-case",
-              if(vehicle["vehicle_id"] == @active_vehicle["vehicle_id"],
-                do: "btn-primary",
-                else: "btn-outline"
-              )
-            ]}
-            data-test="log-form-vehicle-tab"
+        <div :if={length(@live_vehicles) > 1} class="mt-3 flex flex-wrap items-center gap-2">
+          <%!-- The tablist only contains tabs. A non-tab child under
+               role="tablist" (which the add-vehicle link used to be) fails
+               ARIA's containment rule and confuses screen-reader tab
+               navigation — the add link lives in its own sibling container
+               that renders visually side by side but is a11y-separate. --%>
+          <div
+            class="flex flex-wrap gap-2"
+            role="tablist"
+            aria-label="Vehicle"
+            data-test="log-form-vehicle-tabs"
           >
-            {vehicle_desc(vehicle)}
-          </button>
-          <%!-- Add-vehicle from the log form. The route lives here rather
-               than inside the form so a mid-fill user does not lose typed
-               values by clicking it; it navigates away, and returning
-               resumes at the log form for the new vehicle. --%>
+            <button
+              :for={vehicle <- @live_vehicles}
+              type="button"
+              role="tab"
+              aria-selected={to_string(vehicle["vehicle_id"] == @active_vehicle["vehicle_id"])}
+              phx-click="switch_vehicle"
+              phx-value-vehicle-id={vehicle["vehicle_id"]}
+              class={[
+                "btn btn-sm normal-case",
+                if(vehicle["vehicle_id"] == @active_vehicle["vehicle_id"],
+                  do: "btn-primary",
+                  else: "btn-outline"
+                )
+              ]}
+              data-test="log-form-vehicle-tab"
+            >
+              {vehicle_desc(vehicle)}
+            </button>
+          </div>
+          <%!-- Add-vehicle from the log form. Sibling of the tablist rather
+               than a child of it. Placed outside the form so a mid-fill user
+               does not lose typed values by clicking it. --%>
           <.link
             navigate={~p"/vehicle/select"}
             class="btn btn-sm btn-outline gap-1 normal-case"

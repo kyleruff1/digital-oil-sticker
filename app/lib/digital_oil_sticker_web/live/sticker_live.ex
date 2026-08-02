@@ -344,29 +344,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
   # "2015 BMW 328i · LE", not a labelled form. The nickname wins when the user
   # gave one; a placeholder build ("2015 — Not specified") adds nothing to the
   # description and is dropped from it.
-  defp vehicle_desc(nil), do: ""
-
-  defp vehicle_desc(vehicle) do
-    case vehicle["nickname"] do
-      name when is_binary(name) and name != "" ->
-        name
-
-      _ ->
-        snap = vehicle["display_snapshot"] || %{}
-        build = snap["build"]
-
-        head =
-          [snap["year"], snap["make"], snap["model"]]
-          |> Enum.reject(&is_nil/1)
-          |> Enum.join(" ")
-
-        if is_binary(build) and build != "" and not String.contains?(build, Copy.not_specified()) do
-          "#{head} · #{build}"
-        else
-          head
-        end
-    end
-  end
+  defp vehicle_desc(vehicle), do: DigitalOilStickerWeb.Vehicles.description(vehicle)
 
   defp find_vehicle(garage, id),
     do: Enum.find(garage.vehicles, &(&1["vehicle_id"] == id))

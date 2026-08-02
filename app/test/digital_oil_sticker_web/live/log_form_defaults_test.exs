@@ -6,10 +6,20 @@ defmodule DigitalOilStickerWeb.LogFormDefaultsTest do
   These land the "less friction to log" property alongside the existing
   honesty properties for oil pre-fill and defaulted plans.
   """
-  use DigitalOilStickerWeb.ConnCase, async: true
+  # Not async: this suite manipulates the global Clock env, which would race
+  # with any other test using the default Clock.
+  use DigitalOilStickerWeb.ConnCase, async: false
   import Phoenix.LiveViewTest
 
   alias DigitalOilSticker.Clock
+
+  defmodule FixedClock do
+    @behaviour DigitalOilSticker.Clock
+    @impl true
+    def today, do: ~D[2026-08-02]
+    @impl true
+    def now, do: ~U[2026-08-02 00:00:00Z]
+  end
 
   defp hydrate(view, data) do
     render_hook(view, "local_store:hydrate", %{
@@ -74,6 +84,40 @@ defmodule DigitalOilStickerWeb.LogFormDefaultsTest do
       assert html =~ ~s(<option selected="" value="#{today.month}">)
       assert html =~ ~s(<option selected="" value="#{today.day}">)
       assert html =~ ~s(<option selected="" value="#{today.year}">)
+    end
+
+    test "the pre-fill is deterministic against a fixed clock (boundary coverage)", %{conn: conn} do
+      # Ties the acknowledged UTC-vs-local seam down against silent regression.
+      # If someone later changes Clock.today's shape or the mount's pre-fill
+      # logic, this test breaks loudly instead of a user in Pacific quietly
+      # recording tomorrow's date on a change they made tonight.
+      #
+      # A proper client-local fix (phx-hook reporting navigator TZ) is the
+      # real remedy — this test locks the CURRENT behavior, not the desired
+      # behavior, and its failure message should nudge whoever changes it to
+      # revisit that decision.
+      previous = Application.get_env(:digital_oil_sticker, :clock)
+      Application.put_env(:digital_oil_sticker, :clock, __MODULE__.FixedClock)
+
+      try do
+        {:ok, view, _} = live(conn, ~p"/service/new")
+        hydrate(view, %{})
+        html = render(view)
+
+        # FixedClock returns 2026-08-02 — a UTC day that would be Aug 1 for
+        # any user in a timezone east of… wait, WEST of UTC in the evening.
+        # The test asserts the raw mount behavior; a client-local-date fix
+        # would break this test on purpose.
+        assert html =~ ~s(<option selected="" value="8">)
+        assert html =~ ~s(<option selected="" value="2">)
+        assert html =~ ~s(<option selected="" value="2026">)
+      after
+        if previous do
+          Application.put_env(:digital_oil_sticker, :clock, previous)
+        else
+          Application.delete_env(:digital_oil_sticker, :clock)
+        end
+      end
     end
 
     test "a user can still clear the pre-filled date by picking the blank option", %{conn: conn} do
