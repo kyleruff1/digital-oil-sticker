@@ -127,11 +127,11 @@ issues:
     type: epic
     variant: standard
     milestone: M00
-    parent: 
-    blocked_by: 
+    parent:
+    blocked_by:
     labels: kind:epic
     body: planning/issues/DOS-M00-000.md
-    status: Backlog
+    status: Done
     priority: P0 Critical
     workstream: Architecture
     risk: High
@@ -161,7 +161,7 @@ issues:
     blocked_by: DOS-M00-001
     labels: kind:spike, platform:ios, platform:android, platform:netlify, needs:decision
     body: planning/issues/DOS-M00-002.md
-    status: Ready
+    status: Done
     priority: P0 Critical
     workstream: Architecture
     risk: High
@@ -176,7 +176,7 @@ issues:
     blocked_by: DOS-M00-001
     labels: kind:spike, platform:ios, platform:android, needs:decision
     body: planning/issues/DOS-M00-003.md
-    status: Blocked
+    status: Done
     priority: P3 Low
     workstream: Mob/iOS/Android
     risk: High
@@ -191,7 +191,7 @@ issues:
     blocked_by: DOS-M00-001, DOS-M00-002, DOS-M00-003
     labels: kind:spike, platform:ios, platform:android, needs:decision
     body: planning/issues/DOS-M00-004.md
-    status: Backlog
+    status: Done
     priority: P0 Critical
     workstream: Architecture
     risk: High
@@ -206,7 +206,7 @@ issues:
     blocked_by: DOS-M00-001, DOS-M00-002, DOS-M00-003
     labels: kind:spike, platform:ios, platform:android, needs:decision
     body: planning/issues/DOS-M00-005.md
-    status: Blocked
+    status: Done
     priority: P3 Low
     workstream: Notifications
     risk: High
