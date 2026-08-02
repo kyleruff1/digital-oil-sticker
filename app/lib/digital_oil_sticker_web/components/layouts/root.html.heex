@@ -23,21 +23,30 @@
       (() => {
         const systemTheme = () => matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
+        // The default is DARK, not the OS preference. That forces a
+        // distinction the stock three-way toggle blurs: "follow the system"
+        // must be a stored choice, not the absence of one. The old script
+        // deleted the key for "system", which was fine while system WAS the
+        // default — now it would silently revert an explicit system choice to
+        // dark on the next visit.
+        const apply = (theme, source) => {
+          document.documentElement.setAttribute("data-theme", theme === "system" ? systemTheme() : theme);
+          document.documentElement.setAttribute("data-theme-source", source);
+        };
+        // Only a user's click writes storage. The boot-time default applies
+        // dark without recording it, so we never store a preference nobody
+        // expressed.
         const setTheme = (theme) => {
-          if (theme === "system") {
-            localStorage.removeItem("phx:theme");
-            document.documentElement.setAttribute("data-theme", systemTheme());
-            document.documentElement.setAttribute("data-theme-source", "system");
-          } else {
-            localStorage.setItem("phx:theme", theme);
-            document.documentElement.setAttribute("data-theme", theme);
-            document.documentElement.setAttribute("data-theme-source", "user");
-          }
+          localStorage.setItem("phx:theme", theme);
+          apply(theme, theme === "system" ? "system" : "user");
+        };
+        const boot = (stored) => {
+          stored ? apply(stored, stored === "system" ? "system" : "user") : apply("dark", "default");
         };
         if (!document.documentElement.hasAttribute("data-theme")) {
-          setTheme(localStorage.getItem("phx:theme") || "system");
+          boot(localStorage.getItem("phx:theme"));
         }
-        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
+        window.addEventListener("storage", (e) => e.key === "phx:theme" && boot(e.newValue));
         window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
 
         matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {

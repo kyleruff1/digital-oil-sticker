@@ -88,7 +88,7 @@ defmodule DigitalOilStickerWeb.HistoryLive do
           <span class="sr-only">{Copy.sr_checking()}</span>
         </div>
 
-        <p :if={@local_state == :loaded and @events == []} class="mt-6 text-sm text-zinc-600">
+        <p :if={@local_state == :loaded and @events == []} class="mt-6 text-sm text-base-content/80">
           Nothing recorded yet — the next useful step is to <.link
             navigate={~p"/service/new"}
             class="underline"
@@ -104,7 +104,7 @@ defmodule DigitalOilStickerWeb.HistoryLive do
             <div :if={@undo != event["event_id"]}>
               <div class="flex items-baseline justify-between gap-2">
                 <span class="font-semibold">{event["performed_at"]}</span>
-                <span class="text-sm text-zinc-600">
+                <span class="text-sm text-base-content/80">
                   {event["odometer_input_value"]} {event["input_unit"]}
                 </span>
               </div>
@@ -119,7 +119,7 @@ defmodule DigitalOilStickerWeb.HistoryLive do
                   if event["provenance_mode"] == "catalog", do: :catalog, else: :manual
                 } />
               </p>
-              <p :if={event["notes"] not in [nil, ""]} class="mt-1 text-sm text-zinc-600">
+              <p :if={event["notes"] not in [nil, ""]} class="mt-1 text-sm text-base-content/80">
                 {event["notes"]}
               </p>
               <div class="mt-2">

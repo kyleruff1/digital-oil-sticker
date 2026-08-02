@@ -31,7 +31,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Storage</h1>
 
-        <p class="mt-4 text-sm leading-relaxed text-zinc-600">{Copy.empty_body()}</p>
+        <p class="mt-4 text-sm leading-relaxed text-base-content/80">{Copy.empty_body()}</p>
 
         <dl class="mt-6 space-y-3 text-sm">
           <div class="rounded border p-3">
@@ -65,7 +65,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
 
         <button phx-click="export" class="btn btn-primary mt-6">Export a file</button>
 
-        <p class="mt-8 text-xs text-zinc-600">{Copy.no_affiliation()}</p>
+        <p class="mt-8 text-xs text-base-content/80">{Copy.no_affiliation()}</p>
       </div>
     </Layouts.app>
     """

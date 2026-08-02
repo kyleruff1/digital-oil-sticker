@@ -48,7 +48,7 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
             />
             <span>
               <span class="block text-sm font-semibold">{stock.display_name}</span>
-              <span class="block text-xs text-zinc-500">
+              <span class="block text-xs text-base-content/70">
                 {Copy.miles_range(stock.published_miles_low, stock.published_miles_high)}
               </span>
             </span>
@@ -92,10 +92,10 @@ defmodule DigitalOilStickerWeb.Components.OilTypeSelect do
             maxlength="20"
             class="w-full min-h-11 rounded border px-3 py-2"
           />
-          <p class="mt-1 text-xs text-zinc-500">{Copy.user_entered()}</p>
+          <p class="mt-1 text-xs text-base-content/70">{Copy.user_entered()}</p>
         </div>
 
-        <p :if={grade_note(@suggested_grades, @grade)} class="mt-1 text-xs text-zinc-500">
+        <p :if={grade_note(@suggested_grades, @grade)} class="mt-1 text-xs text-base-content/70">
           {grade_note(@suggested_grades, @grade)}
         </p>
       </div>

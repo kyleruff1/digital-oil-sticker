@@ -37,7 +37,7 @@ defmodule DigitalOilStickerWeb.Components.OdometerInput do
           {Phoenix.HTML.Form.options_for_select([{"mi", "mi"}, {"km", "km"}], @unit)}
         </select>
       </div>
-      <p :if={@errors != []} id={"#{@id}-error"} role="alert" class="mt-1 text-sm text-red-700">
+      <p :if={@errors != []} id={"#{@id}-error"} role="alert" class="mt-1 text-sm text-error">
         {Enum.join(@errors, " ")}
       </p>
     </div>

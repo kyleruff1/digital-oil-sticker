@@ -34,7 +34,7 @@ defmodule DigitalOilStickerWeb.Components.CascadeSelect do
         <option value="">{@prompt}</option>
         {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
-      <p id={"#{@id}-hint"} class="mt-1 min-h-5 text-xs text-zinc-500">
+      <p id={"#{@id}-hint"} class="mt-1 min-h-5 text-xs text-base-content/70">
         <span :if={@state == :disabled and @upstream_label}>{Copy.choose_upstream(@upstream_label)}</span>
         <span :if={@state == :loading}>{Copy.loading()}</span>
         <span :if={@state == :narrowed_empty}>

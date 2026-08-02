@@ -347,7 +347,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
               maxlength={to_string(@notes_limit)}
               class="w-full rounded border px-3 py-2"
             >{@notes}</textarea>
-            <p class="mt-1 text-xs text-zinc-500">
+            <p class="mt-1 text-xs text-base-content/70">
               {String.length(@notes)}/{@notes_limit} characters
             </p>
           </div>

@@ -71,10 +71,10 @@ defmodule DigitalOilStickerWeb.Components.DateSelect do
           </select>
         </div>
       </div>
-      <p :if={@errors != []} id={"#{@id}-error"} role="alert" class="mt-2 text-sm text-red-700">
+      <p :if={@errors != []} id={"#{@id}-error"} role="alert" class="mt-2 text-sm text-error">
         {Enum.join(@errors, " ")}
       </p>
-      <p :if={@announce} role="status" aria-live="polite" class="mt-1 text-xs text-zinc-600">
+      <p :if={@announce} role="status" aria-live="polite" class="mt-1 text-xs text-base-content/80">
         {@announce}
       </p>
     </fieldset>

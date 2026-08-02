@@ -142,7 +142,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
         </div>
 
         <div :if={@local_state != :hydrating and is_nil(@vehicle)} class="mt-6">
-          <p class="text-sm text-zinc-600">No vehicle is set up in this browser yet.</p>
+          <p class="text-sm text-base-content/80">No vehicle is set up in this browser yet.</p>
           <.link navigate={~p"/vehicle/select"} class="btn btn-primary mt-4">Choose a vehicle</.link>
         </div>
 
@@ -155,10 +155,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                 @vehicle["display_snapshot"]["build"] =~ Copy.not_specified()
               } />
             </p>
-            <p :if={@engine_class} class="mt-2 text-xs text-zinc-500">
+            <p :if={@engine_class} class="mt-2 text-xs text-base-content/70">
               {Copy.engine_class_line(@engine_class.display_name)} — {@engine_class.reasoning}
             </p>
-            <p class="mt-2 text-xs text-zinc-500">
+            <p class="mt-2 text-xs text-base-content/70">
               Schedule: {Copy.source_unavailable()} — no licensed manufacturer schedule exists for
               this selection yet.
             </p>
@@ -166,7 +166,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
           <section :if={@estimate == :not_applicable} class="rounded border p-4">
             <h2 class="font-semibold">{Copy.not_applicable_ev()}</h2>
-            <p class="mt-1 text-sm text-zinc-600">{@engine_class && @engine_class.reasoning}</p>
+            <p class="mt-1 text-sm text-base-content/80">{@engine_class && @engine_class.reasoning}</p>
           </section>
 
           <section :if={is_map(@estimate)} class="rounded border p-4">
@@ -174,11 +174,11 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
             <p class="mt-1 text-lg">
               {Copy.interval_summary(@estimate.miles_recommended, @estimate.months_cap)}
             </p>
-            <p class="mt-1 text-xs text-zinc-500">{@estimate.reasoning}</p>
+            <p class="mt-1 text-xs text-base-content/70">{@estimate.reasoning}</p>
             <p :if={@estimate.basis == :fallback_lowest_published} class="mt-2 text-xs text-amber-700">
               {Copy.lowest_published_used()}
             </p>
-            <p class="mt-3 text-xs leading-relaxed text-zinc-500">{Copy.our_model_basis()}</p>
+            <p class="mt-3 text-xs leading-relaxed text-base-content/70">{Copy.our_model_basis()}</p>
 
             <details class="mt-3">
               <summary class="cursor-pointer text-sm font-medium">
@@ -205,10 +205,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
 
           <section :if={is_map(@estimate)} class="rounded border p-4">
             <h2 class="font-semibold">{Copy.severe_service_prompt()}</h2>
-            <ul class="mt-2 list-disc pl-5 text-sm text-zinc-600">
+            <ul class="mt-2 list-disc pl-5 text-sm text-base-content/80">
               <li :for={question <- @severe_questions}>{question}</li>
             </ul>
-            <p class="mt-2 text-xs text-zinc-500">{Copy.severe_service_effect()}</p>
+            <p class="mt-2 text-xs text-base-content/70">{Copy.severe_service_effect()}</p>
             <div class="mt-3 flex gap-2">
               <button
                 type="button"
@@ -235,7 +235,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
             <h2 class="font-semibold">{Copy.your_interval()}</h2>
 
             <div :if={not @override? and not has_own_interval?(@vehicle)}>
-              <p class="mt-1 text-xs text-zinc-500">
+              <p class="mt-1 text-xs text-base-content/70">
                 You have not set your own interval. We are using {Copy.our_model_label()} above.
               </p>
               <button type="button" phx-click="toggle_override" class="btn btn-sm mt-3">
@@ -250,7 +250,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
               phx-submit="interval_save"
               class="mt-3"
             >
-              <p class="mb-2 text-xs text-zinc-500">
+              <p class="mb-2 text-xs text-base-content/70">
                 {Copy.interval_overridden()} Whichever is shorter — yours or {Copy.our_model_label()} —
                 is what the sticker shows.
               </p>
@@ -284,7 +284,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
                   />
                 </div>
               </div>
-              <p :if={@interval_errors != []} role="alert" class="mt-2 text-sm text-red-700">
+              <p :if={@interval_errors != []} role="alert" class="mt-2 text-sm text-error">
                 {Enum.join(@interval_errors, " ")}
               </p>
               <button type="submit" class="btn btn-primary mt-3" phx-disable-with={Copy.saving()}>

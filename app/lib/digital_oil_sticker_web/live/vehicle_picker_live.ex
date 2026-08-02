@@ -157,7 +157,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
           role="status"
           aria-live="polite"
           aria-atomic="true"
-          class="mt-2 text-sm text-zinc-500"
+          class="mt-2 text-sm text-base-content/70"
         >
           {@count_announcement}
         </p>
@@ -171,7 +171,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
               selected_config(assigns) && is_nil(selected_config(assigns).trim)
             } />
           </p>
-          <p class="mt-2 text-xs text-zinc-500">{confirm_note(assigns)}</p>
+          <p class="mt-2 text-xs text-base-content/70">{confirm_note(assigns)}</p>
           <button phx-click="confirm" class="btn btn-primary mt-4" data-test="confirm-vehicle">
             Save this vehicle
           </button>
