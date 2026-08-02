@@ -19,11 +19,12 @@ import * as bundle from '../src/checks/bundle.mjs'
 import { cases as storageCases } from '../src/cases/storage.mjs'
 import { cases as privacyCases } from '../src/cases/privacy.mjs'
 import { cases as a11yCases } from '../src/cases/accessibility.mjs'
+import { cases as timingCases } from '../src/cases/timings.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(HERE, '..', '..')
 
-const ALL_CASES = [...storageCases, ...privacyCases, ...a11yCases]
+const ALL_CASES = [...storageCases, ...privacyCases, ...a11yCases, ...timingCases]
 
 // Static bundle checks are per-engine too: a build could serve different assets
 // to different engines, and asserting only on one would miss it.

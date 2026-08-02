@@ -8,6 +8,12 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
   full lockup is replaced by the compact mark + a text list.
   """
   use Phoenix.Component
+
+  use Phoenix.VerifiedRoutes,
+    endpoint: DigitalOilStickerWeb.Endpoint,
+    router: DigitalOilStickerWeb.Router,
+    statics: DigitalOilStickerWeb.static_paths()
+
   alias DigitalOilStickerWeb.Copy
 
   attr :date_value, :string, default: nil
@@ -26,7 +32,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
       <%!-- Full lockup ≥ 320 CSS px (brand minimum). --%>
       <div class="dos-sticker relative w-full" style="aspect-ratio: 1320 / 640;">
         <img
-          src="/images/dos-logo.svg"
+          src={~p"/images/dos-logo.svg"}
           alt=""
           aria-hidden="true"
           class="absolute inset-0 h-full w-full select-none"
@@ -85,7 +91,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
       <%!-- Compact fallback below 320 px, per the brand README. --%>
       <div class="dos-sticker-compact hidden">
         <div class="flex items-center gap-3">
-          <img src="/images/dos-mark.svg" alt="" width="48" height="48" />
+          <img src={~p"/images/dos-mark.svg"} alt="" width="48" height="48" />
           <dl class="text-sm">
             <div>
               <dt class="inline font-semibold">Date:</dt>

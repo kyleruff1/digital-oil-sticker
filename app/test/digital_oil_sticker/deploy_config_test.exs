@@ -165,6 +165,28 @@ defmodule DigitalOilSticker.DeployConfigTest do
     end
   end
 
+  describe "static assets" do
+    test "every shipped asset routes through the digest pipeline" do
+      # A bare "/images/foo.svg" is served undigested, so it carries no
+      # immutable cache header and the browser revalidates it on every visit.
+      # Measured on a real tablet: the two sticker SVGs transferred 300 bytes
+      # each on every repeat visit while every ~p-routed asset transferred
+      # zero. `~p` is what puts the digest in the URL.
+      offenders =
+        Path.wildcard(Path.expand("../../lib/digital_oil_sticker_web/**/*.{ex,heex}", __DIR__))
+        |> Enum.flat_map(fn file ->
+          file
+          |> File.read!()
+          |> then(&Regex.scan(~r/(?:src|href)="\/(?:images|assets|favicon)[^"]*"/, &1))
+          |> Enum.map(fn [match] -> "#{Path.basename(file)}: #{match}" end)
+        end)
+
+      assert offenders == [],
+             "these assets bypass the digest pipeline and will revalidate on every visit " <>
+               "(use ~p instead): #{Enum.join(offenders, ", ")}"
+    end
+  end
+
   describe "operational endpoints are not content" do
     test "robots.txt excludes them" do
       robots = File.read!(Path.expand("../../priv/static/robots.txt", __DIR__))
