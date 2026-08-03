@@ -93,7 +93,7 @@ defmodule DigitalOilSticker.CalendarExport do
   # -- rendering ---------------------------------------------------------------
 
   defp render(reminder, due_on, lead_days) do
-    now = Map.get(reminder, :now) || DateTime.utc_now()
+    now = Map.get(reminder, :now) || DigitalOilSticker.Clock.now()
     label = reminder |> Map.get(:vehicle_label) |> presence()
 
     [
