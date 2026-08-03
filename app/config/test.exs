@@ -21,6 +21,10 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
   secret_key_base: "wIHRoUNIJxSWOLRe3vbIeIqIsOorzxpSafKfEjLA9jq4FxVATmat769eTJX7bOWd",
   server: false
 
+# Short timeouts for tests that exercise the deadline and ack-timeout paths.
+config :digital_oil_sticker, hydration_deadline_ms: 100
+config :digital_oil_sticker, ack_timeout_ms: 100
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 
