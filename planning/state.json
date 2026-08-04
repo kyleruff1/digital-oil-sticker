@@ -109,6 +109,10 @@
     "M09": {
       "number": 10,
       "title": "M09 — Hosted browser platform and anonymous client storage"
+    },
+    "M10": {
+      "number": 11,
+      "title": "M10 — Shop integration and printed sticker codes"
     }
   },
   "fields": {
@@ -193,32 +197,38 @@
     }
   },
   "statusConfigured": {
-    "via": "api"
+    "via": "already-configured"
   },
   "views": {
     "Delivery board": {
       "via": "api",
-      "layoutOnly": true
+      "layoutOnly": true,
+      "exists": true
     },
     "Ready queue": {
       "via": "api",
-      "layoutOnly": true
+      "layoutOnly": true,
+      "exists": true
     },
     "Roadmap": {
       "via": "api",
-      "layoutOnly": true
+      "layoutOnly": true,
+      "exists": true
     },
     "QA queue": {
       "via": "api",
-      "layoutOnly": true
+      "layoutOnly": true,
+      "exists": true
     },
     "Blocked": {
       "via": "api",
-      "layoutOnly": true
+      "layoutOnly": true,
+      "exists": true
     },
     "Post-MVP": {
       "via": "api",
-      "layoutOnly": true
+      "layoutOnly": true,
+      "exists": true
     }
   },
   "issues": {
@@ -227,7 +237,7 @@
       "databaseId": 5035373893,
       "nodeId": "I_kwDOTp4BU88AAAABLCG1RQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/1",
-      "bodySha256": "46d7635b3a3b9f9da66da58dfea328f4cbf06df50bc6e39026039b8e83227b23",
+      "bodySha256": "65880f9d9746fb7747e9b2c0cdba4ca99b5e758e4e247353c4ff59bc783fc31c",
       "verified": {
         "created": true,
         "subIssues": 6,
@@ -238,7 +248,8 @@
           "Risk",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eLs",
       "remoteState": "open"
@@ -248,7 +259,7 @@
       "databaseId": 5035373983,
       "nodeId": "I_kwDOTp4BU88AAAABLCG1nw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/2",
-      "bodySha256": "8c083f7c145df2309d15e65e55b8a60ecf27f344802b210fcad7f9fb64baab5f",
+      "bodySha256": "778d0b591505a3f9ed30b24cac20fe714c48cc41e62f9b444326d8c6f53f7918",
       "verified": {
         "created": true,
         "parent": true,
@@ -259,7 +270,8 @@
           "Risk",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eLw",
       "remoteState": "closed"
@@ -269,7 +281,7 @@
       "databaseId": 5035374066,
       "nodeId": "I_kwDOTp4BU88AAAABLCG18g",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/3",
-      "bodySha256": "8a91afffcf2206ca15dcd4a3f98d2a3284a21298f387e0105fc7a6dd6f2f4d78",
+      "bodySha256": "3a8a4d7c390e9e0131b6f5cf27d8c1f7e99a9561150986e93fca5e41cc527c5a",
       "verified": {
         "created": true,
         "parent": true,
@@ -281,7 +293,8 @@
           "Risk",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eL0",
       "remoteState": "open"
@@ -291,7 +304,7 @@
       "databaseId": 5035374156,
       "nodeId": "I_kwDOTp4BU88AAAABLCG2TA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/4",
-      "bodySha256": "cac8bb5f5f5741daf0f056237b5e5061aa761a2c8941eace062721b76cc7ba6d",
+      "bodySha256": "5ab1a11f6c4c331163b7a5ae4f007ced2c644ff3f8389f52e173528b84a1299a",
       "verified": {
         "created": true,
         "parent": true,
@@ -303,7 +316,8 @@
           "Risk",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eL8",
       "remoteState": "open"
@@ -313,7 +327,7 @@
       "databaseId": 5035374238,
       "nodeId": "I_kwDOTp4BU88AAAABLCG2ng",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/5",
-      "bodySha256": "c20266f4152afe1271f98cf112ea4549f5963c47fb6a6c89cc91736aacd6e4ee",
+      "bodySha256": "a29756ffddc52c90704099bf0f6227991871eb147541e236b232f423555946f3",
       "verified": {
         "created": true,
         "parent": true,
@@ -325,7 +339,8 @@
           "Risk",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eMA",
       "remoteState": "open"
@@ -335,7 +350,7 @@
       "databaseId": 5035374316,
       "nodeId": "I_kwDOTp4BU88AAAABLCG27A",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/6",
-      "bodySha256": "4673b2f4cee48b3418572d321144d9551714821634b159a29760e753c6b1d879",
+      "bodySha256": "fcfe5f27531cb046cbb9bfcfad320c4210ee559a231880bd43faea123b9afc04",
       "verified": {
         "created": true,
         "parent": true,
@@ -347,7 +362,8 @@
           "Risk",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eME",
       "remoteState": "open"
@@ -379,7 +395,7 @@
       "databaseId": 5035374637,
       "nodeId": "I_kwDOTp4BU88AAAABLCG4LQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/8",
-      "bodySha256": "9d5fae938509fb1896f809de0b9b6cd091f9bd03b5ff74718d7b8f8e18b96ab1",
+      "bodySha256": "9cb852969eed3f9a5d768c7466ac71cd76acd04fbbc5970e968725ea0ac31b3b",
       "verified": {
         "created": true,
         "subIssues": 6,
@@ -390,7 +406,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eOo",
       "remoteState": "open"
@@ -400,7 +417,7 @@
       "databaseId": 5035374733,
       "nodeId": "I_kwDOTp4BU88AAAABLCG4jQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/9",
-      "bodySha256": "bffc10727113c828cc8d792a36d96c6a374e68341ed5edac478f7bb7e1e79472",
+      "bodySha256": "18a870ef6d00e7c0bae68127fe1754e2987f52f8c3714b0a93ac0f4763752c7c",
       "verified": {
         "created": true,
         "parent": true,
@@ -411,7 +428,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eO0",
       "remoteState": "open"
@@ -421,7 +439,7 @@
       "databaseId": 5035374831,
       "nodeId": "I_kwDOTp4BU88AAAABLCG47w",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/10",
-      "bodySha256": "cf6097bc3a6ab1d08acf83a670f518a3d82c7f1204281a1958d40c7874370d17",
+      "bodySha256": "1619149f962fc2a1d013908625805c25dfd6d546076805a3cbe54868f367b3cb",
       "verified": {
         "created": true,
         "parent": true,
@@ -432,7 +450,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eO8",
       "remoteState": "open"
@@ -442,7 +461,7 @@
       "databaseId": 5035374926,
       "nodeId": "I_kwDOTp4BU88AAAABLCG5Tg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/11",
-      "bodySha256": "610a2d8cf5f5a97a74fd91563c0a680f2a9016b840504c3593e7ccc3f262f456",
+      "bodySha256": "c63097f4546f4df62a353363a9d0f7e54e394a172f2523664db6b4d0c7cb3c44",
       "verified": {
         "created": true,
         "parent": true,
@@ -453,7 +472,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePA",
       "remoteState": "open"
@@ -484,7 +504,7 @@
       "databaseId": 5035375112,
       "nodeId": "I_kwDOTp4BU88AAAABLCG6CA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/13",
-      "bodySha256": "6aa794a3f9c1a4b4da53d867675a86e60cec291d88091ae516409c07569c9f90",
+      "bodySha256": "f62e32fd38ccb8c447eb6d4861ce4c5ca269fafeaff62cc39ccb5adf12e26f57",
       "verified": {
         "created": true,
         "parent": true,
@@ -495,7 +515,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePI",
       "remoteState": "open"
@@ -505,7 +526,7 @@
       "databaseId": 5035375193,
       "nodeId": "I_kwDOTp4BU88AAAABLCG6WQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/14",
-      "bodySha256": "db42b226eb8734be23a3cc64840f5bbccd1e9b6b2cc584f2b010d01e0e35b828",
+      "bodySha256": "19c6d6daa377c0ad7fc1ad1d8af2094e60a6cb1db63749723e17d0e6c21d2c6b",
       "verified": {
         "created": true,
         "parent": true,
@@ -516,7 +537,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ePQ",
       "remoteState": "open"
@@ -526,7 +548,7 @@
       "databaseId": 5035375279,
       "nodeId": "I_kwDOTp4BU88AAAABLCG6rw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/15",
-      "bodySha256": "77fb06f63bd98f2b51a60f0005eb05c3b9fc22a4c3f1290df424294739764955",
+      "bodySha256": "0d81909e4d57815c40c1db6da5295062f0fa1d7f2a63a4d720f752d895492c5a",
       "verified": {
         "created": true,
         "subIssues": 8,
@@ -537,7 +559,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUU",
       "remoteState": "open"
@@ -547,7 +570,7 @@
       "databaseId": 5035375519,
       "nodeId": "I_kwDOTp4BU88AAAABLCG7nw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/16",
-      "bodySha256": "d6da0acc02fdbb7ba1f932f36b8f737c4ff339cdb58c824ec2c8e78ddf1ed9ac",
+      "bodySha256": "75e9a7a019978fcdb411cb74a98484c47c8752e3fb94e66189df7fcafe79e792",
       "verified": {
         "created": true,
         "parent": true,
@@ -558,7 +581,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUs",
       "remoteState": "open"
@@ -568,7 +592,7 @@
       "databaseId": 5035375605,
       "nodeId": "I_kwDOTp4BU88AAAABLCG79Q",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/17",
-      "bodySha256": "74bf28906df2c87ba79f95c1d5f24019ada7d7878e0bd697f668d912f5bf4f6b",
+      "bodySha256": "d19d86c1351495bf9ee06776a881f994efc243a2110ddf8ad450af5ec8df8f2f",
       "verified": {
         "created": true,
         "parent": true,
@@ -579,7 +603,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eUw",
       "remoteState": "open"
@@ -589,7 +614,7 @@
       "databaseId": 5035375685,
       "nodeId": "I_kwDOTp4BU88AAAABLCG8RQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/18",
-      "bodySha256": "bb7ccd447e477a3e01cd5f0149d88d74791565dc79587c2fb314bd6b10ff2cc9",
+      "bodySha256": "d482c322ffe842d37c6d2a39c70c76aed6f6f7a9a21648704a2d6d10edbf8fb4",
       "verified": {
         "created": true,
         "parent": true,
@@ -600,7 +625,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU0",
       "remoteState": "open"
@@ -610,7 +636,7 @@
       "databaseId": 5035375775,
       "nodeId": "I_kwDOTp4BU88AAAABLCG8nw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/19",
-      "bodySha256": "d101d0f8ae46c6885b7e48fc9e1a5e3e0002b32e0db14b7e7eb0a2c04a3870e2",
+      "bodySha256": "9abba0c80aab06170464a0996cea7ccd40bdfd061b6334caa21ef417fcb51f6e",
       "verified": {
         "created": true,
         "parent": true,
@@ -621,7 +647,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU4",
       "remoteState": "open"
@@ -631,7 +658,7 @@
       "databaseId": 5035375855,
       "nodeId": "I_kwDOTp4BU88AAAABLCG87w",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/20",
-      "bodySha256": "835cf592ad3a503b53ff298737e165724f94f5701816ae967725dc5ae4c29c4c",
+      "bodySha256": "f4b291765f1e0431440423574374a431c44c0f8b4091481649354d3b144222ef",
       "verified": {
         "created": true,
         "parent": true,
@@ -642,7 +669,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eU8",
       "remoteState": "open"
@@ -694,7 +722,7 @@
       "databaseId": 5035376143,
       "nodeId": "I_kwDOTp4BU88AAAABLCG-Dw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/23",
-      "bodySha256": "2d4250529056bc84dd5e9cdaca937245062cb9d0c6d89f5e8a48b39d21fc4075",
+      "bodySha256": "de7de25223ccc5cbc88d6c91e3b3654d7c101ea38d1baebe34af6d7ef0654cc4",
       "verified": {
         "created": true,
         "parent": true,
@@ -705,7 +733,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04eVQ",
       "remoteState": "open"
@@ -718,7 +747,7 @@
       "bodySha256": "b10906f2e9a7d37719ccf690b979b8b0c5ff5b6584b3cd5b7870dd1dd0aebf66",
       "verified": {
         "created": true,
-        "subIssues": 10,
+        "subIssues": 11,
         "blockedBy": 1,
         "fields": [
           "Status",
@@ -736,7 +765,7 @@
       "databaseId": 5035376482,
       "nodeId": "I_kwDOTp4BU88AAAABLCG_Yg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/25",
-      "bodySha256": "0e14d2cb868c75c2b6af4d657661febe5f6a27a55467bce5927af0c2b985e275",
+      "bodySha256": "4e9b343f5bff83a565aa9b2e2a3655afe9074c78a15f87f764cd573c075cf24d",
       "verified": {
         "created": true,
         "parent": true,
@@ -747,7 +776,8 @@
           "Risk",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edE",
       "remoteState": "open"
@@ -799,7 +829,7 @@
       "databaseId": 5035376756,
       "nodeId": "I_kwDOTp4BU88AAAABLCHAdA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/28",
-      "bodySha256": "eecda9460f9b2569ab5d9771d06e64d36b3fe031de099d880a705def1180fe03",
+      "bodySha256": "d4c111acdbab8542e84ebbb1689e74c89a1354fbd66c0e68256296d115fd9310",
       "verified": {
         "created": true,
         "parent": true,
@@ -810,7 +840,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edQ",
       "remoteState": "open"
@@ -820,7 +851,7 @@
       "databaseId": 5035376844,
       "nodeId": "I_kwDOTp4BU88AAAABLCHAzA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/29",
-      "bodySha256": "cb0ce21a9f05ab1d7ab963879cdc701f75299a9bec41f518d2758923f6767628",
+      "bodySha256": "0a852cc7c82d2b0483a650a34aeca3e46ff064b751602358a8870ac76e67c20f",
       "verified": {
         "created": true,
         "parent": true,
@@ -831,7 +862,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edU",
       "remoteState": "open"
@@ -862,7 +894,7 @@
       "databaseId": 5035377050,
       "nodeId": "I_kwDOTp4BU88AAAABLCHBmg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/31",
-      "bodySha256": "23cf850420a9472e6941ae643c29abef99fe022fa1184b42454bcdfc97359f16",
+      "bodySha256": "f5a34bd3d2a5373a116507ade7b96bf65dc89636c2348ba0fc7b23fd9755d040",
       "verified": {
         "created": true,
         "parent": true,
@@ -873,7 +905,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04edg",
       "remoteState": "open"
@@ -925,7 +958,7 @@
       "databaseId": 5035377491,
       "nodeId": "I_kwDOTp4BU88AAAABLCHDUw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/34",
-      "bodySha256": "16ec9c786fdf11166262ae9bcdca98d8826f273a036bcbcd42877906b88ff74a",
+      "bodySha256": "d63141d56f315829c424c460023cff4b5f2f6e85ddcb3edf57975f147f43c6cd",
       "verified": {
         "created": true,
         "parent": true,
@@ -936,7 +969,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ed0",
       "remoteState": "open"
@@ -946,7 +980,7 @@
       "databaseId": 5035377619,
       "nodeId": "I_kwDOTp4BU88AAAABLCHD0w",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/35",
-      "bodySha256": "b4758ff9d7e92396c99d7436a73d867039e4f4e665ab15acfb4c7d2c8f84a07b",
+      "bodySha256": "089601e18e26dc54ec63fe55de274de5b89b633aa562ebab4dc0881ac30c915e",
       "verified": {
         "created": true,
         "subIssues": 10,
@@ -957,7 +991,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04elo",
       "remoteState": "open"
@@ -967,7 +1002,7 @@
       "databaseId": 5035377716,
       "nodeId": "I_kwDOTp4BU88AAAABLCHENA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/36",
-      "bodySha256": "de968722320a53978c254e2e04efb0ba924a2ea7df8c2dfcdaf1e1c06d795122",
+      "bodySha256": "d2915452e26d97efc5a56513e310b492e9facf5c94277c741ee53fc0cbd4d4af",
       "verified": {
         "created": true,
         "parent": true,
@@ -978,7 +1013,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emE",
       "remoteState": "open"
@@ -988,7 +1024,7 @@
       "databaseId": 5035377810,
       "nodeId": "I_kwDOTp4BU88AAAABLCHEkg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/37",
-      "bodySha256": "aa7cb540a4b0606e03637714793bac18bc920a1aea6baaa994870fc71c760a35",
+      "bodySha256": "bb46674c1d878277c54e8db8930a1b44610384b476f6e0f3b438f88416e5a175",
       "verified": {
         "created": true,
         "parent": true,
@@ -999,7 +1035,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emI",
       "remoteState": "open"
@@ -1009,7 +1046,7 @@
       "databaseId": 5035377909,
       "nodeId": "I_kwDOTp4BU88AAAABLCHE9Q",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/38",
-      "bodySha256": "3233dd2e06e866f07c5529fb834d71745b37aabe61b1729bd226981b915ce3e9",
+      "bodySha256": "f4ca210de301f0f5613da620fe6397d77da2b44a991d850dbebd4656e2b95e0b",
       "verified": {
         "created": true,
         "parent": true,
@@ -1020,7 +1057,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emQ",
       "remoteState": "open"
@@ -1030,7 +1068,7 @@
       "databaseId": 5035378029,
       "nodeId": "I_kwDOTp4BU88AAAABLCHFbQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/39",
-      "bodySha256": "e550463e89e5c557b480d642dc09aceaaec05ad18fd433a70c69ed15b7e1a5ea",
+      "bodySha256": "ad84c37f8d3ef0c9e457267892658897aa863889677514114c661d3da7ff8440",
       "verified": {
         "created": true,
         "parent": true,
@@ -1041,7 +1079,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emU",
       "remoteState": "open"
@@ -1051,7 +1090,7 @@
       "databaseId": 5035378141,
       "nodeId": "I_kwDOTp4BU88AAAABLCHF3Q",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/40",
-      "bodySha256": "ab1bce689b390211b68e65e176dc552ea0d4091d79216921da13282598e48bda",
+      "bodySha256": "daef7321417b1bfd9f8b5d3b2ab0fc2379418efd90a495644e4768662c3383db",
       "verified": {
         "created": true,
         "parent": true,
@@ -1062,7 +1101,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emY",
       "remoteState": "open"
@@ -1072,7 +1112,7 @@
       "databaseId": 5035378229,
       "nodeId": "I_kwDOTp4BU88AAAABLCHGNQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/41",
-      "bodySha256": "fd0060638b79c6f4cfea999a8e1ee549c059de574febf40eb4009dcc3b4dda2a",
+      "bodySha256": "b936f630107537693413f0f251f413088826ce945a8f34e7754997092fe9f9d2",
       "verified": {
         "created": true,
         "parent": true,
@@ -1083,7 +1123,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emc",
       "remoteState": "open"
@@ -1093,7 +1134,7 @@
       "databaseId": 5035378338,
       "nodeId": "I_kwDOTp4BU88AAAABLCHGog",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/42",
-      "bodySha256": "f257845122d204abb097fe4cad538a372a6971442cd4e6cc9e611425dd341d04",
+      "bodySha256": "01da686089c67a6ec762e616a70daebf580ee11590bbea0d5cc067a53de0328c",
       "verified": {
         "created": true,
         "parent": true,
@@ -1104,7 +1145,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04emo",
       "remoteState": "open"
@@ -1114,7 +1156,7 @@
       "databaseId": 5035378423,
       "nodeId": "I_kwDOTp4BU88AAAABLCHG9w",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/43",
-      "bodySha256": "1e7e1d0bceae80c628eb0d56a033a67d6f78e04dc33f029cc6eed1cbf6a2923a",
+      "bodySha256": "4047d2f043ce512a1a906502ea657eb5735fe26bd9f1c4dac85156cce9b10780",
       "verified": {
         "created": true,
         "parent": true,
@@ -1125,7 +1167,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ems",
       "remoteState": "open"
@@ -1135,7 +1178,7 @@
       "databaseId": 5035378525,
       "nodeId": "I_kwDOTp4BU88AAAABLCHHXQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/44",
-      "bodySha256": "e04a1330ce30e6523cd4663c04e1c4e8c53ca6709c2c4c7590fa2178a792b99e",
+      "bodySha256": "264d95ca77e2b0fc8b5d6231cddaa58c1bb5cdc52ccd8e9d1cdbbbba60a7eadc",
       "verified": {
         "created": true,
         "parent": true,
@@ -1146,7 +1189,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04em4",
       "remoteState": "open"
@@ -1156,7 +1200,7 @@
       "databaseId": 5035378623,
       "nodeId": "I_kwDOTp4BU88AAAABLCHHvw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/45",
-      "bodySha256": "b15ae748aaef6fc39bef313b2ad0e70a672d3cd197c29300ffafd803ac89e765",
+      "bodySha256": "3c5551ae2d83a982bd482e07192815d93c428e6dbd7ce1e8740eb6571027d839",
       "verified": {
         "created": true,
         "parent": true,
@@ -1167,7 +1211,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04em8",
       "remoteState": "open"
@@ -1177,7 +1222,7 @@
       "databaseId": 5035378741,
       "nodeId": "I_kwDOTp4BU88AAAABLCHINQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/46",
-      "bodySha256": "4808c9179273e8358b96d53aeaeaaf79f21583f95cbbf23482d1b3403aeca634",
+      "bodySha256": "cb4729c8a362f62ea99b5d9153f135e0a0825a57bd60e22bca11b296e6f81744",
       "verified": {
         "created": true,
         "subIssues": 7,
@@ -1188,7 +1233,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evo",
       "remoteState": "open"
@@ -1198,7 +1244,7 @@
       "databaseId": 5035378826,
       "nodeId": "I_kwDOTp4BU88AAAABLCHIig",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/47",
-      "bodySha256": "6bd4f8ae73ab687511387adf7b3e22a6321f79207fd81f1814a827cf95a914ae",
+      "bodySha256": "930348e0e07d8a1f18840eaed66f644adc91270e4e0f777ef60c01bc4a72c2f3",
       "verified": {
         "created": true,
         "parent": true,
@@ -1209,7 +1255,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evs",
       "remoteState": "open"
@@ -1219,7 +1266,7 @@
       "databaseId": 5035378936,
       "nodeId": "I_kwDOTp4BU88AAAABLCHI-A",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/48",
-      "bodySha256": "d73eff7bdb927fa825aa9c054afce25511e53038e10d9da047326adc9d659719",
+      "bodySha256": "763916277395218f238996d596685a0d0dcdf440580bcf94549e24dd0a3ab3fe",
       "verified": {
         "created": true,
         "parent": true,
@@ -1230,7 +1277,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04evw",
       "remoteState": "open"
@@ -1240,7 +1288,7 @@
       "databaseId": 5035379027,
       "nodeId": "I_kwDOTp4BU88AAAABLCHJUw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/49",
-      "bodySha256": "4a275119f08fd240957e4ed6baad384773bfa734dda93fbaf76bb4b85dfc0663",
+      "bodySha256": "2bfa85c357cac8d68992474d48fbb831dd08f5abb6b1da0105c90229b9fe1c50",
       "verified": {
         "created": true,
         "parent": true,
@@ -1251,7 +1299,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev0",
       "remoteState": "open"
@@ -1261,7 +1310,7 @@
       "databaseId": 5035379125,
       "nodeId": "I_kwDOTp4BU88AAAABLCHJtQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/50",
-      "bodySha256": "9f842c86f609bd8f373a6cf904568e37029f6e73ca9ea3da7c0a8706eab1aedb",
+      "bodySha256": "b8974951363949a35803f18278ba94343a0543b41f6c23aefe1dcdfbb8e01ea4",
       "verified": {
         "created": true,
         "parent": true,
@@ -1272,7 +1321,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev4",
       "remoteState": "open"
@@ -1282,7 +1332,7 @@
       "databaseId": 5035379211,
       "nodeId": "I_kwDOTp4BU88AAAABLCHKCw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/51",
-      "bodySha256": "3993ace81180ec9acfa0c6604ce7e386283232968e0a9b17af90c2f28169975d",
+      "bodySha256": "52ad21aa46a6d1bf987164beb37686d1faa71178efd4ea9c66760a54b8399b1b",
       "verified": {
         "created": true,
         "parent": true,
@@ -1293,7 +1343,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ev8",
       "remoteState": "open"
@@ -1303,7 +1354,7 @@
       "databaseId": 5035379321,
       "nodeId": "I_kwDOTp4BU88AAAABLCHKeQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/52",
-      "bodySha256": "df5980092ffb86db932be582a8b3664f7ad30c767333b9fd5616df38c6a70738",
+      "bodySha256": "9646ca0df93aa9be9704e8565d7ccfdb32af69f2d57f651507be2bce60160634",
       "verified": {
         "created": true,
         "parent": true,
@@ -1314,7 +1365,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ewA",
       "remoteState": "open"
@@ -1324,7 +1376,7 @@
       "databaseId": 5035379403,
       "nodeId": "I_kwDOTp4BU88AAAABLCHKyw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/53",
-      "bodySha256": "77033a233d1d641c02925a0e4e276d1406778a79f5b9ccee4a950b6b558382c5",
+      "bodySha256": "05b03f2d06b06ec5fc4c3d68ebbccbb01bb8710711ae567c73fead0bf58f8388",
       "verified": {
         "created": true,
         "parent": true,
@@ -1335,7 +1387,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04ewE",
       "remoteState": "open"
@@ -1345,7 +1398,7 @@
       "databaseId": 5035379510,
       "nodeId": "I_kwDOTp4BU88AAAABLCHLNg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/54",
-      "bodySha256": "a1c7980d66d0590814e0bbbea652b8abdec0b87a5e4f6673d3f14fe981c5971a",
+      "bodySha256": "ead2394c460cf33d7a0f4ed50f076af607f955502b04f2bab26692a5653230cb",
       "verified": {
         "created": true,
         "subIssues": 7,
@@ -1356,7 +1409,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2A",
       "remoteState": "open"
@@ -1387,7 +1441,7 @@
       "databaseId": 5035379745,
       "nodeId": "I_kwDOTp4BU88AAAABLCHMIQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/56",
-      "bodySha256": "ed8dd0087d98cd9849ec6932fb20804e66b134d6f0000c2c0bb2921f001b24ce",
+      "bodySha256": "87a9c34ba4d5d699753c7ccf51b06d362bb10117e5c30ef7beaf529b3a2512fe",
       "verified": {
         "created": true,
         "parent": true,
@@ -1398,7 +1452,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2M",
       "remoteState": "open"
@@ -1450,7 +1505,7 @@
       "databaseId": 5035380187,
       "nodeId": "I_kwDOTp4BU88AAAABLCHN2w",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/59",
-      "bodySha256": "47f78abcb9e57d82defa313ac22a41919361c816225049dc6b524d586a7f5eb4",
+      "bodySha256": "50b1457307bec7b328bc9d0a7d7de654e408ea3b3518e99df5460f03c0a59fd9",
       "verified": {
         "created": true,
         "parent": true,
@@ -1461,7 +1516,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2Y",
       "remoteState": "open"
@@ -1471,7 +1527,7 @@
       "databaseId": 5035380279,
       "nodeId": "I_kwDOTp4BU88AAAABLCHONw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/60",
-      "bodySha256": "b85cc9c611af829ee65f0c21bfa36ce1526cb19981912cbdc579caebfc0d88ee",
+      "bodySha256": "67e6bf6b8b341b4bc4c5990a7e592fc0fb596327ba4f227af07a7f0d7787d86e",
       "verified": {
         "created": true,
         "parent": true,
@@ -1482,7 +1538,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2c",
       "remoteState": "open"
@@ -1492,7 +1549,7 @@
       "databaseId": 5035380405,
       "nodeId": "I_kwDOTp4BU88AAAABLCHOtQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/61",
-      "bodySha256": "4234a69c56b14770ada6e32f8b3552c2a3a0a1db975f1490ff93956f2a070fdb",
+      "bodySha256": "4f9244de20cbb74dce2fc15a2634f90a6b7922ce0cb1ab3fece7053abb3b7e88",
       "verified": {
         "created": true,
         "parent": true,
@@ -1503,7 +1560,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e2g",
       "remoteState": "open"
@@ -1513,7 +1571,7 @@
       "databaseId": 5035380512,
       "nodeId": "I_kwDOTp4BU88AAAABLCHPIA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/62",
-      "bodySha256": "f07d7f83584cd39300ea094058402836dbce9a927ca5cf516d40e489a3ad5162",
+      "bodySha256": "a44a1a77866045cdd9e3eda9199019e9545b31560688cdbec82a538df0c46659",
       "verified": {
         "created": true,
         "subIssues": 7,
@@ -1524,7 +1582,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e8w",
       "remoteState": "open"
@@ -1534,7 +1593,7 @@
       "databaseId": 5035380624,
       "nodeId": "I_kwDOTp4BU88AAAABLCHPkA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/63",
-      "bodySha256": "f49df6f35cadaf860b7d02224e41729fa3abc3ff83ac1a232a3adc2e2f80a921",
+      "bodySha256": "e0d9f7e2220c02d83babe45acec735a79e38de1118a9908b9dcf849df39dc270",
       "verified": {
         "created": true,
         "parent": true,
@@ -1545,7 +1604,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9M",
       "remoteState": "open"
@@ -1555,7 +1615,7 @@
       "databaseId": 5035380723,
       "nodeId": "I_kwDOTp4BU88AAAABLCHP8w",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/64",
-      "bodySha256": "ba37e3c48bfd9bba51213769270c1cc62667342cd017de850f2a888fe7c6e389",
+      "bodySha256": "e3926765a346e93e6f08f7defb72aa0618f6c7dc5a7fb8025fce95f8fb3069e4",
       "verified": {
         "created": true,
         "parent": true,
@@ -1566,7 +1626,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9Q",
       "remoteState": "open"
@@ -1576,7 +1637,7 @@
       "databaseId": 5035380822,
       "nodeId": "I_kwDOTp4BU88AAAABLCHQVg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/65",
-      "bodySha256": "b3250d70546e6c6d835f9f0a941b452891301837e513b9865d2c3486aae132be",
+      "bodySha256": "7f67dffc3f26e7cac2f41a7a94b15552efa053b7f93d421a1dbb515273e9a74d",
       "verified": {
         "created": true,
         "parent": true,
@@ -1587,7 +1648,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9U",
       "remoteState": "open"
@@ -1597,7 +1659,7 @@
       "databaseId": 5035380921,
       "nodeId": "I_kwDOTp4BU88AAAABLCHQuQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/66",
-      "bodySha256": "18ae66cb5dda95e35f57eaca991e44aef660cd6b4123380e6846825220eb8b4b",
+      "bodySha256": "21570083852a957f9baa880c983c0640b743c8b2b1881a8573e1cc9fcf2c34a4",
       "verified": {
         "created": true,
         "parent": true,
@@ -1608,7 +1670,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9Y",
       "remoteState": "open"
@@ -1618,7 +1681,7 @@
       "databaseId": 5035381030,
       "nodeId": "I_kwDOTp4BU88AAAABLCHRJg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/67",
-      "bodySha256": "f8ac35f29d7e61dfdbbf78c8ecaf3c02484b67d484b21907be17c3e27bcdb082",
+      "bodySha256": "7d56fe3185aab1992a877a6a02d654a720e962858f13e2fb0091dfa4dabe85f4",
       "verified": {
         "created": true,
         "parent": true,
@@ -1629,7 +1692,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9c",
       "remoteState": "open"
@@ -1639,7 +1703,7 @@
       "databaseId": 5035381123,
       "nodeId": "I_kwDOTp4BU88AAAABLCHRgw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/68",
-      "bodySha256": "632304196e082c245ec863ec5f90d328cc36a0e87cd157eb04d834b9fb47988f",
+      "bodySha256": "1857826207ddbee046548baafec13deb3f27586434d594621c1a2ecce60f222d",
       "verified": {
         "created": true,
         "parent": true,
@@ -1650,7 +1714,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9g",
       "remoteState": "open"
@@ -1660,7 +1725,7 @@
       "databaseId": 5035381206,
       "nodeId": "I_kwDOTp4BU88AAAABLCHR1g",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/69",
-      "bodySha256": "89be9c0d0121408fa1f7564d400d7d2c640b20e891b701e304481590b1263ea7",
+      "bodySha256": "1d9dbe1e9f581607eb2280a80898d3e54fdd801451e7a28ffd5c6fdf886d18ab",
       "verified": {
         "created": true,
         "parent": true,
@@ -1671,7 +1736,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04e9o",
       "remoteState": "open"
@@ -1681,7 +1747,7 @@
       "databaseId": 5035381308,
       "nodeId": "I_kwDOTp4BU88AAAABLCHSPA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/70",
-      "bodySha256": "5d9871b6e0ee44c9aedabb92aa5a8cc36f176832af175befe66cefc778d5fc21",
+      "bodySha256": "de67897e4399dcf38098fa8cd51234cd973b290b7c1b84ce8195d2d9b7dccd0d",
       "verified": {
         "created": true,
         "subIssues": 7,
@@ -1692,7 +1758,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fCs",
       "remoteState": "open"
@@ -1702,7 +1769,7 @@
       "databaseId": 5035381393,
       "nodeId": "I_kwDOTp4BU88AAAABLCHSkQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/71",
-      "bodySha256": "927548c405312eba78fc0cbf29c19ada09697e8639297791fabcc6489224582d",
+      "bodySha256": "b701ec02884c7464f5c8d26ae43d9e4b70d5b9bc994cb7fb09c5e18d07410fb2",
       "verified": {
         "created": true,
         "parent": true,
@@ -1713,7 +1780,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDQ",
       "remoteState": "open"
@@ -1723,7 +1791,7 @@
       "databaseId": 5035381470,
       "nodeId": "I_kwDOTp4BU88AAAABLCHS3g",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/72",
-      "bodySha256": "ea3ce1f19734deed6107681baf2def6eb25546a16f80d2eb760fa197995f6b03",
+      "bodySha256": "0bbfd1d7a96656bbb601e9344582c8468bbafc82ebdb9fa57c63e1745301a46b",
       "verified": {
         "created": true,
         "parent": true,
@@ -1734,7 +1802,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDU",
       "remoteState": "open"
@@ -1744,7 +1813,7 @@
       "databaseId": 5035381578,
       "nodeId": "I_kwDOTp4BU88AAAABLCHTSg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/73",
-      "bodySha256": "39f835f5b9bef33c0f4d75ccf402a9ae7f12d6427e04dd8c142adf3d6597e225",
+      "bodySha256": "5602b215ffea22f865ddd74e1ef360941855470af94187b9384df83b257633c1",
       "verified": {
         "created": true,
         "parent": true,
@@ -1755,7 +1824,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDY",
       "remoteState": "open"
@@ -1765,7 +1835,7 @@
       "databaseId": 5035381671,
       "nodeId": "I_kwDOTp4BU88AAAABLCHTpw",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/74",
-      "bodySha256": "db0c5ad1d4c5b5cf30da2ec1c19471b12c07842d996764d580ed611c321f9994",
+      "bodySha256": "1cabef3cc0c349201420e7b6edfa9a76e9a421e9d99933ebd24350318387c66c",
       "verified": {
         "created": true,
         "parent": true,
@@ -1776,7 +1846,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDc",
       "remoteState": "open"
@@ -1786,7 +1857,7 @@
       "databaseId": 5035381768,
       "nodeId": "I_kwDOTp4BU88AAAABLCHUCA",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/75",
-      "bodySha256": "1a846c47a57ff763280b18ce831f2e02897b37249fd8334fe80f8147a7112024",
+      "bodySha256": "10e43d1829bea53bd11cb58fb094ee73539058a2cf28ff6ea06669b4287986f9",
       "verified": {
         "created": true,
         "parent": true,
@@ -1797,7 +1868,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDg",
       "remoteState": "open"
@@ -1807,7 +1879,7 @@
       "databaseId": 5035381865,
       "nodeId": "I_kwDOTp4BU88AAAABLCHUaQ",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/76",
-      "bodySha256": "6c903e13e31410fd2b780f6b4fb13b6492a81d473f3d44ae1f557b11024c330a",
+      "bodySha256": "30ca404cbd0d14174b3b9818818f068834a39025f50bb8af3104979dfd0c049e",
       "verified": {
         "created": true,
         "parent": true,
@@ -1818,7 +1890,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDk",
       "remoteState": "open"
@@ -1828,7 +1901,7 @@
       "databaseId": 5035381962,
       "nodeId": "I_kwDOTp4BU88AAAABLCHUyg",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/77",
-      "bodySha256": "73f20afae794b3fb128c9dd497faf36b0a2b2755e9650166731c36e96ddb783f",
+      "bodySha256": "eddddcd1d10ef6b348f77f2b93798de2ced228f42cc7fcb71555ee0cd7d91c97",
       "verified": {
         "created": true,
         "parent": true,
@@ -1839,7 +1912,8 @@
           "Workstream",
           "Target",
           "Sequence"
-        ]
+        ],
+        "updated": true
       },
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg04fDo",
       "remoteState": "open"
@@ -2059,7 +2133,7 @@
       "databaseId": 5035854811,
       "nodeId": "I_kwDOTp4BU88AAAABLCkL2w",
       "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/88",
-      "bodySha256": "eeb045e4b89c83c40d7842940cd0e1129133676bcca45affb3996db92f7efdfb",
+      "bodySha256": "9c080706e9719b98aa4eb3dd26f8e09be49f66251a6c633cc47ffa060c827783",
       "verified": {
         "created": true,
         "parent": true,
@@ -2074,8 +2148,136 @@
       },
       "remoteState": "open",
       "itemId": "PVTI_lAHOAvpEDc4BfDp1zg040L8"
+    },
+    "DOS-M03-011": {
+      "number": 89,
+      "databaseId": 5044199295,
+      "nodeId": "I_kwDOTp4BU88AAAABLKhffw",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/89",
+      "bodySha256": "ef932802203d23afdb63a3ec28a73a66c5894d78e3136cf2c62553a4c3c6e75d",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 3,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg0_p-U",
+      "remoteState": "open"
+    },
+    "DOS-M10-000": {
+      "number": 90,
+      "databaseId": 5044204372,
+      "nodeId": "I_kwDOTp4BU88AAAABLKhzVA",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/90",
+      "bodySha256": "e2786fe270f31f47351e39e77f873f2ce8255345f8fd731ce681207035e215c1",
+      "verified": {
+        "created": true,
+        "subIssues": 4,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Risk",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg0_qhA",
+      "remoteState": "open"
+    },
+    "DOS-M10-001": {
+      "number": 91,
+      "databaseId": 5044204487,
+      "nodeId": "I_kwDOTp4BU88AAAABLKhzxw",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/91",
+      "bodySha256": "1267f67490a44cbb69a3a0f698eb6f0090f55814caf558c21ba6d2e80eb4f5fa",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Risk",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg0_qhU",
+      "remoteState": "open"
+    },
+    "DOS-M10-002": {
+      "number": 92,
+      "databaseId": 5044204609,
+      "nodeId": "I_kwDOTp4BU88AAAABLKh0QQ",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/92",
+      "bodySha256": "c0e1c2f389ec801e1a7348e2e3204c9ab51601e54259f9fc4656165dd5bfc3df",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Risk",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg0_qhY",
+      "remoteState": "open"
+    },
+    "DOS-M10-003": {
+      "number": 93,
+      "databaseId": 5044204707,
+      "nodeId": "I_kwDOTp4BU88AAAABLKh0ow",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/93",
+      "bodySha256": "fc3eb6532799f91d0f2b91be06bbec36893c8c49ddd010f12b2eccb3257f7507",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg0_qhc",
+      "remoteState": "open"
+    },
+    "DOS-M10-004": {
+      "number": 94,
+      "databaseId": 5044204832,
+      "nodeId": "I_kwDOTp4BU88AAAABLKh1IA",
+      "url": "https://github.com/kyleruff1/digital-oil-sticker/issues/94",
+      "bodySha256": "3638ea34e2686274b404abc9eb329c65800eb6a5f09c6f745a7333d7df10ccc4",
+      "verified": {
+        "created": true,
+        "parent": true,
+        "blockedBy": 1,
+        "fields": [
+          "Status",
+          "Priority",
+          "Workstream",
+          "Target",
+          "Sequence"
+        ]
+      },
+      "itemId": "PVTI_lAHOAvpEDc4BfDp1zg0_qhg",
+      "remoteState": "open"
     }
   },
-  "lastStep": "project-items",
-  "updatedAt": "2026-08-01T07:17:03.998Z"
+  "lastStep": "issues",
+  "updatedAt": "2026-08-02T23:12:47.239Z"
 }
