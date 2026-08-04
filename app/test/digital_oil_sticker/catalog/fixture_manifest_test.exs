@@ -82,7 +82,10 @@ defmodule DigitalOilSticker.Catalog.FixtureManifestTest do
     assert byte_size(removed) == 36
 
     a_count = manifest["artifacts"]["catalog.sqlite3"]["counts"]["vehicle_configurations"]
-    b_count = manifest["artifacts"]["catalog-fixture-b.sqlite3"]["counts"]["vehicle_configurations"]
+
+    b_count =
+      manifest["artifacts"]["catalog-fixture-b.sqlite3"]["counts"]["vehicle_configurations"]
+
     assert b_count == a_count - 1
   end
 end

@@ -32,8 +32,7 @@ defmodule DigitalOilSticker.NoRuntimeCatalogSourcesTest do
         pattern <- ["**/*.ex", "**/*.exs", "**/*.js", "**/*.ts", "**/*.mjs"],
         path <- Path.wildcard(Path.join([@app_root, root, pattern])),
         Path.basename(path) != "no_runtime_catalog_sources_test.exs" do
-      {Path.relative_to(path, @app_root),
-       path |> File.read!() |> String.replace("\r\n", "\n")}
+      {Path.relative_to(path, @app_root), path |> File.read!() |> String.replace("\r\n", "\n")}
     end
   end
 

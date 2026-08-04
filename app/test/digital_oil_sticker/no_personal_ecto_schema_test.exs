@@ -20,8 +20,7 @@ defmodule DigitalOilSticker.NoPersonalEctoSchemaTest do
     |> Path.join("**/*.ex")
     |> Path.wildcard()
     |> Enum.map(fn path ->
-      {Path.relative_to(path, @app_root),
-       path |> File.read!() |> String.replace("\r\n", "\n")}
+      {Path.relative_to(path, @app_root), path |> File.read!() |> String.replace("\r\n", "\n")}
     end)
   end
 
