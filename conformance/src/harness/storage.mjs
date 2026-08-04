@@ -27,6 +27,36 @@ export async function blockIndexedDb(context) {
 }
 
 /**
+ * Private / incognito window — approximates: a browsing context whose
+ * persistent storage is walled off from the profile, which is what every
+ * mainstream engine does for private browsing. Firefox private historically
+ * refused IndexedDB entirely; Chromium incognito and WebKit private wall IDB
+ * per-window and drop it when the window closes. In every case the app must
+ * recognise the context as session-only and warn BEFORE the user starts typing
+ * something they think is being kept (AC-10).
+ *
+ * Simulated by blocking IndexedDB at the window level — the same signal the
+ * app already reacts to for `storage_mode: :session_only`. This keeps the
+ * approximation uniform across engines; Playwright does not expose a real
+ * private/incognito mode per newContext, and switching it at browser launch
+ * would force per-case relaunching, which the runner is not shaped for.
+ *
+ * Does NOT approximate: real quota walls, localStorage lifetime differences,
+ * or tab-close eviction — those need a device under a real private window and
+ * are scheduled in the manual matrix.
+ */
+export async function enterPrivateMode(context) {
+  await context.addInitScript(() => {
+    Object.defineProperty(window, 'indexedDB', {
+      configurable: true,
+      get() {
+        throw new DOMException('IndexedDB is unavailable in this private window', 'SecurityError')
+      },
+    })
+  })
+}
+
+/**
  * Storage that refuses writes to the RECORD stores while still accepting the
  * app's start-up probe — approximates: a profile that fills up mid-session,
  * which is when a quota error actually reaches a user.
@@ -142,6 +172,71 @@ async function deleteDatabases(page) {
     )
     return results.every(Boolean)
   })
+}
+
+/**
+ * Seed the `meta` singleton with a caller-chosen `schema_version` — approximates:
+ * a browser that last opened the app under a release newer than the one now
+ * running, so its stored `meta.schema_version` exceeds the server's. The app's
+ * own protocol cannot produce this state legally (its writes always stamp the
+ * current SCHEMA_VERSION), so a direct IndexedDB seed is the only faithful
+ * driver of the FR-9 newer-than-server branch. DOS-M09-008's data-and-persistence
+ * contract permits direct seeding for exactly this "state the adapter cannot
+ * legally produce" case.
+ *
+ * Opens `dos_local` at IDB_VERSION 1, creating the full store layout in the
+ * upgrade path so callers can seed either before the app has ever booted or
+ * after (the app's own open at the same version is a no-op when the stores
+ * already exist). Closes its own connection before returning, so a subsequent
+ * app open is not blocked by a lingering handle.
+ *
+ * Does NOT approximate: the process of arriving at a newer version in the
+ * first place (a real migration or upgrade), or any record content beyond
+ * the meta singleton — this seeds the version marker only.
+ */
+export async function seedNewerSchemaMeta(page, { schemaVersion, seq = 1 } = {}) {
+  await page.evaluate(async ({ schemaVersion, seq }) => {
+    const openDb = () =>
+      new Promise((resolve, reject) => {
+        const req = indexedDB.open('dos_local', 1)
+        req.onupgradeneeded = () => {
+          const db = req.result
+          if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta')
+          for (const [name, keyPath] of [
+            ['vehicles', 'vehicle_id'],
+            ['events', 'event_id'],
+            ['readings', 'reading_id'],
+            ['usage', 'usage_id'],
+            ['reminders', 'reminder_id'],
+          ]) {
+            if (!db.objectStoreNames.contains(name)) {
+              db.createObjectStore(name, { keyPath })
+            }
+          }
+          if (!db.objectStoreNames.contains('prefs')) db.createObjectStore('prefs')
+        }
+        req.onblocked = () => reject(new Error('open blocked'))
+        req.onsuccess = () => resolve(req.result)
+        req.onerror = () => reject(req.error || new Error('open failed'))
+      })
+
+    const db = await openDb()
+    try {
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction('meta', 'readwrite')
+        tx.oncomplete = () => resolve()
+        tx.onerror = () => reject(tx.error)
+        tx.onabort = () => reject(tx.error)
+        const now = new Date().toISOString()
+        tx.objectStore('meta').put(
+          { schema_version: schemaVersion, seq, created_at: now, last_write_at: now },
+          'meta'
+        )
+      })
+    } finally {
+      db.close()
+    }
+  }, { schemaVersion, seq })
 }
 
 /**

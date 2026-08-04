@@ -342,6 +342,15 @@ defmodule DigitalOilSticker.Catalog do
       {:error, :catalog_unavailable}
   end
 
+  # Test-only seam. Exposes the private `guarded/2` rescue so failure-mode
+  # tests can exercise it with a raising fn instead of starving the real
+  # connection pool — the latter races with any async: true test that reads
+  # CatalogRepo in the same suite run and produced a real flake. Same
+  # coverage (a genuine raise crossing the rescue), zero concurrent-test
+  # side effects. Do not call from production code.
+  @doc false
+  def __test_guarded__(fun) when is_function(fun, 0), do: guarded(:__test__, fun)
+
   defp config_status(%{support_status: "not_applicable"}), do: :not_applicable
   defp config_status(%{support_status: "unsupported"}), do: :unsupported
   defp config_status(%{support_status: "schedule_supported"}), do: :schedule_supported

@@ -209,6 +209,156 @@ export const cases = [
   },
 
   {
+    id: 'catalog.query-failure-is-not-storage-failure',
+    requirement: 'AC-14',
+    async run({ page, baseUrl }) {
+      // The picker cascade is the app's user-facing catalog surface: a
+      // failed lookup here must read as a catalog problem (Copy.catalog_unreadable),
+      // not as a claim about the browser's records. The failure this guards
+      // is a server-side catalog error being dressed up as data loss.
+      await app.gotoConnected(page, `${baseUrl}/vehicle/select`)
+      await page.waitForSelector('select[name=year]', { timeout: 20_000 })
+
+      const beforeText = await page.innerText('body')
+      if (/catalog could not be read/i.test(beforeText)) {
+        return { status: FAIL, detail: 'catalog-error copy was already visible before the failure was injected' }
+      }
+
+      // Force the server-side catalog query to fail by asking for a year the
+      // vocabulary rejects. Selector.validate returns :invalid_selector and
+      // VehiclePickerLive.run/4's catch-all flips @catalog_error, which is
+      // exactly the path a real catalog outage exercises. Injecting a rogue
+      // option is what makes an out-of-vocabulary year selectable from the
+      // browser side; the server does not care where the value came from.
+      await page.evaluate(() => {
+        const s = document.querySelector('select[name=year]')
+        const opt = document.createElement('option')
+        opt.value = '9999'
+        opt.textContent = '9999'
+        s.appendChild(opt)
+      })
+      await page.selectOption('select[name=year]', '9999')
+
+      let sawCatalogError = false
+      let text = ''
+      const deadline = Date.now() + 15_000
+      while (Date.now() < deadline) {
+        text = await page.innerText('body').catch(() => '')
+        if (/catalog could not be read/i.test(text)) {
+          sawCatalogError = true
+          break
+        }
+        await page.waitForTimeout(200)
+      }
+
+      if (!sawCatalogError) {
+        return {
+          status: FAIL,
+          detail: `a failed catalog query produced no catalog-error copy; saw: ${text.slice(0, 220)}`,
+        }
+      }
+
+      // The catalog-outcome frame must not have borrowed a storage-loss heading.
+      // Apostrophe-free substrings are used here for the same reason the storage
+      // suite uses them: HEEx escapes ' to &#39; in some rendered surfaces.
+      if (/stored records are gone/i.test(text)) {
+        return { status: FAIL, detail: 'a failed catalog query rendered the data-missing heading' }
+      }
+      if (/storage could not be used/i.test(text)) {
+        return { status: FAIL, detail: 'a failed catalog query rendered the storage-unavailable heading' }
+      }
+
+      return { status: PASS, evidence: { catalogErrorVisible: true } }
+    },
+  },
+
+  {
+    id: 'catalog.slow-query-does-not-mask-as-storage-loss',
+    requirement: 'AC-14',
+    async run({ page, baseUrl }) {
+      // A catalog query that is merely slow must present as loading, not as
+      // "your records are gone" or "your storage could not be used". The
+      // failure this guards is a spinner-shaped confidence problem being
+      // resolved by inventing a data-loss claim while the catalog is still on
+      // its way back.
+      await app.gotoConnected(page, `${baseUrl}/vehicle/select`)
+      await page.waitForSelector('select[name=year]', { timeout: 20_000 })
+
+      const firstYear = await page.$eval('select[name=year]', s => {
+        const opt = [...s.options].find(o => o.value)
+        return opt ? opt.value : null
+      })
+      if (!firstYear) {
+        return { status: FAIL, detail: 'no year options available to trigger a cascade query' }
+      }
+
+      // Delay outgoing cascade_change frames by 3s. WebSocket.prototype.send
+      // is looked up per call, so patching it after the socket is already open
+      // still affects subsequent sends by the LiveView socket. Only frames
+      // whose payload names the cascade_change event are delayed; the heartbeat
+      // and prior joins go through unmodified so the client stays connected.
+      await page.evaluate(() => {
+        const OrigSend = WebSocket.prototype.send
+        WebSocket.prototype.send = function (data) {
+          if (typeof data === 'string' && data.includes('cascade_change')) {
+            setTimeout(() => OrigSend.call(this, data), 3000)
+          } else {
+            OrigSend.call(this, data)
+          }
+        }
+      })
+
+      await page.selectOption('select[name=year]', firstYear)
+
+      // Sample the interim state while the outgoing frame is still parked.
+      // Leave enough of the 3s budget on the wire that the response cannot
+      // possibly have arrived — 700ms in, 2s+ still to go.
+      await page.waitForTimeout(700)
+
+      const interimText = await page.innerText('body')
+      if (/stored records are gone/i.test(interimText)) {
+        return { status: FAIL, detail: 'a slow catalog query rendered the data-missing heading' }
+      }
+      if (/storage could not be used/i.test(interimText)) {
+        return { status: FAIL, detail: 'a slow catalog query rendered the storage-unavailable heading' }
+      }
+      if (/catalog could not be read/i.test(interimText)) {
+        return { status: FAIL, detail: 'a slow catalog query rendered a catalog-error claim before the query returned' }
+      }
+
+      // Something on the page must signal that work is in flight. LiveView
+      // stamps phx-change-loading on a phx-change form for the duration of
+      // the round trip, and the cascade component sets aria-busy on the
+      // in-flight select — either is a legitimate loading indicator; the
+      // literal string "Loading…" is a third acceptable form. Absence of
+      // ALL of them during a 3s delay is what fails this case.
+      const loading = await page.evaluate(() => {
+        const form = document.querySelector('form[phx-change="cascade_change"]')
+        const formLoading = !!form && form.classList.contains('phx-change-loading')
+        const anyBusy = !!document.querySelector('[aria-busy="true"]')
+        const loadingText = /Loading/i.test(document.body.innerText)
+        return { formLoading, anyBusy, loadingText, any: formLoading || anyBusy || loadingText }
+      })
+
+      if (!loading.any) {
+        return {
+          status: FAIL,
+          detail: 'a slow catalog query showed no loading indication during the 3s delay',
+        }
+      }
+
+      return {
+        status: PASS,
+        evidence: {
+          formLoading: loading.formLoading,
+          anyAriaBusy: loading.anyBusy,
+          loadingText: loading.loadingText,
+        },
+      }
+    },
+  },
+
+  {
     id: 'boot-hint.is-the-only-localstorage-record',
     requirement: 'FR-6',
     async run({ page, baseUrl }) {
