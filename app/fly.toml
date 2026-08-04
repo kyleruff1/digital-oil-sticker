@@ -26,7 +26,11 @@ primary_region = "ord"
 
 [http_service]
   internal_port = 8080
-  force_https = true
+  # Off, because Fly's edge otherwise 301s /.well-known/acme-challenge/ to
+  # https BEFORE ACME can complete — the paradox that blocks Let's Encrypt.
+  # Redirect is done at the Phoenix layer instead (config/prod.exs
+  # `force_ssl`, which excludes the ACME challenge path).
+  force_https = false
   auto_stop_machines = "off"
   auto_start_machines = true
   min_machines_running = 1

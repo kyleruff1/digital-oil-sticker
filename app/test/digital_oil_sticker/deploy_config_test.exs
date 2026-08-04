@@ -69,8 +69,17 @@ defmodule DigitalOilSticker.DeployConfigTest do
       refute fly =~ "release_command"
     end
 
-    test "forces https", %{fly: fly} do
-      assert fly =~ ~r/force_https\s*=\s*true/
+    test "forces https at the Phoenix layer, not Fly's edge", %{fly: fly} do
+      # Fly's edge, when force_https = true, 301s /.well-known/acme-challenge/
+      # to https BEFORE ACME can complete — the paradox that indefinitely
+      # blocks Let's Encrypt from issuing the certificate. The redirect lives
+      # in Phoenix's config/prod.exs `force_ssl` instead, which excludes the
+      # ACME challenge path so renewal keeps working.
+      assert fly =~ ~r/force_https\s*=\s*false/
+
+      prod = File.read!(Path.expand("../../config/prod.exs", __DIR__))
+      assert prod =~ ~r/force_ssl:/
+      assert prod =~ "/.well-known/acme-challenge/"
     end
 
     test "checks readiness separately from liveness", %{fly: fly} do
