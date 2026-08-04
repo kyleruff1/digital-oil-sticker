@@ -100,6 +100,21 @@ defmodule DigitalOilStickerWeb.Copy do
       "Nothing already stored was changed or removed."
   end
 
+  # DOS-M09-003 FR-13 / AC-11 — the 80%-of-quota pressure surface. Not a
+  # blocker and not a distinct :local_state: writes still go through, nothing
+  # is deleted on the user's behalf, and the copy names the two things the
+  # user can do about it (export outside this browser, remove records they no
+  # longer need). Deliberately free of "backup" / "sync" language — an
+  # exported file is a file the user keeps, not a service we run.
+  def quota_pressure_heading, do: "This browser is running low on storage"
+
+  def quota_pressure_body do
+    "This browser's storage for the app is above 80% of what it will hold. " <>
+      "Writes are still going through and nothing has been removed. " <>
+      "Exporting a file keeps a copy outside this browser, and removing " <>
+      "vehicles or oil changes you no longer need frees space in this browser."
+  end
+
   def does_not_notify, do: "This app does not notify you when it is closed."
 
   # --- The scannable code ------------------------------------------------------

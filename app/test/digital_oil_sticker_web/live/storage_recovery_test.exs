@@ -67,6 +67,31 @@ defmodule DigitalOilStickerWeb.StorageRecoveryTest do
       assert html =~ "stored records are gone"
       assert html =~ "data-test=\"import-panel\""
       assert html =~ "data-test=\"erase-panel\""
+
+      # AC-2 negative half: the :data_missing render must not carry the
+      # :empty first-visit HEADING — a returning user whose browser
+      # cleared its site data must not be greeted as a first-time
+      # visitor. The state line above the disclosure is what distinguishes
+      # states, and Copy.empty_heading() ("Set up your first vehicle")
+      # never appears on the storage panel in any state.
+      #
+      # The INV-25 disclosure prose (Copy.empty_body/0, which contains
+      # "no account and no copy on our server") DOES render here — it
+      # renders in every state on /settings/storage on purpose, because
+      # the states most tempted to hide it are the states where the user
+      # most needs it. See storage_status_panel_test.exs (AC-13) for the
+      # positive assertion that INV-25 holds in :data_missing.
+      refute html =~ Copy.empty_heading()
+
+      # Sharper refutation on the same axis: the state_line shown above
+      # the disclosure must reflect :data_missing, not :empty. The :empty
+      # state_line is a first-visit reassurance ("Nothing is stored in
+      # this browser yet."); rendering it in :data_missing would tell a
+      # returning user with an export in hand that they never had data,
+      # inverting the meaning of the panel. Refuting the exact substring
+      # (rather than only the :empty HEADING) catches an unconditional
+      # "getting started" hint being sprinkled into every state.
+      refute html =~ "Nothing is stored in this browser yet."
     end
   end
 

@@ -49,7 +49,13 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
+    <Layouts.app
+      flash={@flash}
+      unsaved_writes={@unsaved_writes}
+      read_only={@read_only}
+      conflict_notice={@conflict_notice}
+      storage_mode={@storage_mode}
+    >
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Storage</h1>
 
@@ -84,6 +90,39 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
             <dd>{Copy.quarantine_body(length(@quarantine), record_total(assigns))}</dd>
           </div>
         </dl>
+
+        <%!-- DOS-M09-003 FR-13 / AC-11 — surfaced when usage crosses 80% of
+             the browser's reported quota. Writes stay enabled (no
+             :local_state change), nothing is deleted on the user's behalf;
+             the card names the two things the user can do (export outside
+             this browser, remove records they no longer need) and links to
+             the erase panel below as the on-page prune surface. --%>
+        <section
+          :if={@quota_pressure}
+          role="alert"
+          data-test="quota-pressure"
+          class="mt-6 rounded border border-amber-400 p-4"
+        >
+          <h2 class="font-semibold">{Copy.quota_pressure_heading()}</h2>
+          <p class="mt-1 text-sm leading-relaxed">{Copy.quota_pressure_body()}</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              phx-click="export"
+              class="btn btn-primary btn-sm"
+              data-test="quota-pressure-export"
+            >
+              Export a file
+            </button>
+            <a
+              href="#erase-panel"
+              class="btn btn-outline btn-error btn-sm"
+              data-test="quota-pressure-prune"
+            >
+              {Copy.erase_confirm_label()}
+            </a>
+          </div>
+        </section>
 
         <button phx-click="export" class="btn btn-primary mt-6">Export a file</button>
 
@@ -140,7 +179,11 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
           </div>
         </section>
 
-        <section class="mt-6 rounded border border-error/40 p-4" data-test="erase-panel">
+        <section
+          id="erase-panel"
+          class="mt-6 rounded border border-error/40 p-4"
+          data-test="erase-panel"
+        >
           <h2 class="font-semibold">{Copy.erase_heading()}</h2>
           <p class="mt-1 text-xs text-base-content/70">{Copy.erase_body()}</p>
           <button

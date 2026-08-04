@@ -73,8 +73,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       vehicle == nil ->
         {:noreply, socket}
 
+      # Persistent session-only / read-only banner in Layouts.app already
+      # explains why mutations are off; a per-click flash would duplicate it.
       not Session.mutations_enabled?(socket) ->
-        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+        {:noreply, socket}
 
       days not in @lead_choices ->
         # Not one of the offered lead times — a tampered select, not a choice.
@@ -114,8 +116,10 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       vehicle == nil ->
         {:noreply, put_flash(socket, :error, "Set up a vehicle first.")}
 
+      # Persistent session-only / read-only banner in Layouts.app already
+      # explains why mutations are off; a per-click flash would duplicate it.
       not Session.mutations_enabled?(socket) ->
-        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+        {:noreply, socket}
 
       is_nil(months) and is_nil(miles) ->
         {:noreply,
@@ -179,7 +183,13 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> assign(:manufacturer_viscosity, manufacturer_viscosity(vehicle))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
+    <Layouts.app
+      flash={@flash}
+      unsaved_writes={@unsaved_writes}
+      read_only={@read_only}
+      conflict_notice={@conflict_notice}
+      storage_mode={@storage_mode}
+    >
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Your vehicle</h1>
 

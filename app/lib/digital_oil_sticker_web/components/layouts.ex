@@ -43,6 +43,10 @@ defmodule DigitalOilStickerWeb.Layouts do
     default: false,
     doc: "another tab wrote newer data; hydration re-ran and the user must be told"
 
+  attr :storage_mode, :atom,
+    default: nil,
+    doc: "browser storage mode; :session_only surfaces a persistent non-persistence banner"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -96,6 +100,25 @@ defmodule DigitalOilStickerWeb.Layouts do
       class="border-b-2 border-sky-500 bg-sky-50 px-4 py-3 text-sm text-sky-900"
     >
       <p>{DigitalOilStickerWeb.Copy.conflict_notice()}</p>
+    </div>
+
+    <%!-- Session-only storage: nothing the user types is being persisted. A
+         put_flash is dismissible and time-bounded; the truth here is that
+         until the browser's storage setting changes, EVERY entry is transient
+         — so the notice has to stay visible for as long as it is true, in the
+         same never-dismissible pattern as unsaved-writes. role="alert" flags
+         it as a warning about non-persistence rather than a passive status.
+         The export link routes to the one page that can turn the tab's data
+         into a file before it is lost (INV-24 / INV-25). --%>
+    <div
+      :if={@storage_mode == :session_only}
+      id="session-only-notice"
+      role="alert"
+      data-test="session-only-banner"
+      class="border-b-2 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+    >
+      <p>{DigitalOilStickerWeb.Copy.session_only_banner()}</p>
+      <.link navigate={~p"/settings/storage"} class="btn btn-sm mt-2">Export a file</.link>
     </div>
 
     <%!-- Wraps rather than scrolling: at 320px a single-row navbar overflowed

@@ -67,7 +67,18 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       |> assign(:read_only, false)
       |> assign(:storage_mode, :unknown)
       |> assign(:persist_granted, nil)
+      # Fire-once guard for the auto-invoke of "local_store:request_persist"
+      # on the first meaningful write. Once we've asked the browser to keep
+      # storage under pressure, we do not ask again from stage_mutation —
+      # the persist_result handler records the outcome in :persist_granted
+      # and the storage settings page still exposes a manual override.
+      |> assign(:persist_requested, false)
       |> assign(:quota, nil)
+      # Co-assign with :quota (never a distinct primary state): true when
+      # reported usage / quota >= 0.8. Initialised false so every LiveView can
+      # pass @quota_pressure to renderers unconditionally, exactly like
+      # @conflict_notice. See handle_hydrate/2 for the compute site.
+      |> assign(:quota_pressure, false)
       |> assign(:cap_error, nil)
       # Another tab wrote newer data (handle_conflict sets this true). The
       # layout renders a banner when it's truthy; initialising to false here
@@ -95,13 +106,19 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
     with {:ok, envelope} <- Envelope.decode(params),
          :ok <- check_version(envelope),
          {:ok, %{data: data, quarantine: quarantine}} <- Validation.validate(envelope, byte_size) do
+      quota = quota(envelope.storage)
+
       socket
       |> cancel_deadline()
       |> assign(:seq, envelope.seq)
       |> assign(:quarantine, quarantine)
       |> assign(:storage_mode, storage_mode(envelope.storage))
       |> assign(:persist_granted, get_in(envelope.storage, ["persist_granted"]))
-      |> assign(:quota, quota(envelope.storage))
+      |> assign(:quota, quota)
+      # Co-assign: pressure is derived from the same estimate the "Space"
+      # line renders, so both surfaces move together on every hydrate. Not a
+      # :local_state branch — writes stay enabled per FR-13.
+      |> assign(:quota_pressure, quota_pressured?(quota))
       |> assign(:garage, to_garage(data))
       |> assign(:local_state, resolve_state(to_garage(data), envelope.storage))
     else
@@ -188,8 +205,27 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
         socket.assigns.garage |> apply_upserts(upserts) |> apply_deletes(deletes)
       )
       |> Phoenix.LiveView.push_event("local_store:put", payload)
+      |> maybe_auto_request_persist()
 
     {socket, mutation_id}
+  end
+
+  # First real write into this browser is the moment to ask the UA to keep
+  # storage under pressure — data the user meant to save exists, so a silent
+  # eviction from now on would erase work rather than an empty shell. The
+  # request only fires once per socket and only when we have not yet heard
+  # back (persist_granted is nil); an explicit grant or refusal is respected,
+  # and the manual button on the storage settings page still works as an
+  # override. Guarded by :persist_requested so subsequent mutations stay
+  # silent regardless of how many the user makes in a row.
+  defp maybe_auto_request_persist(socket) do
+    if socket.assigns.persist_requested == false and is_nil(socket.assigns.persist_granted) do
+      socket
+      |> assign(:persist_requested, true)
+      |> Phoenix.LiveView.push_event("local_store:request_persist", %{})
+    else
+      socket
+    end
   end
 
   def handle_ack(socket, %{"mutation_id" => id, "status" => "ok"}) do
@@ -377,6 +413,15 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
     do: %{usage: u, quota: q}
 
   defp quota(_), do: nil
+
+  # >= 0.8 matches ADR-0004 §"Quota and eviction" (surfacing threshold). Guards
+  # against q <= 0 mirror quota_line/1 in StorageStatusLive — a zero denominator
+  # is not "under pressure", it is "no meaningful estimate".
+  defp quota_pressured?(%{usage: usage, quota: q})
+       when is_integer(usage) and is_integer(q) and q > 0,
+       do: usage / q >= 0.8
+
+  defp quota_pressured?(_), do: false
 
   # The validator returns wire-keyed (string) collections; the garage assign
   # is the atom-keyed shape every LiveView reads.

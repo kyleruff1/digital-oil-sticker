@@ -38,7 +38,9 @@ defmodule DigitalOilStickerWeb.HistoryLive do
       Process.send_after(self(), {:commit_delete, id}, @undo_ms)
       {:noreply, socket |> assign(:confirm_delete, nil) |> assign(:undo, id)}
     else
-      {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+      # Persistent session-only / read-only banner in Layouts.app already
+      # explains why mutations are off; a per-click flash would duplicate it.
+      {:noreply, socket}
     end
   end
 
@@ -76,7 +78,13 @@ defmodule DigitalOilStickerWeb.HistoryLive do
     assigns = assign(assigns, :events, sorted_events(assigns))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
+    <Layouts.app
+      flash={@flash}
+      unsaved_writes={@unsaved_writes}
+      read_only={@read_only}
+      conflict_notice={@conflict_notice}
+      storage_mode={@storage_mode}
+    >
       <div class="mx-auto max-w-2xl">
         <h1 class="text-2xl font-bold">History</h1>
 

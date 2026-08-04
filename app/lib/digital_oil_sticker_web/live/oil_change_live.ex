@@ -104,8 +104,10 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
 
   def handle_event("submit", params, socket) do
     cond do
+      # Persistent session-only / read-only banner in Layouts.app already
+      # explains why mutations are off; a per-click flash would duplicate it.
       not Session.mutations_enabled?(socket) ->
-        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+        {:noreply, socket}
 
       socket.assigns.submitted_token == socket.assigns.form_token ->
         # Idempotency: double-tap of an already-staged form is a no-op.
@@ -148,8 +150,10 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
       id == current_id ->
         {:noreply, socket}
 
+      # Persistent session-only / read-only banner in Layouts.app already
+      # explains why mutations are off; a per-click flash would duplicate it.
       not Session.mutations_enabled?(socket) ->
-        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+        {:noreply, socket}
 
       Session.prefs_quarantined?(socket) ->
         {:noreply, put_flash(socket, :error, Copy.prefs_unreadable())}
@@ -458,7 +462,13 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
       |> grade_assigns()
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
+    <Layouts.app
+      flash={@flash}
+      unsaved_writes={@unsaved_writes}
+      read_only={@read_only}
+      conflict_notice={@conflict_notice}
+      storage_mode={@storage_mode}
+    >
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Log an oil change</h1>
 

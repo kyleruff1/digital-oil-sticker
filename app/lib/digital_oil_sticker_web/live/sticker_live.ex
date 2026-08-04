@@ -38,8 +38,10 @@ defmodule DigitalOilStickerWeb.StickerLive do
 
   def handle_event("switch_vehicle", %{"vehicle-id" => id}, socket) do
     cond do
+      # Persistent session-only / read-only banner in Layouts.app already
+      # explains why mutations are off; a per-click flash would duplicate it.
       not Session.mutations_enabled?(socket) ->
-        {:noreply, put_flash(socket, :error, Copy.session_only_banner())}
+        {:noreply, socket}
 
       # A quarantined prefs singleton means the stored record holds content
       # this release cannot read. Writing over it would destroy that content
@@ -106,10 +108,9 @@ defmodule DigitalOilStickerWeb.StickerLive do
       {:noreply, assign(socket, :confirm_delete_vehicle, nil)}
     else
       _ ->
-        {:noreply,
-         socket
-         |> assign(:confirm_delete_vehicle, nil)
-         |> put_flash(:error, Copy.session_only_banner())}
+        # Persistent session-only / read-only banner in Layouts.app already
+        # explains why mutations are off; a per-click flash would duplicate it.
+        {:noreply, assign(socket, :confirm_delete_vehicle, nil)}
     end
   end
 
@@ -124,7 +125,13 @@ defmodule DigitalOilStickerWeb.StickerLive do
     assigns = assign(assigns, :view, derive_view(assigns))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
+    <Layouts.app
+      flash={@flash}
+      unsaved_writes={@unsaved_writes}
+      read_only={@read_only}
+      conflict_notice={@conflict_notice}
+      storage_mode={@storage_mode}
+    >
       <div class="mx-auto max-w-2xl">
         <%!-- Which vehicle this sticker is about, as a description rather than
              a labelled form: "2015 BMW 328i", not "Year: 2015 Make: BMW". The
