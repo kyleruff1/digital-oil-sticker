@@ -22,7 +22,11 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
       # Fly's platform checks reach the machine over plain HTTP on the internal
       # port, so redirecting them to https makes the machine look unhealthy and
       # it gets stopped. HSTS still applies to every other path.
-      paths: ["/health", "/ready", "/version"],
+      #
+      # `.well-known/acme-challenge/` is exempt so Let's Encrypt's HTTP-01
+      # renewal can reach the challenge token. Redirecting it to https before
+      # a certificate exists is the paradox that blocks the certificate.
+      paths: ["/health", "/ready", "/version", "/.well-known/acme-challenge/"],
       hosts: ["localhost", "127.0.0.1"]
     ]
   ]
