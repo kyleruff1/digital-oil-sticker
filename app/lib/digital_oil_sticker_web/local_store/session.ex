@@ -69,6 +69,10 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       |> assign(:persist_granted, nil)
       |> assign(:quota, nil)
       |> assign(:cap_error, nil)
+      # Another tab wrote newer data (handle_conflict sets this true). The
+      # layout renders a banner when it's truthy; initialising to false here
+      # means every LiveView can pass it to Layouts.app unconditionally.
+      |> assign(:conflict_notice, false)
       # Writes the browser refused. Rendered persistently and never cleared by
       # time or navigation: a record the user believes they saved, which was
       # not saved, is the failure INV-24.5 exists to prevent.

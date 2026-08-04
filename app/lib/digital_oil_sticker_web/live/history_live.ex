@@ -76,7 +76,7 @@ defmodule DigitalOilStickerWeb.HistoryLive do
     assigns = assign(assigns, :events, sorted_events(assigns))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
       <div class="mx-auto max-w-2xl">
         <h1 class="text-2xl font-bold">History</h1>
 

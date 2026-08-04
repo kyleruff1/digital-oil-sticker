@@ -14,6 +14,7 @@ defmodule DigitalOilStickerWeb.ErrorMappingTest do
   import Phoenix.LiveViewTest
 
   alias DigitalOilStickerWeb.Copy
+  alias DigitalOilStickerWeb.LocalStore.Session
 
   @valid_envelope %{
     "envelope" => "dos_local",
@@ -66,8 +67,33 @@ defmodule DigitalOilStickerWeb.ErrorMappingTest do
 
       html = render(view)
 
+      # Assert on the socket state first — the substring below infers state
+      # from copy, but the state assign is what actually governs behavior.
+      # A regression that flips the state incorrectly but happens to render
+      # matching copy would slip past a substring-only test.
+      socket = :sys.get_state(view.pid).socket
+      assert socket.assigns.local_state == :storage_unavailable,
+             "deadline expiry must transition local_state to :storage_unavailable"
+
       assert html =~ @storage_unavailable
       refute html =~ Copy.hydration_refused_heading()
+
+      # AC-6 explicit: :storage_unavailable copy must be DISTINCT from
+      # :empty and :data_missing. A page that rendered the empty-garage
+      # heading in the storage-failure state would invite the user to
+      # start over on top of records that may still exist — INV-25.
+      refute html =~ Copy.empty_heading(),
+             ":storage_unavailable must not render the empty-garage heading"
+
+      refute html =~ @data_missing,
+             ":storage_unavailable must not render the data-missing heading"
+
+      # AC-6: in :storage_unavailable, mutations must be disabled so the app
+      # never stages a write against a browser that could not hydrate.
+      refute Session.mutations_enabled?(socket)
+
+      # And the UI must not expose the mutating nav entry point.
+      refute html =~ "Log an oil change"
     end
 
     test "a hydrate that arrives before the deadline cancels it", %{conn: conn} do

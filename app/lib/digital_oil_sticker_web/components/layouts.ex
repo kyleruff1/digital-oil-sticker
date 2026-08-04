@@ -39,6 +39,10 @@ defmodule DigitalOilStickerWeb.Layouts do
     default: false,
     doc: "this browser holds records from a newer app version; mutations are off"
 
+  attr :conflict_notice, :boolean,
+    default: false,
+    doc: "another tab wrote newer data; hydration re-ran and the user must be told"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -76,6 +80,22 @@ defmodule DigitalOilStickerWeb.Layouts do
       <p class="font-semibold">{DigitalOilStickerWeb.Copy.unsaved_record()}</p>
       <p class="mt-1">{unsaved_body(@unsaved_writes)}</p>
       <.link navigate={~p"/settings/storage"} class="btn btn-sm mt-2">Export a file</.link>
+    </div>
+
+    <%!-- Another tab wrote newer data. Session.handle_conflict/2 sets this
+         assign and pushes local_store:rehydrate; without a rendered notice the
+         user just watches the page snap to newer content with no explanation
+         of where it came from. INV-24.7 requires the conflict to be surfaced,
+         not only handled behind the scenes. --%>
+    <div
+      :if={@conflict_notice}
+      id="conflict-notice"
+      role="status"
+      aria-live="polite"
+      data-test="conflict-notice"
+      class="border-b-2 border-sky-500 bg-sky-50 px-4 py-3 text-sm text-sky-900"
+    >
+      <p>{DigitalOilStickerWeb.Copy.conflict_notice()}</p>
     </div>
 
     <%!-- Wraps rather than scrolling: at 320px a single-row navbar overflowed

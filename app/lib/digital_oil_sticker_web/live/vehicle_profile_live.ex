@@ -179,7 +179,7 @@ defmodule DigitalOilStickerWeb.VehicleProfileLive do
       |> assign(:manufacturer_viscosity, manufacturer_viscosity(vehicle))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Your vehicle</h1>
 

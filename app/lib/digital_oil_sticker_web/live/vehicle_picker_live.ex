@@ -228,7 +228,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
       <div>
         <h1 class="text-2xl font-bold">Choose a vehicle</h1>
 

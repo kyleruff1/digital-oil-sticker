@@ -49,7 +49,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Storage</h1>
 

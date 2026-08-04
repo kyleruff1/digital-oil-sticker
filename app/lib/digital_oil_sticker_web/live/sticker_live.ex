@@ -124,7 +124,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
     assigns = assign(assigns, :view, derive_view(assigns))
 
     ~H"""
-    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only}>
+    <Layouts.app flash={@flash} unsaved_writes={@unsaved_writes} read_only={@read_only} conflict_notice={@conflict_notice}>
       <div class="mx-auto max-w-2xl">
         <%!-- Which vehicle this sticker is about, as a description rather than
              a labelled form: "2015 BMW 328i", not "Year: 2015 Make: BMW". The
