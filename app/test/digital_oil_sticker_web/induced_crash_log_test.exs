@@ -337,6 +337,21 @@ defmodule DigitalOilStickerWeb.InducedCrashLogTest do
       pattern: nil,
       crash_target?: false,
       covered_by: DigitalOilStickerWeb.LocalStore.LogScanTest
+    },
+
+    # AttributionLive — `/attribution`.
+    # Declares zero handle_event/3 clauses of its own; the only events it
+    # sees are the LocalStore protocol handlers attached by LocalStoreHook,
+    # which share the same channel process and terminate path proven safe
+    # by LocalStore.LogScanTest. Inventory row so manifest_coverage sees
+    # this LV as intentionally sibling-covered rather than missing.
+    %{
+      lv: DigitalOilStickerWeb.AttributionLive,
+      route: "/attribution",
+      event: "__no_own_handlers__",
+      pattern: nil,
+      crash_target?: false,
+      covered_by: DigitalOilStickerWeb.LocalStore.LogScanTest
     }
   ]
 

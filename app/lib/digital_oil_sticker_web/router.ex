@@ -26,6 +26,7 @@ defmodule DigitalOilStickerWeb.Router do
       live "/service/new", OilChangeLive, :new
       live "/history", HistoryLive, :index
       live "/settings/storage", StorageStatusLive, :index
+      live "/attribution", AttributionLive, :index
     end
   end
 

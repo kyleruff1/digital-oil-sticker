@@ -1,0 +1,12 @@
+# EOLCS robots.txt snapshot
+# Observed at: https://www.api.org/robots.txt (EOLCS product-directory host)
+# Recorded: 2026-08-02
+# Recorded by: kyleruff1
+# Note: This is the observed EOLCS robots directive at the recorded date.
+# The Disallow: / directive prohibits automated crawling of any path on the
+# host, which — combined with the API T&C recorded in eolcs-terms-2026-08-02.md
+# — is the basis for the EOLCS "pending / prohibited" disposition row in
+# data_sources (see tools/catalog/src/compile/production.mjs).
+
+User-agent: *
+Disallow: /

@@ -5,10 +5,10 @@
   "artifacts": {
     "catalog.sqlite3": {
       "data_version": "fixture-a",
-      "sha256": "cc8575380725dcac643bf8ba637e821b00f228e9cbb44b9397635020b8a85bc7",
+      "sha256": "ba123a7ecc8d74a03fd62d0d32e519eda48786c96479da7bd40c9bca1add0d6b",
       "size": 446464,
       "counts": {
-        "data_sources": 1,
+        "data_sources": 2,
         "oil_model_metadata": 5,
         "oil_grades": 14,
         "oil_base_stocks": 4,
@@ -29,10 +29,10 @@
     },
     "catalog-fixture-b.sqlite3": {
       "data_version": "fixture-b",
-      "sha256": "e9897fc404f3ba1a15a2bcf31f04deee57be0741ea11642f6aa5bc0d837807d0",
+      "sha256": "9b2e2164c327b1e68926dc48567061a825556d4a0b05990addff8c9d0e2b96d5",
       "size": 446464,
       "counts": {
-        "data_sources": 1,
+        "data_sources": 2,
         "oil_model_metadata": 5,
         "oil_grades": 14,
         "oil_base_stocks": 4,

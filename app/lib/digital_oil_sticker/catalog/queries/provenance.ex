@@ -36,8 +36,14 @@ defmodule DigitalOilSticker.Catalog.Queries.Provenance do
         provider: s.provider,
         dataset_name: s.dataset_name,
         canonical_url: s.canonical_url,
+        retrieved_at: s.retrieved_at,
         attribution_text: s.attribution_text,
         web_attribution_text: s.web_attribution_text,
+        copyright_basis: s.copyright_basis,
+        acquisition_basis: s.acquisition_basis,
+        redistribution_basis: s.redistribution_basis,
+        trademark_posture: s.trademark_posture,
+        claim_posture: s.claim_posture,
         review_status: s.review_status
       },
       order_by: [asc: s.provider, asc: s.id]

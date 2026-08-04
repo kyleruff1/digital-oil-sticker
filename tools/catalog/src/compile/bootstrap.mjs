@@ -5,8 +5,11 @@
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
 import { buildCatalog, writeManifest } from './build.mjs'
 import { normalizeKey, nullify, makeId, modelId, configurationKey, uuidv5 } from '../normalize/keys.mjs'
+import { verifyEvidenceRefs } from '../checks/verify_evidence_refs.mjs'
+import { eolcsDispositionRow } from './eolcs_disposition.mjs'
 
 const TS = '2026-08-01T00:00:00Z'
 const REAL_MAKES = new Set(['TESLA', 'TOYOTA', 'BMW', 'FORD', 'HONDA', 'DODGE', 'RAM', 'PONTIAC'])
@@ -24,9 +27,27 @@ export function buildBootstrap({ repoRoot, appRoot }) {
     copyright_basis: 'factual_extraction', acquisition_basis: 'public_api',
     redistribution_basis: 'factual_republication', trademark_posture: 'plain_text_reference',
     claim_posture: 'identity_only', review_status: 'approved',
-    terms_sha256: null, evidence_ref: 'docs/data/FACTUAL_USE_AND_MARKS_POLICY.md',
+    // SHA-256 of docs/data/evidence/vpic-terms-2026-08-02.md — the dated
+    // NHTSA vPIC FAQ / open-data authorization snapshot that AC-11 requires.
+    //
+    // AC-11 coordination: this hash is hardcoded and would go stale silently
+    // if the evidence file is edited. Note the asymmetry with EOLCS: for vPIC
+    // `evidence_ref` points at the policy doc, while `terms_sha256` hashes a
+    // SEPARATE file (docs/data/evidence/vpic-terms-2026-08-02.md). The
+    // AC-1/6/11 evidence-refs check (tools/catalog/src/checks/verify_evidence_refs.mjs)
+    // must therefore verify this (source_key -> terms-file) pair explicitly
+    // rather than treating evidence_ref as the hashed file:
+    //   verify_evidence_refs: vpic_api_bootstrap_slice -> docs/data/evidence/vpic-terms-2026-08-02.md
+    terms_sha256: '7197f4b18b2a983b46d8592efa02b0dbf16bf1a651e5130843c64d7310e43ec7',
+    evidence_ref: 'docs/data/FACTUAL_USE_AND_MARKS_POLICY.md',
     reviewed_at: TS, reviewer: 'owner',
   }
+  // EOLCS: positive "rejected/prohibited" disposition row (no EOLCS rows are
+  // ever emitted). Mirrors the production/fixture entry so every build carries
+  // the audit trail of the pending gate. The literal disposition is shared via
+  // eolcs_disposition.mjs so all three compile paths write a byte-identical row.
+  // See docs/data/evidence/eolcs-terms-2026-08-02.md.
+  const srcEolcs = eolcsDispositionRow()
 
   const makesMap = new Map()
   for (const m of spike.makes) {
@@ -87,7 +108,7 @@ export function buildBootstrap({ repoRoot, appRoot }) {
       feature_oil_products: 'withheld', feature_filters: 'absent',
     },
     rows: {
-      data_sources: [src],
+      data_sources: [src, srcEolcs],
       makes: [...makesMap.values()],
       models: [...modelsMap.values()],
       vehicle_configurations: [...configs.values()],
@@ -95,6 +116,17 @@ export function buildBootstrap({ repoRoot, appRoot }) {
       oil_brands: [], oil_products: [], oil_product_claims: [],
     },
   })
+
+  // DOS-M09-010 AC-1 / AC-11: verify the emitted artifact still points at
+  // the reviewed evidence snapshots (and that terms_sha256 still matches).
+  // Runs against the artifact on disk so the same predicate covers every
+  // compile path.
+  const gateDb = new DatabaseSync(outPath)
+  try {
+    verifyEvidenceRefs(gateDb, { repoRoot })
+  } finally {
+    gateDb.close()
+  }
 
   writeManifest(join(appRoot, 'priv', 'catalog', 'catalog-manifest.json'), {
     manifest_version: 1, kind: 'bootstrap-interim', catalog_version: '2026.08.0-bootstrap',

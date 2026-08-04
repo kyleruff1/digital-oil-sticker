@@ -4,16 +4,24 @@
 // vPIC and FEG approved at the source level; EOLCS contributes zero rows.
 
 import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
 import { buildCatalog, writeManifest, sourceDateEpoch } from './build.mjs'
 import { normalizeKey, nullify, makeId, modelId, configurationKey, uuidv5 } from '../normalize/keys.mjs'
 import { bulkRowsInWindow, WINDOW_START, WINDOW_END } from '../sources/fueleconomy.mjs'
 import { loadScience, oilModelRows, classifyEngine } from './oil_model.mjs'
+import { checkNoEolcsRows } from '../checks/no_eolcs_rows.mjs'
+import { verifyEvidenceRefs } from '../checks/verify_evidence_refs.mjs'
+import { eolcsDispositionRow } from './eolcs_disposition.mjs'
 
 const VPIC_LIMITATION_SENTENCE =
   'vPIC does not guarantee complete trims or engines and supplies no oil schedules, fluids, or filters.'
 
-export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
+export function buildProduction({ toolsRoot, appRoot, dataVersion, repoRoot }) {
+  // repoRoot resolves evidence_ref paths for verifyEvidenceRefs (AC-11).
+  // Callers that predate the parameter fall back to appRoot/.., matching
+  // the repo's <repoRoot>/app convention.
+  repoRoot ??= dirname(appRoot)
   const rawDir = join(toolsRoot, 'data', 'raw')
   const allow = JSON.parse(readFileSync(join(toolsRoot, 'data', 'allowlist', 'makes.json'), 'utf8'))
   if (!allow.approved) throw new Error('allowlist not approved')
@@ -37,6 +45,18 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
     webAttribution: 'Vehicle identity: NHTSA vPIC',
     copyright: 'factual_extraction', acquisition: 'public_api',
     evidence: 'docs/data/FACTUAL_USE_AND_MARKS_POLICY.md#source-level-authorization',
+    // SHA-256 of docs/data/evidence/vpic-terms-2026-08-02.md — the dated
+    // NHTSA vPIC FAQ / open-data authorization snapshot that AC-11 requires.
+    //
+    // AC-11 coordination: this hash is hardcoded and would go stale silently
+    // if the evidence file is edited. Note the asymmetry with EOLCS: for vPIC
+    // `evidence_ref` points at the policy doc, while `terms_sha256` hashes a
+    // SEPARATE file (docs/data/evidence/vpic-terms-2026-08-02.md). The
+    // AC-1/6/11 evidence-refs check (tools/catalog/src/checks/verify_evidence_refs.mjs)
+    // must therefore verify this (source_key -> terms-file) pair explicitly
+    // rather than treating evidence_ref as the hashed file:
+    //   verify_evidence_refs: vpic_api -> docs/data/evidence/vpic-terms-2026-08-02.md
+    termsSha: '7197f4b18b2a983b46d8592efa02b0dbf16bf1a651e5130843c64d7310e43ec7',
   })
   const srcFeg = sourceRow({
     key: 'fueleconomy_gov_bulk', provider: 'DOE/EPA', type: 'official_bulk_download',
@@ -48,6 +68,14 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
     copyright: 'government_public_domain', acquisition: 'official_bulk_download',
     evidence: 'docs/data/FACTUAL_USE_AND_MARKS_POLICY.md#source-level-authorization',
   })
+  // EOLCS: recorded as a positive "rejected/prohibited" disposition row so the
+  // six-axis policy has an audit trail of the pending gate rather than an
+  // implicit absence. NO EOLCS-derived rows are emitted into the catalog; the
+  // evidence snapshots under docs/data/evidence/ pin the terms + robots.txt
+  // observed on the review date (see docs/data/FACTUAL_USE_AND_MARKS_POLICY.md).
+  // The literal disposition is shared with bootstrap.mjs and fixture.mjs via
+  // eolcs_disposition.mjs so all three compile paths carry a byte-identical row.
+  const srcEolcs = eolcsDispositionRow()
 
   // --- vPIC corpus from cached enumeration ----------------------------------
   const makesMap = new Map() // normalized -> row
@@ -214,7 +242,7 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
 
   const rows = {
     ...oilModelRows(science),
-    data_sources: [srcVpic, srcFeg],
+    data_sources: [srcVpic, srcFeg, srcEolcs],
     makes: [...makesMap.values()],
     models: [...modelsMap.values()],
     vehicle_configurations: [...configs.values()],
@@ -235,6 +263,21 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
 
   const outPath = join(appRoot, 'priv', 'catalog', 'catalog.sqlite3')
   const result = buildCatalog({ outPath, metadata, rows })
+
+  // DOS-M09-010 AC-6 / FR-3: re-open the finished artifact and fail closed if
+  // any oil_products/oil_brands/oil_product_claims row is EOLCS-sourced.
+  // DOS-M09-010 AC-1 / AC-11: also verify every recorded data_sources.evidence_ref
+  // still resolves to a file on disk (and, when present, terms_sha256 still
+  // matches the snapshot). Both gates run against the emitted image, not the
+  // in-memory row set, so any future write path is covered by the same
+  // predicates.
+  const gateDb = new DatabaseSync(outPath)
+  try {
+    checkNoEolcsRows(gateDb)
+    verifyEvidenceRefs(gateDb, { repoRoot })
+  } finally {
+    gateDb.close()
+  }
 
   const coverage = {
     generated_at: generatedAt,
@@ -276,12 +319,17 @@ export function buildProduction({ toolsRoot, appRoot, dataVersion }) {
       source_key: s.key, provider: s.provider, source_type: s.type,
       dataset_name: s.dataset, canonical_url: s.url,
       source_version: s.version ?? null, raw_sha256: s.rawSha ?? null,
-      retrieved_at: s.retrieved ?? null, effective_at: null, verified_at: s.retrieved ?? null,
+      retrieved_at: s.retrieved ?? null, effective_at: null, verified_at: s.verified ?? s.retrieved ?? null,
       attribution_text: s.attribution, web_attribution_text: s.webAttribution ?? null,
       copyright_basis: s.copyright, acquisition_basis: s.acquisition,
-      redistribution_basis: 'factual_republication', trademark_posture: 'plain_text_reference',
-      claim_posture: 'identity_only', review_status: 'approved',
-      terms_sha256: null, evidence_ref: s.evidence, reviewed_at: generatedAt, reviewer: 'owner',
+      redistribution_basis: s.redistribution ?? 'factual_republication',
+      trademark_posture: s.trademark ?? 'plain_text_reference',
+      claim_posture: s.claim ?? 'identity_only',
+      review_status: s.review ?? 'approved',
+      terms_sha256: s.terms ?? s.termsSha ?? null,
+      evidence_ref: s.evidence,
+      reviewed_at: s.reviewedAt ?? generatedAt,
+      reviewer: s.reviewer ?? 'owner',
     }
   }
 }

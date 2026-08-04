@@ -6,9 +6,12 @@
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
 import { buildCatalog, writeManifest } from './build.mjs'
 import { normalizeKey, nullify, makeId, modelId, configurationKey, uuidv5 } from '../normalize/keys.mjs'
 import { loadScience, classifyEngine, oilModelRows } from './oil_model.mjs'
+import { verifyEvidenceRefs } from '../checks/verify_evidence_refs.mjs'
+import { eolcsDispositionRow } from './eolcs_disposition.mjs'
 
 const FIXTURE_TS = '2026-08-01T00:00:00Z' // fixed: fixtures are fully deterministic
 
@@ -30,9 +33,27 @@ export function buildFixtures({ repoRoot, toolsRoot, outDir }) {
     copyright_basis: 'factual_extraction', acquisition_basis: 'public_api',
     redistribution_basis: 'factual_republication', trademark_posture: 'plain_text_reference',
     claim_posture: 'identity_only', review_status: 'approved',
-    terms_sha256: null, evidence_ref: 'docs/data/FACTUAL_USE_AND_MARKS_POLICY.md',
+    // SHA-256 of docs/data/evidence/vpic-terms-2026-08-02.md — the dated
+    // NHTSA vPIC FAQ / open-data authorization snapshot that AC-11 requires.
+    //
+    // AC-11 coordination: this hash is hardcoded and would go stale silently
+    // if the evidence file is edited. Note the asymmetry with EOLCS: for vPIC
+    // `evidence_ref` points at the policy doc, while `terms_sha256` hashes a
+    // SEPARATE file (docs/data/evidence/vpic-terms-2026-08-02.md). The
+    // AC-1/6/11 evidence-refs check (tools/catalog/src/checks/verify_evidence_refs.mjs)
+    // must therefore verify this (source_key -> terms-file) pair explicitly
+    // rather than treating evidence_ref as the hashed file:
+    //   verify_evidence_refs: vpic_api_fixture_slice -> docs/data/evidence/vpic-terms-2026-08-02.md
+    terms_sha256: '7197f4b18b2a983b46d8592efa02b0dbf16bf1a651e5130843c64d7310e43ec7',
+    evidence_ref: 'docs/data/FACTUAL_USE_AND_MARKS_POLICY.md',
     reviewed_at: FIXTURE_TS, reviewer: 'owner',
   }
+  // EOLCS: positive "rejected/prohibited" disposition row (no EOLCS rows are
+  // ever emitted). Mirrors the production/bootstrap entry so every build
+  // carries the audit trail of the pending gate. The literal disposition is
+  // shared via eolcs_disposition.mjs so all three compile paths write a
+  // byte-identical row. See docs/data/evidence/eolcs-terms-2026-08-02.md.
+  const srcEolcs = eolcsDispositionRow()
   const makesMap = new Map()
   for (const m of spike.makes) {
     const display = m.name
@@ -104,7 +125,7 @@ export function buildFixtures({ repoRoot, toolsRoot, outDir }) {
   }]
 
   const commonRows = {
-    data_sources: [srcVpic],
+    data_sources: [srcVpic, srcEolcs],
     makes: [...makesMap.values()],
     models: [...modelsMap.values()].map(({ _year, ...m }) => m),
     aliases,
@@ -126,6 +147,19 @@ export function buildFixtures({ repoRoot, toolsRoot, outDir }) {
   // fixture-b: one configuration removed (the first) — the removed-reference case.
   const outB = join(outDir, 'catalog-fixture-b.sqlite3')
   const b = buildCatalog({ outPath: outB, metadata: meta('fixture-b'), rows: { ...commonRows, vehicle_configurations: dedupedConfigs.slice(1) } })
+
+  // DOS-M09-010 AC-1 / AC-11: verify each emitted fixture artifact still
+  // points at the reviewed evidence snapshots (and that terms_sha256 still
+  // matches). Runs against the artifact on disk so the same predicate covers
+  // every compile path — production, bootstrap, and both fixture builds.
+  for (const outPath of [outA, outB]) {
+    const gateDb = new DatabaseSync(outPath)
+    try {
+      verifyEvidenceRefs(gateDb, { repoRoot })
+    } finally {
+      gateDb.close()
+    }
+  }
 
   writeManifest(join(outDir, 'catalog-fixture-manifest.json'), {
     manifest_version: 1, kind: 'fixture', generated_at: FIXTURE_TS,
