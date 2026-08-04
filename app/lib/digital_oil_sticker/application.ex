@@ -21,6 +21,16 @@ defmodule DigitalOilSticker.Application do
       # catalog without it fails loudly instead of showing no intervals.
       DigitalOilSticker.Catalog.OilModel,
       DigitalOilSticker.Catalog.Cache,
+      # Per-client concurrent-connect ceiling for the LiveView socket
+      # (DOS-M09-007 FR-8). Owns an ETS counter keyed by
+      # `ClientIP.client_key/1` — the socket connect passes through
+      # `try_connect/2`, `release/1` runs at socket termination.
+      DigitalOilStickerWeb.ConnectLimiter,
+      # Owns the ETS table backing DigitalOilStickerWeb.Plugs.RateLimit. The
+      # plug reads and writes the table directly on the request path; this
+      # process exists only so the table's lifetime is the app's lifetime,
+      # not a request's (DOS-M09-007 AC-6).
+      DigitalOilStickerWeb.Plugs.RateLimitStore,
       {DNSCluster,
        query: Application.get_env(:digital_oil_sticker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DigitalOilSticker.PubSub},

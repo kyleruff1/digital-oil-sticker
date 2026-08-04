@@ -25,6 +25,14 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
 config :digital_oil_sticker, hydration_deadline_ms: 100
 config :digital_oil_sticker, ack_timeout_ms: 100
 
+# The whole suite calls the endpoint from `127.0.0.1`, so with the production
+# defaults (60 burst / 1 per second) every test past the first sixty would
+# share one drained bucket and fail with a 429. Rate-limit tests that need
+# real limits override this per-test.
+config :digital_oil_sticker, DigitalOilStickerWeb.Plugs.RateLimit,
+  capacity: 1_000_000,
+  refill_per_second: 1_000_000
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 

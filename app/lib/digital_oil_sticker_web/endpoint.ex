@@ -20,9 +20,14 @@ defmodule DigitalOilStickerWeb.Endpoint do
     max_age: 60 * 60 * 8
   ]
 
+  # `peer_data` in `connect_info` is what makes the client's IP visible to the
+  # socket's connect callback, which is where the per-client concurrent-connect
+  # ceiling (`DigitalOilStickerWeb.ConnectLimiter`, FR-8) reads it. Without
+  # `peer_data` the connect callback would only see the proxy and every visitor
+  # would share one bucket.
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]],
-    longpoll: [connect_info: [session: @session_options]]
+    websocket: [connect_info: [session: @session_options, peer_data: true, x_headers: true]],
+    longpoll: [connect_info: [session: @session_options, peer_data: true, x_headers: true]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -65,6 +70,13 @@ defmodule DigitalOilStickerWeb.Endpoint do
   # Ahead of the router on purpose: a response that never reaches a pipeline —
   # a 404, a parser error — still needs the header set.
   plug DigitalOilStickerWeb.Plugs.SecurityHeaders
+
+  # ClientIP populates `conn.assigns.client_key`. It must run before RateLimit
+  # so the limit keys off the real peer (fly-client-ip when behind Fly's
+  # proxy, `remote_ip` otherwise) rather than the proxy itself. Placed after
+  # SecurityHeaders so a 429 still carries the full header set.
+  plug DigitalOilStickerWeb.Plugs.ClientIP
+  plug DigitalOilStickerWeb.Plugs.RateLimit
 
   plug DigitalOilStickerWeb.Router
 end

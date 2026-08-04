@@ -50,8 +50,18 @@ config :tailwind,
   ]
 
 # Configure Elixir's Logger
+#
+# `format` is a `{module, function}` tuple rather than a raw format
+# string: `DigitalOilStickerWeb.Logger.SocketRedactor.format/4` wraps
+# the standard formatter and redacts `#Phoenix.LiveView.Socket<...>`
+# representations before any handler sees the line. Without that pass,
+# a `FunctionClauseError` in a LiveView `handle_event/3` clause dumps
+# the socket — including `assigns.garage` — into the standard GenServer
+# crash report at `[error]` level. See `DOS-M09-007 AC-13` and the
+# module's `@moduledoc`. Metadata and outward format string are
+# unchanged — the wrapper reproduces `"$time $metadata[$level] $message\n"`.
 config :logger, :default_formatter,
-  format: "$time $metadata[$level] $message\n",
+  format: {DigitalOilStickerWeb.Logger.SocketRedactor, :format},
   metadata: [:request_id]
 
 # Use Jason for JSON parsing in Phoenix
