@@ -112,7 +112,13 @@ defmodule DigitalOilSticker.Catalog.FacadeTest do
     fake = String.duplicate("0", 8) <> "-0000-5000-8000-" <> String.duplicate("0", 12)
     {:ok, sel} = Selector.validate(:search_oils, %{"requirement_id" => fake})
     {:ok, result} = Catalog.search_oils(sel)
-    assert result.status == :unsupported
+    # INV-16: no product name is ever emitted without a resolved requirement.
+    # The status label depends on which honest "no" hit first — under the
+    # fixture's default `feature_oil_products=absent` the AC-15 source gate
+    # short-circuits to `:identity_only`; with the gate cleared (e.g. flag =
+    # "present") the fake id fails `Products.requirement_exists?/1` and lands
+    # at `:unsupported`. Either way `data == []` is the load-bearing check.
+    assert result.status in [:unsupported, :identity_only]
     assert result.data == []
   end
 

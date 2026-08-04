@@ -61,9 +61,24 @@ defmodule DigitalOilSticker.Catalog do
   @spec list_models(Selector.t()) :: {:ok, Result.t()} | error
   def list_models(%Selector{function: :list_models} = sel) do
     call(:list_models, sel, fn s ->
-      with {:ok, rows, cursor} <- Identity.models_page(s) do
-        total = Identity.count_distinct_models(s.year, s.make_id)
-        {:ok, Result.new(:identity_only, rows, cursor: cursor, total_known?: true, total: total)}
+      # AC-4: a fabricated `make_id` that never appeared in the prior level's
+      # response is rejected with `:unsupported`, not answered with an empty
+      # page. The check runs before the models query so no join work happens
+      # for a bad parent id.
+      if Identity.make_exists?(s.year, s.make_id) do
+        with {:ok, rows, cursor} <- Identity.models_page(s) do
+          total = Identity.count_distinct_models(s.year, s.make_id)
+
+          {:ok,
+           Result.new(:identity_only, rows, cursor: cursor, total_known?: true, total: total)}
+        end
+      else
+        {:ok,
+         Result.new(:unsupported, [],
+           total_known?: true,
+           total: 0,
+           qualifiers: [%{code: :parent_not_in_cascade}]
+         )}
       end
     end)
   end
@@ -73,8 +88,24 @@ defmodule DigitalOilSticker.Catalog do
   @spec list_configurations(Selector.t()) :: {:ok, Result.t()} | error
   def list_configurations(%Selector{function: :list_configurations} = sel) do
     call(:list_configurations, sel, fn s ->
-      with {:ok, rows, cursor} <- Identity.configurations_page(s) do
-        {:ok, Result.new(:identity_only, rows, cursor: cursor, total_known?: false)}
+      # AC-4: both parents (make_id under year, then model_id under
+      # (year, make_id)) must be real cascade-drawn values. Either miss short-
+      # circuits to `:unsupported` with the same qualifier the models level
+      # emits, so callers can distinguish "bad parent" from "real parent,
+      # empty child set".
+      cond do
+        not Identity.make_exists?(s.year, s.make_id) ->
+          {:ok,
+           Result.new(:unsupported, [], qualifiers: [%{code: :parent_not_in_cascade}])}
+
+        not Identity.model_exists?(s.year, s.make_id, s.model_id) ->
+          {:ok,
+           Result.new(:unsupported, [], qualifiers: [%{code: :parent_not_in_cascade}])}
+
+        true ->
+          with {:ok, rows, cursor} <- Identity.configurations_page(s) do
+            {:ok, Result.new(:identity_only, rows, cursor: cursor, total_known?: false)}
+          end
       end
     end)
   end
@@ -126,18 +157,34 @@ defmodule DigitalOilSticker.Catalog do
   def get_lubricant_requirements(%Selector{function: :get_lubricant_requirements} = sel) do
     call(:get_lubricant_requirements, sel, fn s ->
       config = Identity.get_configuration(s.configuration_key)
-      requirements = if config, do: Service.requirements(s), else: []
 
-      {status, qualifiers} =
-        Status.derive(config, %{schedules: [], requirements: requirements, claims: []})
+      cond do
+        is_nil(config) ->
+          {:ok,
+           Result.new(:unsupported, [], qualifiers: [%{code: :configuration_not_in_data_version}])}
 
-      status = if status == :schedule_supported, do: :identity_only, else: status
+        not SourceGate.cleared?(:oil_requirements) ->
+          {:ok,
+           Result.new(:identity_only, [],
+             qualifiers: [
+               %{code: :source_not_cleared_for_web_serving, fact_domain: :oil_requirements}
+             ]
+           )}
 
-      {:ok,
-       Result.new(status, requirements,
-         qualifiers: qualifiers,
-         provenance: Provenance.sources(Enum.map(requirements, & &1.source_id))
-       )}
+        true ->
+          requirements = Service.requirements(s)
+
+          {status, qualifiers} =
+            Status.derive(config, %{schedules: [], requirements: requirements, claims: []})
+
+          status = if status == :schedule_supported, do: :identity_only, else: status
+
+          {:ok,
+           Result.new(status, requirements,
+             qualifiers: qualifiers,
+             provenance: Provenance.sources(Enum.map(requirements, & &1.source_id))
+           )}
+      end
     end)
   end
 
@@ -151,14 +198,24 @@ defmodule DigitalOilSticker.Catalog do
   @spec search_oils(Selector.t()) :: {:ok, Result.t()} | error
   def search_oils(%Selector{function: :search_oils} = sel) do
     call(:search_oils, sel, fn s ->
-      if Products.requirement_exists?(s.requirement_id) do
-        # Requirement resolution + claim intersection lands with M03 data; the
-        # branch is unreachable in build 1 and returns honestly empty.
-        {:ok,
-         Result.new(:identity_only, [], qualifiers: [%{code: :no_licensed_requirement_match}])}
-      else
-        {:ok,
-         Result.new(:unsupported, [], qualifiers: [%{code: :requirement_not_in_data_version}])}
+      cond do
+        not SourceGate.cleared?(:oil_products) ->
+          {:ok,
+           Result.new(:identity_only, [],
+             qualifiers: [
+               %{code: :source_not_cleared_for_web_serving, fact_domain: :oil_products}
+             ]
+           )}
+
+        Products.requirement_exists?(s.requirement_id) ->
+          # Requirement resolution + claim intersection lands with M03 data; the
+          # branch is unreachable in build 1 and returns honestly empty.
+          {:ok,
+           Result.new(:identity_only, [], qualifiers: [%{code: :no_licensed_requirement_match}])}
+
+        true ->
+          {:ok,
+           Result.new(:unsupported, [], qualifiers: [%{code: :requirement_not_in_data_version}])}
       end
     end)
   end

@@ -74,7 +74,7 @@ Speaks to the domain through public APIs; owns Phoenix/Plug/LiveView wiring. Per
 | In-app due state | `DigitalOilSticker.Due.compute/2`, deterministic in `(vehicle, event)`. | Same code path; fixtures drive it. |
 | Export/import file pipeline | `CalendarExport` (ICS); JSON export/import owned by StorageStatusLive. | Round-trip tested in `storage_recovery_test.exs`. |
 | LiveView socket lifecycle | `Live.LocalStoreHook` on_mount + `Session.init/1`. Reconnect drives re-hydration; `terminate/2` relies on Phoenix's built-in cleanup (open-question per DOS-M01-002 resolved by DOS-M09-003). | LiveViewTest `live/2` + `render_hook/3`. |
-| Rate limit | Tier 1: pure token bucket in `Catalog.RateLimit`, held in socket assigns. Tier 2: web-layer per-IP HMAC (DOS-M09-007). | Direct `RateLimit.new/take` in tests. |
+| Rate limit | Tier 1: pure token bucket in `Catalog.RateLimit`, held in socket assigns. Tier 2: web-layer per-IP HTTP and socket-connect limits (DOS-M09-007). Per-address *catalog* bucket called for in DOS-M09-004 §"Included" is deferred while every catalog read is socket-mediated — see [PER-ADDRESS-RATE-LIMIT-DEFERRAL.md](PER-ADDRESS-RATE-LIMIT-DEFERRAL.md) for the current state, the reason, and the explicit re-open trigger (any HTTP-exposed catalog endpoint). | Direct `RateLimit.new/take` in tests. |
 | CSP / cookies / origin allowlist | `Plugs.*`, `Hosts`. | `production_posture_test.exs`. |
 
 ## LocalStore protocol message set

@@ -152,6 +152,45 @@ defmodule DigitalOilSticker.Catalog.Queries.Identity do
     |> CatalogRepo.one()
   end
 
+  @doc """
+  AC-4 parent-existence check: does the `(year, make_id)` pair appear in any
+  configuration row? Used by the facade to reject a fabricated `make_id` with
+  `:unsupported` instead of letting the join silently answer with `[]`. Uses
+  `LIMIT 1` so it stays constant-time regardless of matching row count.
+  """
+  def make_exists?(year, make_id) do
+    from(c in "vehicle_configurations",
+      where: c.model_year == type(^year, :integer) and c.make_id == type(^make_id, :string),
+      select: 1,
+      limit: 1
+    )
+    |> CatalogRepo.one()
+    |> case do
+      nil -> false
+      1 -> true
+    end
+  end
+
+  @doc """
+  AC-4 parent-existence check for the model level: does the
+  `(year, make_id, model_id)` triple appear in any configuration row? Same
+  contract as `make_exists?/2`, applied one cascade level deeper.
+  """
+  def model_exists?(year, make_id, model_id) do
+    from(c in "vehicle_configurations",
+      where:
+        c.model_year == type(^year, :integer) and c.make_id == type(^make_id, :string) and
+          c.model_id == type(^model_id, :string),
+      select: 1,
+      limit: 1
+    )
+    |> CatalogRepo.one()
+    |> case do
+      nil -> false
+      1 -> true
+    end
+  end
+
   # Keyset pagination: fetch page_size + 1; the extra row's presence yields the
   # next cursor and is discarded.
   defp paginate(base, %Selector{} = sel, apply_after, key_fun) do
