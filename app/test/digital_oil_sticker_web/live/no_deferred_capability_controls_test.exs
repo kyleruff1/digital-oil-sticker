@@ -27,6 +27,19 @@ defmodule DigitalOilStickerWeb.NoDeferredCapabilityControlsTest do
   still caught. Same pass also asked us to refuse the install-adjacent
   head signals (manifest, apple-touch-icon, `*-mobile-web-app-capable`)
   on every user-facing route, not just on `/`.
+
+  The last describe block ("FR-11 M09-009 absence-guard for deferred
+  capabilities") extends the guard with script-level regex checks for the
+  four deferred-capability APIs the earlier blocks did not cover
+  (serviceWorker.register, pushManager.subscribe / registerPush /
+  PushSubscription, Notification.requestPermission, and background-sync
+  registration), plus a stem-based check for disabled-but-visible
+  controls. FR-11's fifth item — the `rel="manifest"` link — is
+  DELIBERATELY not re-refuted in that block: the "install-adjacent link
+  /meta patterns are absent on every user-facing route" describe block
+  above already refutes it per-route across static, post-mount, and
+  re-render. Duplicating that check would only produce two failures for
+  one regression; a single failure at the existing site is clearer.
   """
   use DigitalOilStickerWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
@@ -400,6 +413,138 @@ defmodule DigitalOilStickerWeb.NoDeferredCapabilityControlsTest do
 
         rendered = render(view)
         assert_no_install_adjacent_head(rendered, unquote(route), "re-render")
+      end
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # FR-11 (DOS-M09-009) absence-guard — script-pattern and disabled-stem
+  # coverage for every deferred capability the issue names
+  # ---------------------------------------------------------------------------
+  #
+  # DOS-M09-009's FR-11 pins six absence-guard items the app must never ship
+  # in MVP: service-worker registration, push-subscription flows,
+  # Notification.requestPermission, background-sync registration, a web-app
+  # manifest link, and disabled-but-visible controls that advertise any of
+  # the above. The existing blocks above cover the manifest link (see
+  # "install-adjacent link/meta patterns are absent on every user-facing
+  # route", per-route across static + post-mount + re-render) and the
+  # disabled-copy path against the exact @forbidden_copy phrase list (see
+  # `assert_no_disabled_capability_control`). This block extends the guard
+  # to the four script-level APIs the earlier suite did not catch and adds
+  # a stem-based check for disabled controls so a rewording that misses the
+  # exact-phrase list still fails.
+  #
+  # Item 5 (manifest link) is NOT re-refuted here — see the moduledoc note
+  # at the top of the file. A duplicated refute would only produce two
+  # failures for one regression; a single failure at the existing site is
+  # clearer.
+
+  # Forbidden stems for FR-11 item 6 (disabled-but-visible controls). Kept
+  # separate from @forbidden_stems above because FR-11 names a narrower
+  # list (no `cache`, no `add.to.home`, no `service.?worker`, `reminder`
+  # instead of `reminders?`) and this check is scoped to disabled controls
+  # only, not every interactive control.
+  @fr11_disabled_stems ~r/notif|push|install|offline|sync|backup|reminder/i
+
+  defp assert_no_service_worker_registration(html, route, phase) do
+    refute html =~ ~r/serviceWorker\.register/i,
+           "#{route} #{phase} render calls serviceWorker.register — service-worker registration is deferred (FR-11 / DOS-M09-009 / INV-19)."
+
+    refute html =~ ~r/navigator\.serviceWorker\.register/i,
+           "#{route} #{phase} render calls navigator.serviceWorker.register — service-worker registration is deferred (FR-11 / DOS-M09-009 / INV-19)."
+  end
+
+  defp assert_no_push_subscription(html, route, phase) do
+    refute html =~ ~r/pushManager\.subscribe/i,
+           "#{route} #{phase} render calls pushManager.subscribe — push subscription is deferred (FR-11 / DOS-M09-009 / INV-19)."
+
+    refute html =~ ~r/registerPush/i,
+           "#{route} #{phase} render references registerPush — push subscription is deferred (FR-11 / DOS-M09-009 / INV-19)."
+
+    refute html =~ ~r/PushSubscription/,
+           "#{route} #{phase} render references PushSubscription — push subscription is deferred (FR-11 / DOS-M09-009 / INV-19)."
+  end
+
+  defp assert_no_notification_permission(html, route, phase) do
+    refute html =~ ~r/Notification\.requestPermission/,
+           "#{route} #{phase} render calls Notification.requestPermission — notification permission requests are deferred (FR-11 / DOS-M09-009 / INV-19)."
+  end
+
+  defp assert_no_background_sync(html, route, phase) do
+    refute html =~ ~r/sync\.register\(/i,
+           "#{route} #{phase} render calls sync.register(...) — background-sync registration is deferred (FR-11 / DOS-M09-009 / INV-19)."
+
+    refute html =~ ~r/SyncManager/,
+           "#{route} #{phase} render references SyncManager — background-sync registration is deferred (FR-11 / DOS-M09-009 / INV-19)."
+
+    refute html =~ ~r/BackgroundSyncRegistration/,
+           "#{route} #{phase} render references BackgroundSyncRegistration — background-sync registration is deferred (FR-11 / DOS-M09-009 / INV-19)."
+  end
+
+  # Regex over raw HTML for a `<button disabled>...label...</button>` or
+  # `<a disabled>...label...</a>` whose inner text matches the FR-11
+  # disabled-stem list. This is broader than
+  # `assert_no_disabled_capability_control` above, which only knows the
+  # exact @forbidden_copy phrases — a disabled control labeled
+  # "Backup and sync" or "Notify me" would clear that check but must fail
+  # this one.
+  defp assert_no_disabled_stem_control(html, route, phase) do
+    button_pattern = ~r/<button[^>]*\bdisabled\b[^>]*>([^<]*)<\/button>/i
+    anchor_pattern = ~r/<a[^>]*\bdisabled\b[^>]*>([^<]*)<\/a>/i
+
+    for [_, inner] <- Regex.scan(button_pattern, html) do
+      case Regex.run(@fr11_disabled_stems, inner) do
+        [match | _] ->
+          flunk(
+            "#{route} #{phase} render has a disabled <button> whose label #{inspect(String.trim(inner))} contains forbidden capability stem #{inspect(match)} — FR-11 forbids a disabled-but-visible deferred-capability control."
+          )
+
+        nil ->
+          :ok
+      end
+    end
+
+    for [_, inner] <- Regex.scan(anchor_pattern, html) do
+      case Regex.run(@fr11_disabled_stems, inner) do
+        [match | _] ->
+          flunk(
+            "#{route} #{phase} render has a disabled <a> whose label #{inspect(String.trim(inner))} contains forbidden capability stem #{inspect(match)} — FR-11 forbids a disabled-but-visible deferred-capability control."
+          )
+
+        nil ->
+          :ok
+      end
+    end
+  end
+
+  describe "FR-11 M09-009 absence-guard for deferred capabilities" do
+    for route <- @routes do
+      test "#{route}: no service-worker registration, push flow, Notification.requestPermission, background sync, or disabled stem-label control",
+           %{conn: conn} do
+        # --- Static (non-connected) render -----------------------------------
+        static_html = conn |> get(unquote(route)) |> html_response(200)
+        assert_no_service_worker_registration(static_html, unquote(route), "static")
+        assert_no_push_subscription(static_html, unquote(route), "static")
+        assert_no_notification_permission(static_html, unquote(route), "static")
+        assert_no_background_sync(static_html, unquote(route), "static")
+        assert_no_disabled_stem_control(static_html, unquote(route), "static")
+
+        # --- Post-mount (connected LiveView) render --------------------------
+        {:ok, view, mounted_html} = live(conn, unquote(route))
+        assert_no_service_worker_registration(mounted_html, unquote(route), "post-mount")
+        assert_no_push_subscription(mounted_html, unquote(route), "post-mount")
+        assert_no_notification_permission(mounted_html, unquote(route), "post-mount")
+        assert_no_background_sync(mounted_html, unquote(route), "post-mount")
+        assert_no_disabled_stem_control(mounted_html, unquote(route), "post-mount")
+
+        # --- Re-render after mount settles (still pre-hydrate) ---------------
+        rendered = render(view)
+        assert_no_service_worker_registration(rendered, unquote(route), "re-render")
+        assert_no_push_subscription(rendered, unquote(route), "re-render")
+        assert_no_notification_permission(rendered, unquote(route), "re-render")
+        assert_no_background_sync(rendered, unquote(route), "re-render")
+        assert_no_disabled_stem_control(rendered, unquote(route), "re-render")
       end
     end
   end

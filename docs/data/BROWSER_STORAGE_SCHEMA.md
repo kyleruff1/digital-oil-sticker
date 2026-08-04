@@ -298,7 +298,7 @@ The M09-001 issue calls out three open questions this document is obligated to c
 - **Not a place for automotive facts.** Every interval, viscosity, capacity, product claim, and fitment in a record is a **snapshot** of a provenance-carrying catalog value or an explicitly user-entered value labeled as such (INV-15). No field asserts a manufacturer specification.
 - **Not a place for scheduled notifications.** OS-scheduled notifications do not exist in this platform (INV-17). Reminder rows are **intent**; rendering is in-app due state.
 - **Not a place for full VIN.** At most `vin_last6`, nullable, off by default; enabling more requires its own privacy issue.
-- **Not a place for anything a browser cannot hold.** Service workers, `localStorage` records, OPFS, WASM SQLite are all out of scope (INV-19, INV-23).
+- **Not a place for anything a browser cannot hold.** Service workers, `localStorage` records, OPFS, WASM SQLite are all out of scope (INV-19, INV-23); no service worker cache, no Web Push subscription state — deferred no-go per M09-009 ADR.
 
 ## Cross-references
 

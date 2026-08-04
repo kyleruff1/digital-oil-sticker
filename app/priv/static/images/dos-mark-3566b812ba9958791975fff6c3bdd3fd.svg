@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="mark-title mark-desc">
+  <title id="mark-title">Digital Oil Sticker app mark</title>
+  <desc id="mark-desc">A compact green, blue, black, and white service form with two crossed waving checkered flags and a peel corner.</desc>
+  <defs>
+    <pattern id="mark-checkers" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="#FFFFFF"/><rect width="10" height="10" fill="#111111"/><rect x="10" y="10" width="10" height="10" fill="#111111"/>
+    </pattern>
+  </defs>
+  <rect x="38" y="38" width="436" height="436" rx="112" fill="#FFFFFF" stroke="#111111" stroke-width="28"/>
+
+  <g transform="translate(92 92)">
+    <rect width="52" height="52" rx="8" fill="#159447"/>
+    <rect x="64" width="52" height="52" rx="8" fill="#1769AA"/>
+    <rect y="64" width="52" height="52" rx="8" fill="#111111"/>
+    <rect x="64" y="64" width="52" height="52" rx="8" fill="#159447"/>
+  </g>
+
+  <path d="M86 242h340" stroke="#159447" stroke-width="16"/>
+  <path d="M86 263h340" stroke="#111111" stroke-width="7"/>
+  <rect x="91" y="303" width="134" height="65" rx="9" fill="#FFFFFF" stroke="#111111" stroke-width="13"/>
+  <rect x="287" y="303" width="134" height="65" rx="9" fill="#FFFFFF" stroke="#111111" stroke-width="13"/>
+  <rect x="181" y="399" width="150" height="42" rx="8" fill="#FFFFFF" stroke="#111111" stroke-width="13"/>
+
+  <g transform="translate(306 73) scale(.72)">
+    <path d="M23 24 96 139M147 24 67 139" fill="none" stroke="#111111" stroke-width="10" stroke-linecap="round"/>
+    <g transform="rotate(-12 22 20)"><path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#mark-checkers)" stroke="#111111" stroke-width="7"/></g>
+    <g transform="translate(170 0) scale(-1 1) rotate(-12 22 20)"><path d="M20 18C48-12 68 43 112 5c-12 32 5 57-13 84C67 118 46 59 10 101c10-32-3-62 10-83Z" fill="url(#mark-checkers)" stroke="#111111" stroke-width="7"/></g>
+  </g>
+
+  <path d="M385 468c39-12 67-40 82-80v23c0 31-25 57-57 57Z" fill="#1769AA"/>
+  <path d="M385 468c28-19 48-46 58-79-20 27-44 44-72 53l14 26Z" fill="#FFFFFF" stroke="#111111" stroke-width="7"/>
+</svg>

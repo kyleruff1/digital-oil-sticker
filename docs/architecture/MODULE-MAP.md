@@ -113,6 +113,7 @@ Per ADR-0004's supersession of ADR-0001, the following pre-pivot module namespac
 - `DigitalOilSticker.DeviceCommandBroker` and its command envelope
 - Any `Mob.Socket` binding, `mob_notify` call site, or native root-screen adapter
 - Any OS-notification scheduling module or in-process background scheduler for reminders
+- Any PWA install path (service-worker registration or cache, Web App Manifest link), Web Push subscription (`PushManager`), or background-sync registration (`SyncManager`) — recorded as deferred no-go verdicts per M09-009 ADR; the browser storage schema and this module map are stable against those verdicts pending the constitution revision that would be required to change any of them.
 
 Their absence is a passing test: `test/digital_oil_sticker/namespace_boundary_test.exs` scans domain sources and the `no_os_notifications_test.exs` scanner rejects the API surface. Adding any of these back would fail CI at the module boundary rather than at manual audit.
 
