@@ -11,7 +11,7 @@
 
 There is **no server-side `UserRepo`** and no personal-data Ecto schema anywhere in `DigitalOilSticker.*`. Personal state exists on the server only as transient socket assigns for one LiveView connection's lifetime and is never written to disk, database, cache, ETS, external store, or log (INV-3, INV-23, INV-4). Enforcement lives in `test/digital_oil_sticker/catalog/repo_readonly_test.exs` (repo list == `[CatalogRepo]`, opened read-only), `test/digital_oil_sticker/no_personal_persistence_test.exs`, and `test/digital_oil_sticker/no_personal_ecto_schema_test.exs`.
 
-For browser-storage schema, keys, indexes, quarantine rules, and the forward-only IndexedDB version line, see **[DOS-M09-001](../../planning/issues/DOS-M09-001.md)** — this dictionary does not restate it.
+For browser-storage schema, keys, indexes, quarantine rules, and the forward-only IndexedDB version line, see **[BROWSER_STORAGE_SCHEMA.md](BROWSER_STORAGE_SCHEMA.md)** (the DOS-M09-001 committed specification) — this dictionary does not restate it.
 
 ## `CatalogRepo` field-level dictionary
 
@@ -155,6 +155,6 @@ These tables ship with full DDL and **zero rows** in build 1. Their absence is t
 - Not a place to record any personal identifier: no VIN column, no vehicle_id column, no odometer column, no notes column, no user_id column, no client identifier column, no timestamp of a personal event, no free-text field a user filled in. If a future field would let a request-time query correlate a person across visits, that field belongs in browser IndexedDB or nowhere at all (INV-26).
 - Not a place to reproduce restricted source prose. Only factual fields are stored; copyrighted schedule text, manufacturer service-manual language, and licensed data-sheet paragraphs are never re-published — extracts are limited to factual entries the copyright basis actually covers.
 
-## Browser storage — see DOS-M09-001
+## Browser storage — see BROWSER_STORAGE_SCHEMA.md
 
-For the IndexedDB object-store layout (`meta`, `vehicles`, `events`, `readings`, `usage`, `reminders`, `prefs`), the payload envelope, the schema-version line, the forward-only upgrade contract, the quarantine rules, and the storage caps — see [DOS-M09-001](../../planning/issues/DOS-M09-001.md). That specification and this document share nothing except the promise that catalog IDs are stable enough to snapshot from.
+For the IndexedDB object-store layout (`meta`, `vehicles`, `events`, `readings`, `usage`, `reminders`, `prefs`), the payload envelope, the schema-version line, the forward-only upgrade contract, the quarantine rules, and the storage caps — see [BROWSER_STORAGE_SCHEMA.md](BROWSER_STORAGE_SCHEMA.md) (DOS-M09-001). That specification and this document share nothing except the promise that catalog IDs are stable enough to snapshot from.
