@@ -14,7 +14,12 @@ primary_region = "ord"
 [build]
 
 [env]
-  PHX_HOST = "digital-oil-sticker.fly.dev"
+  # The canonical hostname the app builds its own URLs from. Moved from
+  # digital-oil-sticker.fly.dev to the owner-controlled domain on 2026-08-04
+  # when DNS + Fly certs for digitaloilsticker.com landed. The .fly.dev
+  # hostname still resolves and is still trusted by check_origin (see
+  # Hosts.production/0), so an accidental link to the old host still works.
+  PHX_HOST = "digitaloilsticker.com"
   PORT = "8080"
   # CATALOG_DATABASE_PATH deliberately unset: runtime.exs resolves the baked
   # artifact via Application.app_dir/2, which survives release version bumps.

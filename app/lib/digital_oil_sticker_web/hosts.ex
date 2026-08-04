@@ -20,25 +20,30 @@ defmodule DigitalOilStickerWeb.Hosts do
   from `PHX_HOST` — correct today by coincidence, and silently wrong the moment
   a second hostname is served. Naming the hosts makes the decision reviewable.
 
-  ## The custom domain is not here yet
+  ## The custom domain landed 2026-08-04
 
-  `digitaloilsticker.com` and `.net` are owned but not yet pointed at this app;
-  DNS and certificates are DOS-M09-006 (#84). They are listed in
-  `planned/0` rather than `production/0` so this file records the intent
-  without asserting a host that does not resolve — adding them is a one-line
-  move once #84 lands, and the tests here will hold them to the same rules.
+  `digitaloilsticker.com` (apex) and `www.digitaloilsticker.com` now resolve
+  to this app's Fly IPs (A 66.241.125.208, AAAA 2a09:8280:1::15c:3e81:0),
+  their Fly certificates are issued, and both are trusted here so LiveView
+  sockets from the custom origin are accepted. The `.net` domain points at
+  the separate Netlify static support site (INV-27) and is deliberately NOT
+  a production host of the app — it stays in `@planned` as documentation.
   """
 
   @fly_host "digital-oil-sticker.fly.dev"
 
-  # Owned, decided, not yet serving. Deliberately NOT trusted until #84 points
-  # DNS and issues certificates: trusting a host we do not yet control the
-  # resolution of is the one mistake this list exists to prevent.
-  @planned ["digitaloilsticker.com", "www.digitaloilsticker.com", "digitaloilsticker.net"]
+  # Owned but not served by this app. `.net` is the Netlify static
+  # support site's home; a LiveView socket connect from `.net` would be
+  # a misconfiguration and is correctly refused (INV-27).
+  @planned ["digitaloilsticker.net"]
 
   @doc "Hosts that may serve the application and open a socket, in production."
   @spec production() :: [String.t()]
-  def production, do: [@fly_host]
+  def production, do: [
+    "digitaloilsticker.com",
+    "www.digitaloilsticker.com",
+    @fly_host
+  ]
 
   @doc "Owned hosts that are not yet served. Documentation, not trust."
   @spec planned() :: [String.t()]
