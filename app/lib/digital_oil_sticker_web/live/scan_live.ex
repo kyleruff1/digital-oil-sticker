@@ -41,6 +41,7 @@ defmodule DigitalOilStickerWeb.ScanLive do
   import DigitalOilStickerWeb.Components.Sticker
 
   alias DigitalOilSticker.{StickerCode, Units}
+  alias DigitalOilSticker.Catalog.Queries.Identity
   alias DigitalOilStickerWeb.Copy
 
   # The code is 40 base32 characters plus, at most, a length byte and 255 bytes
@@ -81,6 +82,7 @@ defmodule DigitalOilStickerWeb.ScanLive do
       {:ok, sticker} ->
         %{
           mode: :sticker,
+          vehicle: format_vehicle(Identity.get_configuration_labels(sticker.configuration_key)),
           changed: format_date(sticker.changed_on),
           mileage: format_mileage(sticker.odometer_m),
           grade: sticker.grade
@@ -89,6 +91,16 @@ defmodule DigitalOilStickerWeb.ScanLive do
       {:error, _reason} ->
         %{mode: :bad_code}
     end
+  end
+
+  # A configuration_key from an older catalog (or a truncated one that decoded
+  # to a valid UUID by luck) may not resolve to a current catalog row. Return
+  # nil in that case rather than crashing; the template gates the vehicle line
+  # on presence.
+  defp format_vehicle(nil), do: nil
+
+  defp format_vehicle(%{year: y, make: mk, model: mo, trim: t}) do
+    [y, mk, mo, t] |> Enum.reject(&(&1 in [nil, ""])) |> Enum.join(" ")
   end
 
   defp format_date(nil), do: nil
@@ -174,6 +186,19 @@ defmodule DigitalOilStickerWeb.ScanLive do
   defp sticker_view(assigns) do
     ~H"""
     <div data-test="scan-sticker">
+      <%!-- The vehicle name resolved from the code's configuration_key. Rendered
+           above the sticker when the catalog still has that row; hidden when it
+           doesn't, rather than showing "Unknown vehicle" (which would misread
+           as a bug when the actual state is that the code came from an older
+           catalog with retired IDs). --%>
+      <p
+        :if={@view.vehicle}
+        class="mx-auto mb-4 max-w-prose text-center text-lg font-semibold"
+        data-test="scan-vehicle"
+      >
+        {@view.vehicle}
+      </p>
+
       <%!-- Top viewports (`date_value`/`mileage_value`) are DELIBERATELY blank
            — omitted rather than passed as nil to keep the attribute-type
            check quiet. They are "estimated due" fields on the owner's front

@@ -136,6 +136,49 @@ defmodule DigitalOilSticker.Catalog.Queries.Identity do
     |> CatalogRepo.one()
   end
 
+  @doc """
+  Human-readable labels for a configuration_key — year, make display name,
+  model display name, trim. Joins across `makes` and `models` so the caller
+  gets one row of strings rather than a pair of UUIDs it then has to resolve.
+
+  Returns `nil` if the configuration_key does not match a row in the current
+  catalog. That includes both mistyped keys and keys from a code emitted by
+  an OLDER catalog whose configuration_key has since been retired — the
+  caller distinguishes these by presence, not by exception.
+
+  Used by ScanLive to render "2020 Ford F-150 · Lariat" above the sticker
+  when a QR code is scanned. Not routed through the facade because it
+  produces a display-only projection — no INV-11 status, no cursors, no
+  provenance — and adding a facade function for a display helper would
+  spread the vocabulary for no gain.
+  """
+  @spec get_configuration_labels(String.t()) ::
+          %{
+            year: integer(),
+            make: String.t(),
+            model: String.t(),
+            trim: String.t() | nil
+          }
+          | nil
+  def get_configuration_labels(key) when is_binary(key) do
+    from(c in "vehicle_configurations",
+      join: mk in "makes",
+      on: mk.id == c.make_id,
+      join: mo in "models",
+      on: mo.id == c.model_id,
+      where: c.configuration_key == type(^key, :string),
+      select: %{
+        year: c.model_year,
+        make: mk.display_name,
+        model: mo.display_name,
+        trim: c.trim
+      }
+    )
+    |> CatalogRepo.one()
+  end
+
+  def get_configuration_labels(_), do: nil
+
   def count_distinct_makes(year) do
     from(c in "vehicle_configurations",
       where: c.model_year == type(^year, :integer),

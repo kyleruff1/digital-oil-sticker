@@ -17,14 +17,33 @@ defmodule DigitalOilStickerWeb.ScanLiveTest do
   """
   use DigitalOilStickerWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
+  import Ecto.Query
 
-  alias DigitalOilSticker.StickerCode
+  alias DigitalOilSticker.{CatalogRepo, StickerCode}
+  alias DigitalOilSticker.Catalog.Queries.Identity
   alias DigitalOilStickerWeb.Copy
 
-  # A UUID string in the shape Ecto.UUID emits — the same shape the catalog
-  # issues configuration_keys as. Not a real catalog row; the tests never
-  # look up the vehicle, only round-trip the code.
+  # A well-formed UUID that intentionally does NOT match a fixture row.
+  # Round-trips through StickerCode.encode/decode fine, but the vehicle-
+  # labels lookup returns nil — the tests below assert the scan page still
+  # renders the sticker in that case (older-catalog / stale-key handling).
   @config_key "0e0eef2b-b1ba-4c1a-9c86-1c1ef4123456"
+
+  # A real configuration_key + its matching labels pulled from the fixture
+  # catalog. Used to exercise the happy path — code decodes AND the vehicle
+  # line renders "year make model [trim]" above the sticker.
+  defp real_config do
+    row =
+      CatalogRepo.one(
+        from(c in "vehicle_configurations",
+          select: c.configuration_key,
+          limit: 1
+        )
+      )
+
+    labels = Identity.get_configuration_labels(row)
+    %{key: row, labels: labels}
+  end
 
   defp sample_code(overrides \\ %{}) do
     sticker =
@@ -139,6 +158,44 @@ defmodule DigitalOilStickerWeb.ScanLiveTest do
 
       assert count == 1,
              "expected 'Jan 15, 2026' to render once (in the stamp), got #{count}"
+    end
+
+    test "renders the vehicle line above the sticker when configuration_key resolves",
+         %{conn: conn} do
+      # The whole point of the labels lookup: a scanner sees not just the
+      # date/mileage/grade, but WHICH vehicle produced this sticker. Uses
+      # a real key from the fixture catalog rather than a hardcoded UUID
+      # so the test tracks whatever labels the fixture ships.
+      %{key: key, labels: labels} = real_config()
+
+      {:ok, view, _html} = live(conn, ~p"/s")
+
+      html =
+        render_hook(view, "scan_code", %{
+          "code" => sample_code(%{configuration_key: key})
+        })
+
+      assert html =~ ~s|data-test="scan-vehicle"|
+      # Year, make, and model must all appear — the vehicle line is a
+      # promise the scan page keeps only if it can name the vehicle in full.
+      assert html =~ Integer.to_string(labels.year)
+      assert html =~ labels.make
+      assert html =~ labels.model
+    end
+
+    test "omits the vehicle line when configuration_key does not match a catalog row",
+         %{conn: conn} do
+      # Codes from an older catalog can carry a configuration_key that the
+      # current data_version no longer recognizes. Rather than render
+      # "Unknown vehicle" (which reads as a bug), the vehicle line is
+      # hidden and the sticker below still shows the date/grade the code
+      # carries. The @config_key at the top of this file is such a key.
+      {:ok, view, _html} = live(conn, ~p"/s")
+
+      html = render_hook(view, "scan_code", %{"code" => sample_code()})
+
+      assert html =~ ~s|data-test="scan-sticker"|
+      refute html =~ ~s|data-test="scan-vehicle"|
     end
 
     test "renders correctly when the code carries a nil date", %{conn: conn} do
