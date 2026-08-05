@@ -19,6 +19,9 @@ app/*.db-*
 app/priv/static/assets/
 tools/catalog/data/raw/
 
+# Local CLI state (Netlify CLI creates this in the site's dir; never committed)
+.netlify/
+
 # Secret-hygiene rules (DOS-M01-001 FR-10)
 .env
 .env.*
