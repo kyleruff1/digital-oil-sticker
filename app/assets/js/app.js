@@ -27,8 +27,20 @@ import {hooks} from "./hooks"
 import topbar from "../vendor/topbar"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
+// Behind Cloudflare, the CF-to-Fly origin TLS handshake occasionally fails
+// with 525 under load (Fly's per-source-IP handshake rate limit and transient
+// proxy cancels — documented across community.fly.io threads 1798, 5725, and
+// Fly's PT01/PT03/PT07/PT08 error codes). When the WebSocket upgrade unluckily
+// rides one, Phoenix normally retries with a 10ms/50ms/100ms/…/2s backoff and
+// the second or third attempt succeeds. The old 2.5s long-poll fallback fired
+// before Phoenix could get through that backoff, and long-poll then also 525'd
+// — surfacing to the console as "unhandled poll status 525" and leaving the
+// page stuck. A 30s window gives WS ~15 backoff-spaced retries before falling
+// back to long-poll, which is still there for the (rare) genuinely-WS-blocked
+// environments.
 const liveSocket = new LiveSocket("/live", Socket, {
-  longPollFallbackMs: 2500,
+  longPollFallbackMs: 30_000,
   params: {_csrf_token: csrfToken},
   hooks: {...colocatedHooks, ...hooks},
 })
