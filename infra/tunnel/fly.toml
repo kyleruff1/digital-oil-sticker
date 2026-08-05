@@ -1,0 +1,22 @@
+# dos-tunnel — cloudflared connector for digitaloilsticker.com
+#
+# Runs Cloudflare's cloudflared image and does nothing else. Outbound-only:
+# no [http_service], no exposed ports. The tunnel establishes a persistent
+# QUIC session to Cloudflare's edge; requests for digitaloilsticker.com hit
+# CF, get routed through the tunnel into this machine, and cloudflared
+# proxies them to `http://digital-oil-sticker.internal:8080` (Phoenix on
+# the sibling Fly app, reached over Fly's private 6PN — no public TLS
+# handshake in the CF→origin path anymore, which is the whole point).
+
+app = "dos-tunnel"
+primary_region = "ord"
+
+[build]
+
+# Two connectors — one per machine — so a rolling restart of one doesn't
+# take the tunnel down. Cloudflare balances traffic across healthy
+# connectors automatically.
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
