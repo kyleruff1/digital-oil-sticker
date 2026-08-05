@@ -28,6 +28,15 @@ defmodule DigitalOilStickerWeb.Router do
       live "/settings/storage", StorageStatusLive, :index
       live "/attribution", AttributionLive, :index
     end
+
+    # A stranger scanning a windshield sticker lands here. Deliberately its
+    # own live_session (no LocalStoreHook): no IndexedDB is loaded, no
+    # per-user assigns are staged, no cross-user data leaks in either
+    # direction (INV-23/25). The sticker's date/mileage/grade travels in the
+    # URL fragment and never reaches the server (INV-26).
+    live_session :scan do
+      live "/s", ScanLive, :show
+    end
   end
 
   scope "/", DigitalOilStickerWeb do

@@ -352,6 +352,24 @@ defmodule DigitalOilStickerWeb.InducedCrashLogTest do
       pattern: nil,
       crash_target?: false,
       covered_by: DigitalOilStickerWeb.LocalStore.LogScanTest
+    },
+
+    # ScanLive — `/s`.
+    # Runs in its own live_session (`:scan`), not `:garage`, so the
+    # LocalStoreHook does not attach and no hydrated PII ever lands in its
+    # assigns — the invariant this whole file is written to catch a leak of.
+    # The `scan_code` event carries only a StickerCode string, which is
+    # public by construction (see StickerCode's moduledoc: "the code is not
+    # a secret"). Inventory row so manifest_coverage sees this LV as
+    # intentionally sibling-covered; ScanLiveTest itself exercises the bad-
+    # payload and oversized-payload paths that would otherwise crash it.
+    %{
+      lv: DigitalOilStickerWeb.ScanLive,
+      route: "/s",
+      event: "scan_code",
+      pattern: nil,
+      crash_target?: false,
+      covered_by: DigitalOilStickerWeb.ScanLiveTest
     }
   ]
 

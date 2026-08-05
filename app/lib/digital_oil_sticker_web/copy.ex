@@ -354,6 +354,37 @@ defmodule DigitalOilStickerWeb.Copy do
   def odometer_lower(date, value, unit),
     do: "This reading is lower than the reading on #{date} (#{value} #{unit})."
 
+  # --- The scan landing (/s#…) ------------------------------------------------
+  # A stranger arrives here by scanning a QR on a windshield. They aren't the
+  # owner, they aren't logging anything, and they don't have the interval
+  # preference the owner keeps in their own browser — so the copy stays about
+  # what the sticker records, not about what happens next. INV-25's cross-user
+  # boundary is why the "estimated due" row is deliberately blank on this
+  # page: computing it would need someone else's private input.
+  def scan_awaiting, do: "Reading this sticker…"
+
+  def scan_no_code_heading, do: "This URL has no sticker on it"
+
+  def scan_no_code_body do
+    "Scanning a Digital Oil Sticker's QR code opens a page like this one, with " <>
+      "the sticker's date, mileage, and grade decoded from the code itself. " <>
+      "Nothing about your own vehicles is loaded here."
+  end
+
+  def scan_bad_code_heading, do: "This is not a Digital Oil Sticker code"
+
+  def scan_bad_code_body do
+    "The code in the URL did not decode as a sticker. It may have been " <>
+      "truncated in transit, or the URL may not be from a Digital Oil Sticker."
+  end
+
+  def scan_sticker_caption do
+    "Last recorded oil change from this sticker. The next-due estimate " <>
+      "lives in the owner's own browser and is not carried by the code."
+  end
+
+  def scan_return_to_app, do: "Open Digital Oil Sticker"
+
   # --- No-affiliation (rev-2 policy, verbatim) --------------------------------
   def no_affiliation do
     "Vehicle, lubricant, and filter names are used only to identify applicable " <>
