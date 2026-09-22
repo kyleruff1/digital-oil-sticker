@@ -49,20 +49,15 @@ export const LocalStore = {
 
   async hydrate() {
     if (!this.db) {
-      const opened = await idb.openDatabase()
-      if (!opened.ok) {
-        this.pushSessionOnly(opened.error.kind)
+      const acquired = await this.acquireDatabase()
+      if (!acquired.ok) {
+        this.pushSessionOnly(acquired.error.kind)
         return
       }
-      // A database can open and still reject writes (private browsing, blocked
-      // storage), so writability is proven before any envelope claims a mode.
-      const probe = await idb.probeRoundTrip(opened.db)
-      if (!probe.ok) {
-        opened.db.close()
-        this.pushSessionOnly(probe.error.kind)
-        return
-      }
-      this.db = opened.db
+      // Racing left the open pending: an envelope was already pushed for the
+      // timeout, and a late success re-enters hydrate() with this.db set.
+      if (acquired.pending) return
+      this.db = acquired.db
     }
 
     const read = await idb.readAll(this.db)
@@ -89,6 +84,53 @@ export const LocalStore = {
       },
     })
     this.pushEvent("local_store:hydrate", envelope)
+  },
+
+  /** Open the database and prove writability, bounded by a timeout.
+   *
+   * An IndexedDB open can hang without ever settling (a wedged backing store —
+   * seen on Chromium-family profiles on Windows). Un-raced, hydrate() then
+   * never pushes an envelope, the server's 5s deadline lapses into
+   * :storage_unavailable with storage_mode still :unknown, and NO banner
+   * renders — the page looks healthy while every save is refused. The 3s
+   * bound beats that deadline, so a hung open reports an honest session_only
+   * envelope and the banner the state deserves. If the open settles later,
+   * the real hydrate runs and the session upgrades itself. */
+  acquireDatabase() {
+    const openAndProbe = (async () => {
+      const opened = await idb.openDatabase()
+      if (!opened.ok) return opened
+      // A database can open and still reject writes (private browsing, blocked
+      // storage), so writability is proven before any envelope claims a mode.
+      const probe = await idb.probeRoundTrip(opened.db)
+      if (!probe.ok) {
+        opened.db.close()
+        return probe
+      }
+      return {ok: true, db: opened.db}
+    })()
+
+    let timer
+    const timeout = new Promise(resolve => {
+      timer = setTimeout(() => resolve({ok: false, timedOut: true}), 3000)
+    })
+
+    return Promise.race([openAndProbe, timeout]).then(winner => {
+      clearTimeout(timer)
+      if (!winner.timedOut) return winner
+
+      this.pushSessionOnly("open_timeout")
+      openAndProbe.then(result => {
+        // The hook may have been destroyed while the open dangled.
+        if (result.ok && this.el && this.el.isConnected && !this.db) {
+          this.db = result.db
+          this.hydrate()
+        } else if (result.ok && result.db !== this.db) {
+          result.db.close()
+        }
+      })
+      return {ok: true, pending: true}
+    })
   },
 
   /** Storage could not be opened or is not writable: hydrate with empty data

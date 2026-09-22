@@ -47,6 +47,12 @@ defmodule DigitalOilStickerWeb.Layouts do
     default: nil,
     doc: "browser storage mode; :session_only surfaces a persistent non-persistence banner"
 
+  attr :local_state, :atom,
+    default: nil,
+    doc:
+      "hydration state; :data_missing and the deadline flavor of :storage_unavailable " <>
+        "surface persistent banners on pages that have no full-page view for them"
+
   attr :skin, :string,
     default: nil,
     doc: "the sticker skin slug (Skins.slugs/0); scopes the skin CSS tokens and page accents"
@@ -136,6 +142,43 @@ defmodule DigitalOilStickerWeb.Layouts do
       >
         <p>{DigitalOilStickerWeb.Copy.session_only_banner()}</p>
         <.link navigate={~p"/settings/storage"} class="btn btn-sm mt-2">Export a file</.link>
+      </div>
+
+      <%!-- This browser held records before and they are gone now, so every
+         write is refused. The sticker page has a full-page view for this
+         state, but on any other page the lockout was invisible until a save
+         failed with a flash that read as a form error — the user was told to
+         "choose a vehicle" they had already chosen. Same never-dismissible
+         pattern as the session-only banner (INV-24.6). --%>
+      <div
+        :if={@local_state == :data_missing}
+        id="data-missing-notice"
+        role="alert"
+        data-test="data-missing-banner"
+        class="border-b-2 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+      >
+        <p class="font-semibold">{DigitalOilStickerWeb.Copy.data_missing_heading()}</p>
+
+        <p class="mt-1">{DigitalOilStickerWeb.Copy.data_missing_body()}</p>
+        <.link navigate={~p"/settings/storage"} class="btn btn-sm mt-2">Open the Storage page</.link>
+      </div>
+
+      <%!-- Hydration never arrived (deadline lapsed — a wedged IndexedDB open,
+         or the hook never ran). storage_mode stays :unknown on that path, so
+         the session-only banner above cannot render and this state had NO
+         surface outside the sticker page. Guarded to :unknown-ish modes so a
+         session_only envelope keeps its own banner and never shows two. --%>
+      <div
+        :if={@local_state == :storage_unavailable and @storage_mode != :session_only}
+        id="storage-unavailable-notice"
+        role="alert"
+        data-test="storage-unavailable-banner"
+        class="border-b-2 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+      >
+        <p class="font-semibold">{DigitalOilStickerWeb.Copy.storage_unavailable_heading()}</p>
+
+        <p class="mt-1">{DigitalOilStickerWeb.Copy.storage_unavailable_body()}</p>
+        <.link navigate={~p"/settings/storage"} class="btn btn-sm mt-2">Open the Storage page</.link>
       </div>
 
       <%!-- Wraps rather than scrolling: at 320px a single-row navbar overflowed

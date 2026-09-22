@@ -468,6 +468,7 @@ defmodule DigitalOilStickerWeb.OilChangeLive do
       read_only={@read_only}
       conflict_notice={@conflict_notice}
       storage_mode={@storage_mode}
+      local_state={@local_state}
       skin={@skin}
     >
       <div class="mx-auto max-w-xl">
