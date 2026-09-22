@@ -174,9 +174,16 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
            "Choose what oil the vehicle uses first — it sets the interval."
          )}
 
+      # `false` can only come from the Session.mutations_enabled?/1 leg — no
+      # other leg of the with-chain yields a bare boolean. A storage refusal
+      # must not masquerade as "no vehicle chosen": the user may be looking
+      # at a fully filled review card when this fires, and telling them to
+      # choose a vehicle they already chose points them at the wrong fix.
+      false ->
+        {:noreply, put_flash(socket, :error, Copy.confirm_storage_refusal())}
+
       _ ->
-        {:noreply,
-         put_flash(socket, :error, "Choose a vehicle first, and make sure storage is available.")}
+        {:noreply, put_flash(socket, :error, Copy.confirm_choose_vehicle())}
     end
   end
 
@@ -234,6 +241,7 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
       read_only={@read_only}
       conflict_notice={@conflict_notice}
       storage_mode={@storage_mode}
+      local_state={@local_state}
       skin={@skin}
     >
       <div>
@@ -364,11 +372,6 @@ defmodule DigitalOilStickerWeb.VehiclePickerLive do
             Save this vehicle
           </button>
         </section>
-
-        <p class="mt-8 text-sm">
-          <span class="font-semibold">{Copy.vehicle_not_listed()}?</span>
-          A custom-vehicle path ships next; nothing is transmitted about your vehicle either way.
-        </p>
       </div>
     </Layouts.app>
     """

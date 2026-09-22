@@ -29,26 +29,47 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     })
   end
 
-  test "confirming a vehicle pushes a well-formed local_store:put", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/vehicle/select")
-    hydrate_empty(view)
+  # A browser that refuses to store anything: local_state lands on
+  # :storage_unavailable and Session.mutations_enabled?/1 is false, while
+  # catalog browsing keeps working.
+  defp hydrate_session_only(view) do
+    render_hook(view, "local_store:hydrate", %{
+      "envelope" => "dos_local",
+      "schema_version" => 1,
+      "seq" => 0,
+      "tab_id" => "test-tab",
+      "generated_at" => "2026-08-01T00:00:00Z",
+      "data" => %{
+        "meta" => nil,
+        "vehicles" => [],
+        "events" => [],
+        "readings" => [],
+        "usage" => [],
+        "reminders" => [],
+        "prefs" => nil
+      },
+      "storage" => %{"mode" => "session_only", "reason" => "unavailable"}
+    })
+  end
 
-    row =
-      DigitalOilSticker.CatalogRepo.one(
-        from(c in "vehicle_configurations",
-          join: m in "makes",
-          on: m.id == c.make_id,
-          select: %{
-            key: c.configuration_key,
-            year: c.model_year,
-            make_id: c.make_id,
-            model_id: c.model_id
-          },
-          limit: 1
-        )
+  defp any_config_row do
+    DigitalOilSticker.CatalogRepo.one(
+      from(c in "vehicle_configurations",
+        join: m in "makes",
+        on: m.id == c.make_id,
+        select: %{
+          key: c.configuration_key,
+          year: c.model_year,
+          make_id: c.make_id,
+          model_id: c.model_id
+        },
+        limit: 1
       )
+    )
+  end
 
-    # Drive the cascade so the LiveView holds the selection it commits.
+  # Drive the cascade so the LiveView holds the selection it commits.
+  defp drive_cascade(view, row) do
     render_change(view, "cascade_change", %{"year" => to_string(row.year)})
 
     render_change(view, "cascade_change", %{
@@ -68,6 +89,14 @@ defmodule DigitalOilStickerWeb.SavePathTest do
       "model_id" => row.model_id,
       "configuration_key" => row.key
     })
+  end
+
+  test "confirming a vehicle pushes a well-formed local_store:put", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/vehicle/select")
+    hydrate_empty(view)
+
+    row = any_config_row()
+    drive_cascade(view, row)
 
     # Confirming immediately after the cascade must save — the oil step is
     # no longer a required question because defaults are filled in the moment
@@ -108,6 +137,45 @@ defmodule DigitalOilStickerWeb.SavePathTest do
     # car keeps that one active and every following page is about the wrong
     # vehicle.
     assert prefs["active_vehicle_id"] == vehicle["vehicle_id"]
+  end
+
+  test "confirming with no vehicle chosen flashes choose-a-vehicle, without a storage clause",
+       %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/vehicle/select")
+    hydrate_empty(view)
+
+    # No cascade driven: configuration_key is nil, storage is fine.
+    html = render_click(view, "confirm", %{})
+
+    assert html =~ "Choose a vehicle first."
+
+    # The old combined flash blamed storage in the same breath — a user with
+    # working storage must not be told to go check it.
+    refute html =~ "make sure storage is available"
+    refute html =~ "Records cannot be saved"
+  end
+
+  test "confirming when this browser refuses writes flashes the storage refusal, not choose-a-vehicle",
+       %{conn: conn} do
+    # The production bug this guards: a user with the review card fully
+    # rendered — vehicle chosen, oil answered — clicked Save and was told
+    # "Choose a vehicle first, and make sure storage is available." The
+    # refusing leg was Session.mutations_enabled?/1, and the flash must say
+    # so instead of pointing at a choice they already made.
+    {:ok, view, _html} = live(conn, ~p"/vehicle/select")
+    hydrate_session_only(view)
+
+    row = any_config_row()
+    drive_cascade(view, row)
+
+    html = render_click(view, "confirm", %{})
+
+    assert html =~ "Records cannot be saved in this browser right now"
+    assert html =~ "The Storage page shows what this browser reports."
+    refute html =~ "Choose a vehicle first"
+
+    # And nothing was staged: a refused save must not push a write.
+    refute_push_event(view, "local_store:put", %{})
   end
 
   test "saving Your interval pushes a put carrying the user-entered plan", %{conn: conn} do

@@ -274,16 +274,26 @@ defmodule DigitalOilStickerWeb.Copy do
   def results_count(n) when n == 1, do: "1 result"
   def results_count(n), do: "#{n} results"
   def count_unknown, do: "Result count unknown"
-  def vehicle_not_listed, do: "My vehicle is not listed"
 
   def connection_problem,
     do: "Connection problem — this is not a statement about your vehicle's data."
+
+  # --- Saving from the picker --------------------------------------------------
+  # Two refusal branches, two flashes. A single combined message here once
+  # told a user who HAD chosen a vehicle to "choose a vehicle first" when the
+  # real refusal was storage — each flash must name the leg that actually
+  # failed, and the storage one points at the page that explains the state.
+  def confirm_choose_vehicle, do: "Choose a vehicle first."
+
+  def confirm_storage_refusal do
+    "Records cannot be saved in this browser right now, so this vehicle was " <>
+      "not stored. The Storage page shows what this browser reports."
+  end
 
   # --- Products / provenance ---------------------------------------------------
   def from_catalog, do: "From catalog"
   def user_entered, do: "User entered"
   def as_of(date), do: "As of #{date}"
-  def not_listed_enter_myself, do: "Not listed — enter it myself"
   def no_longer_listed, do: "No longer listed in the catalog."
 
   # The "Factory recommendation" badge (RECOMMENDATION_CLAIMS_POLICY.md
