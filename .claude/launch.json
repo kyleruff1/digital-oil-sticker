@@ -3,8 +3,11 @@
   "configurations": [
     {
       "name": "phoenix",
-      "runtimeExecutable": "C:\\Users\\kyler\\.elixir-install\\installs\\elixir\\1.20.2-otp-28\\bin\\mix.bat",
-      "runtimeArgs": ["phx.server"],
+      "runtimeExecutable": "cmd.exe",
+      "runtimeArgs": [
+        "/c",
+        "set PATH=C:\\Users\\kyler\\.elixir-install\\installs\\otp\\28.4\\bin;C:\\Users\\kyler\\.elixir-install\\installs\\elixir\\1.20.2-otp-28\\bin;%PATH% && mix phx.server"
+      ],
       "cwd": "app",
       "port": 4000
     }
