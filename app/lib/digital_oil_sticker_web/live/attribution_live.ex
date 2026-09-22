@@ -35,6 +35,7 @@ defmodule DigitalOilStickerWeb.AttributionLive do
       read_only={@read_only}
       conflict_notice={@conflict_notice}
       storage_mode={@storage_mode}
+      skin={@skin}
     >
       <div class="mx-auto max-w-3xl">
         <h1 class="text-2xl font-bold">Attribution</h1>

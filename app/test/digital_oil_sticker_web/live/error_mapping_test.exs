@@ -72,6 +72,7 @@ defmodule DigitalOilStickerWeb.ErrorMappingTest do
       # A regression that flips the state incorrectly but happens to render
       # matching copy would slip past a substring-only test.
       socket = :sys.get_state(view.pid).socket
+
       assert socket.assigns.local_state == :storage_unavailable,
              "deadline expiry must transition local_state to :storage_unavailable"
 

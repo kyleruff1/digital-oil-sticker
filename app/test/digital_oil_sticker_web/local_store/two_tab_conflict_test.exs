@@ -71,6 +71,7 @@ defmodule DigitalOilStickerWeb.LocalStore.TwoTabConflictTest do
     })
 
     after_conflict = assigns(view)
+
     assert after_conflict.local_state == :hydrating,
            "handle_conflict must re-enter :hydrating so mutations pause"
 
@@ -93,8 +94,10 @@ defmodule DigitalOilStickerWeb.LocalStore.TwoTabConflictTest do
     # HEEx escapes the apostrophe in "browser's" to &#39;, so match on an
     # apostrophe-free substring (same pattern as error_mapping_test.exs).
     html = render(view)
+
     assert html =~ "Reloaded from this",
            "the conflict-notice banner must render so the user is told a sibling tab wrote newer data"
+
     assert html =~ ~s(data-test="conflict-notice"),
            "the notice must carry its data-test id so downstream tests can anchor on it"
   end
@@ -113,6 +116,7 @@ defmodule DigitalOilStickerWeb.LocalStore.TwoTabConflictTest do
     render_hook(view, "local_store:hydrate", %{@valid_envelope | "seq" => 2})
 
     settled = assigns(view)
+
     assert settled.local_state == :loaded,
            "a successful rehydrate at the newer seq must clear :hydrating and land in :loaded"
 

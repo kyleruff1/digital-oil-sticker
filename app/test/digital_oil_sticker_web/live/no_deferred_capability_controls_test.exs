@@ -144,7 +144,9 @@ defmodule DigitalOilStickerWeb.NoDeferredCapabilityControlsTest do
 
       # Match a <button ...>...label...</button> or <a ...>...label...</a>
       # that also carries the `disabled` attribute in the opening tag.
-      button_pattern = ~r/<button[^>]*\bdisabled\b[^>]*>[^<]*#{Regex.escape(label)}[^<]*<\/button>/i
+      button_pattern =
+        ~r/<button[^>]*\bdisabled\b[^>]*>[^<]*#{Regex.escape(label)}[^<]*<\/button>/i
+
       anchor_pattern = ~r/<a[^>]*\bdisabled\b[^>]*>[^<]*#{Regex.escape(label)}[^<]*<\/a>/i
 
       refute Regex.match?(button_pattern, lowered),

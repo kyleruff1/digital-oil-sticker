@@ -164,7 +164,8 @@ defmodule DigitalOilStickerWeb.CsrfTest do
         [_whole, body] ->
           assert body =~ ~r/plug\s+:protect_from_forgery/,
                  ":browser pipeline does not run :protect_from_forgery. Every form driven " <>
-                   "through this pipeline would accept a POST from any origin. Body was:\n" <> body
+                   "through this pipeline would accept a POST from any origin. Body was:\n" <>
+                   body
 
         nil ->
           flunk("could not locate `pipeline :browser do ... end` in #{@router_source}")
@@ -264,7 +265,7 @@ defmodule DigitalOilStickerWeb.CsrfTest do
       handshake = handshake_conn({key, cookie}, %{})
 
       connect_info =
-        Transport.connect_info(handshake, Endpoint, [session: initialised_session_config()])
+        Transport.connect_info(handshake, Endpoint, session: initialised_session_config())
 
       assert connect_info[:session] == nil,
              "handshake with a valid session cookie but no _csrf_token param resolved to a " <>
@@ -283,7 +284,7 @@ defmodule DigitalOilStickerWeb.CsrfTest do
       handshake = handshake_conn({key, cookie}, %{"_csrf_token" => spoofed})
 
       connect_info =
-        Transport.connect_info(handshake, Endpoint, [session: initialised_session_config()])
+        Transport.connect_info(handshake, Endpoint, session: initialised_session_config())
 
       assert connect_info[:session] == nil,
              "handshake with a fabricated _csrf_token was accepted. The transport is either " <>
@@ -299,7 +300,7 @@ defmodule DigitalOilStickerWeb.CsrfTest do
       handshake = handshake_conn(nil, %{"_csrf_token" => masked_token})
 
       connect_info =
-        Transport.connect_info(handshake, Endpoint, [session: initialised_session_config()])
+        Transport.connect_info(handshake, Endpoint, session: initialised_session_config())
 
       assert connect_info[:session] == nil,
              "handshake with a client CSRF token but no session cookie resolved to a session"
@@ -312,7 +313,7 @@ defmodule DigitalOilStickerWeb.CsrfTest do
       handshake = handshake_conn({key, cookie}, %{"_csrf_token" => masked_token})
 
       connect_info =
-        Transport.connect_info(handshake, Endpoint, [session: initialised_session_config()])
+        Transport.connect_info(handshake, Endpoint, session: initialised_session_config())
 
       session = connect_info[:session]
 

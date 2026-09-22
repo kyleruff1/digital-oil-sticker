@@ -133,14 +133,14 @@
 }
 
 .dos-stamp > span:first-child {
-  color: #159447;
+  color: var(--skin-stamp);
 }
 
 /* The underline is decoration and must not push the value out of the card, so
  * it is drawn without taking layout height. The card's bottom edge is only a
  * little over a percent below this band. */
 .dos-stamp > span:last-child {
-  box-shadow: inset 0 -0.22cqw 0 -0.11cqw #15944766;
+  box-shadow: inset 0 -0.22cqw 0 -0.11cqw var(--skin-stamp-underline);
 }
 
 /* Rotation is decorative; it must not survive into a context where the text
@@ -173,7 +173,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #101820;
+  color: var(--skin-vp-ink);
 }
 
 /* NEXT SERVICE DUE — what we estimate. */
@@ -195,7 +195,7 @@
   position: absolute;
   left: 46.5%;
   top: 53%;
-  color: #101820;
+  color: var(--skin-vp-ink);
 }
 
 /* The stamped band — what actually happened. Ends at 74.6%, a percent clear of
@@ -215,7 +215,7 @@
 }
 
 .dos-skeleton {
-  background: #10182022;
+  background: var(--skin-skeleton);
 }
 
 /* The scannable code.
@@ -280,4 +280,303 @@
   line-height: 1.5;
   color: var(--color-base-content);
   opacity: 0.72;
+}
+
+/* --- Sticker skins -----------------------------------------------------------
+ *
+ * The skin token contract. Defaults declared here ARE the locked brand
+ * contract (docs/product/BRAND.md) — the Service Bay skin. Deliberately, no
+ * override block for the default skin exists anywhere in this file: absence
+ * is the pixel-parity guarantee, proven against the reference SVG by
+ * sticker_art_parity_test.exs.
+ *
+ * Every skin is a token re-declaration under [data-skin="..."], never a
+ * property override — the geometry regression test scans this file for
+ * `.dos-vp-*` rules and counts exactly four, so no skin selector may ever
+ * restate viewport geometry (or mention `.dos-vp-` at all). */
+.dos-sticker-frame {
+  --skin-body: #FFFFFF;
+  --skin-body-opacity: 0.72;
+  --skin-peel-opacity: 0.82;
+  --skin-edge: #F7FAF8;
+  --skin-edge-opacity: 0.94;
+  --skin-ink: #101820;
+  --skin-halo: #F7FAF8;
+  --skin-brand-a: #159447;
+  --skin-brand-b: #1769AA;
+  --skin-checker-light: #FFFFFF;
+  --skin-checker-dark: #101820;
+  --skin-vp-ink: #101820;
+  --skin-stamp: #159447;
+  --skin-stamp-underline: #15944766;
+  --skin-skeleton: #10182022;
+}
+
+/* Artwork paint classes. The inline SVG (StickerArt.artwork/1) keeps its
+ * original presentation attributes as the no-CSS fallback; these stylesheet
+ * rules outrank them in the SVG cascade, so the skin tokens win whenever the
+ * stylesheet is live. SVG presentation attributes cannot consume var() —
+ * this indirection through classes is the entire theming mechanism, and it
+ * is what keeps the markup CSP-clean (style-src 'self': no style attributes,
+ * no style blocks). */
+.dos-art-body {
+  fill: var(--skin-body);
+  fill-opacity: var(--skin-body-opacity);
+  stroke: var(--skin-edge);
+  stroke-opacity: var(--skin-edge-opacity);
+}
+
+.dos-art-border {
+  stroke: var(--skin-ink);
+}
+
+.dos-art-ink {
+  fill: var(--skin-ink);
+  stroke: var(--skin-halo);
+}
+
+.dos-art-brand-a {
+  fill: var(--skin-brand-a);
+  stroke: var(--skin-halo);
+}
+
+.dos-art-brand-b {
+  fill: var(--skin-brand-b);
+  stroke: var(--skin-halo);
+}
+
+.dos-art-duo-stroke {
+  stroke: var(--skin-halo);
+}
+
+.dos-art-rule-a {
+  stroke: var(--skin-brand-a);
+}
+
+.dos-art-rule-b {
+  stroke: var(--skin-brand-b);
+}
+
+.dos-art-halo {
+  stroke: var(--skin-halo);
+}
+
+.dos-art-inkline {
+  stroke: var(--skin-ink);
+}
+
+.dos-art-peel-face {
+  fill: var(--skin-body);
+  fill-opacity: var(--skin-peel-opacity);
+}
+
+.dos-art-fill-a {
+  fill: var(--skin-brand-a);
+}
+
+.dos-art-fill-b {
+  fill: var(--skin-brand-b);
+}
+
+.dos-art-stop-a {
+  stop-color: var(--skin-brand-a);
+}
+
+.dos-art-stop-mid {
+  stop-color: var(--skin-halo);
+}
+
+.dos-art-stop-b {
+  stop-color: var(--skin-brand-b);
+}
+
+.dos-art-checker-light {
+  fill: var(--skin-checker-light);
+}
+
+.dos-art-checker-dark {
+  fill: var(--skin-checker-dark);
+}
+
+/* The five variant skins. Token re-declarations only — no property
+ * overrides, no geometry, nothing that could add a fifth match to the
+ * geometry test's `.dos-vp-*` scan. The five new skins are opaque-bodied
+ * (opacity tokens -> 1) so their contrast is identical over both page
+ * themes; only the default keeps the 72% cling translucency contract.
+ *
+ * Page accents re-declare daisyUI's --color-primary pair under the same
+ * [data-skin] scope: the theme's own declarations sit on [data-theme] at the
+ * root, strictly shallower than the layout wrapper, so these win for
+ * everything inside it. Skins whose accent works on both themes use one
+ * un-themed block; the rest split per theme. */
+
+[data-skin="midnight-shift"] .dos-sticker-frame {
+  --skin-body: #101820;
+  --skin-body-opacity: 1;
+  --skin-peel-opacity: 1;
+  --skin-edge: #4FB8FF;
+  --skin-edge-opacity: 1;
+  --skin-ink: #F7FAF8;
+  --skin-halo: #101820;
+  --skin-brand-a: #3DDC84;
+  --skin-brand-b: #4FB8FF;
+  --skin-checker-light: #F7FAF8;
+  --skin-checker-dark: #101820;
+  --skin-vp-ink: #F7FAF8;
+  --skin-stamp: #3DDC84;
+  --skin-stamp-underline: #3DDC8466;
+  --skin-skeleton: #F7FAF833;
+}
+
+[data-skin="midnight-shift"] {
+  --color-primary: #3DDC84;
+  --color-primary-content: #101820;
+}
+
+[data-skin="blueprint"] .dos-sticker-frame {
+  --skin-body: #123C6B;
+  --skin-body-opacity: 1;
+  --skin-peel-opacity: 1;
+  --skin-edge: #DCE9F7;
+  --skin-edge-opacity: 1;
+  --skin-ink: #F7FAF8;
+  --skin-halo: #123C6B;
+  --skin-brand-a: #DCE9F7;
+  --skin-brand-b: #9FC4E8;
+  --skin-checker-light: #DCE9F7;
+  --skin-checker-dark: #123C6B;
+  --skin-vp-ink: #FFFFFF;
+  --skin-stamp: #FFFFFF;
+  --skin-stamp-underline: #FFFFFF66;
+  --skin-skeleton: #FFFFFF2E;
+}
+
+[data-theme="light"] [data-skin="blueprint"] {
+  --color-primary: #1D4E89;
+  --color-primary-content: #FFFFFF;
+}
+
+[data-theme="dark"] [data-skin="blueprint"] {
+  --color-primary: #8FBCE8;
+  --color-primary-content: #0E2B4F;
+}
+
+[data-skin="vintage-pump"] .dos-sticker-frame {
+  --skin-body: #F5E9CF;
+  --skin-body-opacity: 1;
+  --skin-peel-opacity: 1;
+  --skin-edge: #FBF4E4;
+  --skin-edge-opacity: 1;
+  --skin-ink: #402A1E;
+  --skin-halo: #F5E9CF;
+  --skin-brand-a: #8C2B2E;
+  --skin-brand-b: #B4690E;
+  --skin-checker-light: #F5E9CF;
+  --skin-checker-dark: #402A1E;
+  --skin-vp-ink: #402A1E;
+  --skin-stamp: #7A2024;
+  --skin-stamp-underline: #7A202466;
+  --skin-skeleton: #402A1E22;
+}
+
+[data-theme="light"] [data-skin="vintage-pump"] {
+  --color-primary: #8C2B2E;
+  --color-primary-content: #FFFFFF;
+}
+
+[data-theme="dark"] [data-skin="vintage-pump"] {
+  --color-primary: #E8A94F;
+  --color-primary-content: #2B1608;
+}
+
+[data-skin="track-day"] .dos-sticker-frame {
+  --skin-body: #FFFFFF;
+  --skin-body-opacity: 1;
+  --skin-peel-opacity: 1;
+  --skin-edge: #C8102E;
+  --skin-edge-opacity: 1;
+  --skin-ink: #14181D;
+  --skin-halo: #FFFFFF;
+  --skin-brand-a: #C8102E;
+  --skin-brand-b: #4A525C;
+  --skin-checker-light: #FFFFFF;
+  --skin-checker-dark: #14181D;
+  --skin-vp-ink: #14181D;
+  --skin-stamp: #C8102E;
+  --skin-stamp-underline: #C8102E66;
+  --skin-skeleton: #14181D22;
+}
+
+[data-skin="track-day"] {
+  --color-primary: #C8102E;
+  --color-primary-content: #FFFFFF;
+}
+
+[data-skin="brushed-steel"] .dos-sticker-frame {
+  --skin-body: #D7DBDE;
+  --skin-body-opacity: 1;
+  --skin-peel-opacity: 1;
+  --skin-edge: #F7FAF8;
+  --skin-edge-opacity: 1;
+  --skin-ink: #1F262B;
+  --skin-halo: #F7FAF8;
+  --skin-brand-a: #1E5C8F;
+  --skin-brand-b: #4A5560;
+  --skin-checker-light: #E9ECEF;
+  --skin-checker-dark: #1F262B;
+  --skin-vp-ink: #1F262B;
+  --skin-stamp: #1E5C8F;
+  --skin-stamp-underline: #1E5C8F66;
+  --skin-skeleton: #1F262B22;
+}
+
+[data-theme="light"] [data-skin="brushed-steel"] {
+  --color-primary: #1E5C8F;
+  --color-primary-content: #FFFFFF;
+}
+
+[data-theme="dark"] [data-skin="brushed-steel"] {
+  --color-primary: #7FB3DC;
+  --color-primary-content: #0F1B24;
+}
+
+/* Picker swatch dots: each shows its OWN skin's body + accent as a
+ * ring-and-center, in literal colors — a dot must preview its skin while
+ * the page wears another, so these never read the live tokens. */
+.dos-skin-dot {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 9999px;
+  flex: none;
+}
+
+.dos-skin-dot-service-bay {
+  background: #FFFFFF;
+  border: 3px solid #159447;
+}
+
+.dos-skin-dot-midnight-shift {
+  background: #101820;
+  border: 3px solid #3DDC84;
+}
+
+.dos-skin-dot-blueprint {
+  background: #123C6B;
+  border: 3px solid #DCE9F7;
+}
+
+.dos-skin-dot-vintage-pump {
+  background: #F5E9CF;
+  border: 3px solid #8C2B2E;
+}
+
+.dos-skin-dot-track-day {
+  background: #FFFFFF;
+  border: 3px solid #C8102E;
+}
+
+.dos-skin-dot-brushed-steel {
+  background: #D7DBDE;
+  border: 3px solid #1E5C8F;
 }

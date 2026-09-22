@@ -39,11 +39,12 @@ defmodule DigitalOilStickerWeb.Hosts do
 
   @doc "Hosts that may serve the application and open a socket, in production."
   @spec production() :: [String.t()]
-  def production, do: [
-    "digitaloilsticker.com",
-    "www.digitaloilsticker.com",
-    @fly_host
-  ]
+  def production,
+    do: [
+      "digitaloilsticker.com",
+      "www.digitaloilsticker.com",
+      @fly_host
+    ]
 
   @doc "Owned hosts that are not yet served. Documentation, not trust."
   @spec planned() :: [String.t()]

@@ -19,7 +19,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
   import DigitalOilStickerWeb.Components.Sticker
   import DigitalOilStickerWeb.Components.StickerQr
   alias DigitalOilSticker.{Due, StickerCode}
-  alias DigitalOilStickerWeb.{Copy, Hosts}
+  alias DigitalOilStickerWeb.{Copy, Hosts, Skins}
   alias DigitalOilStickerWeb.LocalStore.Session
 
   @impl true
@@ -59,6 +59,32 @@ defmodule DigitalOilStickerWeb.StickerLive do
           Session.stage_mutation(socket, [%{"store" => "prefs", "record" => prefs}], [])
 
         {:noreply, assign(socket, :garage_open?, false)}
+    end
+  end
+
+  def handle_event("set_skin", %{"skin" => skin}, socket) when is_binary(skin) do
+    cond do
+      # Unknown slug: a stale button from a newer release, or a hand-crafted
+      # payload. Either way there is nothing honest to write — ignore.
+      skin not in Skins.slugs() ->
+        {:noreply, socket}
+
+      # Same three-branch guard as switch_vehicle above, for the same reasons.
+      not Session.mutations_enabled?(socket) ->
+        {:noreply, socket}
+
+      Session.prefs_quarantined?(socket) ->
+        {:noreply, put_flash(socket, :error, Copy.prefs_unreadable())}
+
+      true ->
+        prefs =
+          (socket.assigns.garage.prefs || %{})
+          |> Map.put("sticker_skin", skin)
+
+        {socket, _mutation_id} =
+          Session.stage_mutation(socket, [%{"store" => "prefs", "record" => prefs}], [])
+
+        {:noreply, socket}
     end
   end
 
@@ -131,6 +157,7 @@ defmodule DigitalOilStickerWeb.StickerLive do
       read_only={@read_only}
       conflict_notice={@conflict_notice}
       storage_mode={@storage_mode}
+      skin={@skin}
     >
       <div class="mx-auto max-w-2xl">
         <%!-- Which vehicle this sticker is about, as a description rather than
@@ -249,6 +276,42 @@ defmodule DigitalOilStickerWeb.StickerLive do
         >
           {@view.qualifier}
         </p>
+
+        <%!-- The skin picker. Only in :sticker mode: pre-hydration renders no
+             controls (the pref isn't known yet), and in :empty there is no
+             sticker to preview — that mode's single job is vehicle setup.
+             Toggle-button group, not radios: aria-pressed carries the state,
+             no roving tabindex needed, and the pressed change IS the
+             announcement (same pattern as switch_vehicle). --%>
+        <div :if={@view.mode == :sticker} class="mt-4 text-center" data-test="skin-picker">
+          <p
+            id="skin-picker-label"
+            class="text-xs font-semibold uppercase tracking-wide text-base-content/70"
+          >
+            {Copy.skins_label()}
+          </p>
+          <div
+            role="group"
+            aria-labelledby="skin-picker-label"
+            class="mt-1 flex flex-wrap justify-center gap-2"
+          >
+            <button
+              :for={slug <- Skins.slugs()}
+              type="button"
+              phx-click="set_skin"
+              phx-value-skin={slug}
+              aria-pressed={to_string(@skin == slug)}
+              class={[
+                "btn btn-sm min-h-11 min-w-11 gap-1.5 normal-case",
+                @skin == slug && "btn-active"
+              ]}
+              data-test={"skin-" <> slug}
+            >
+              <span class={"dos-skin-dot dos-skin-dot-" <> slug} aria-hidden="true"></span>
+              {Copy.skin_name(slug)}
+            </button>
+          </div>
+        </div>
 
         <.qr_symbol :if={@view.qr} code={@view.qr.code} payload={@view.qr.payload} />
 

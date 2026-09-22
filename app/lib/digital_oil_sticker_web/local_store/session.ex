@@ -7,6 +7,7 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
   """
   import Phoenix.Component, only: [assign: 3]
   alias DigitalOilSticker.LocalStore.{Envelope, Migrations, Validation}
+  alias DigitalOilStickerWeb.Skins
 
   @hydration_deadline_ms Application.compile_env(
                            :digital_oil_sticker,
@@ -89,6 +90,10 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       # not saved, is the failure INV-24.5 exists to prevent.
       |> assign(:unsaved_writes, [])
       |> assign(:garage, @empty_garage)
+      # The sticker skin, derived from prefs on every hydrate and write.
+      # Pre-hydration it is the default — the skeleton renders in Service Bay,
+      # which is also what a hydrate failure honestly leaves on screen.
+      |> assign(:skin, Skins.default())
       |> assign(:catalog_budget, DigitalOilSticker.Catalog.RateLimit.new())
 
     if Phoenix.LiveView.connected?(socket) do
@@ -119,8 +124,14 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
       # line renders, so both surfaces move together on every hydrate. Not a
       # :local_state branch — writes stay enabled per FR-13.
       |> assign(:quota_pressure, quota_pressured?(quota))
-      |> assign(:garage, to_garage(data))
-      |> assign(:local_state, resolve_state(to_garage(data), envelope.storage))
+      |> then(fn socket ->
+        garage = to_garage(data)
+
+        socket
+        |> assign(:garage, garage)
+        |> assign(:skin, Skins.from_prefs(garage.prefs))
+        |> assign(:local_state, resolve_state(garage, envelope.storage))
+      end)
     else
       {:error, {:newer_than_server, _}} ->
         socket
@@ -196,14 +207,17 @@ defmodule DigitalOilStickerWeb.LocalStore.Session do
 
     Process.send_after(self(), {:local_store_ack_timeout, mutation_id}, @ack_timeout_ms)
 
+    garage = socket.assigns.garage |> apply_upserts(upserts) |> apply_deletes(deletes)
+
     socket =
       socket
       |> assign(:pending_writes, pending)
       |> assign(:seq, seq)
-      |> assign(
-        :garage,
-        socket.assigns.garage |> apply_upserts(upserts) |> apply_deletes(deletes)
-      )
+      |> assign(:garage, garage)
+      # Re-derived on every write, not only on skin writes: any prefs upsert
+      # may carry (or drop) `sticker_skin`, and the attribute must track the
+      # optimistically-applied garage, not the pre-write one.
+      |> assign(:skin, Skins.from_prefs(garage.prefs))
       |> Phoenix.LiveView.push_event("local_store:put", payload)
       |> maybe_auto_request_persist()
 

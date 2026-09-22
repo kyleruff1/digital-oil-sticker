@@ -24,7 +24,7 @@ The approved canonical main logo is `digital-oil-sticker-logo.svg`. It preserves
 | Outline/highlight white | `#F7FAF8` |
 | Cling white | `#FFFFFF` at 72% body opacity |
 
-Keep clear space equal to at least one large pixel-square width. Do not remove or rewrite `NEXT SERVICE DUE`, recolor individual elements, alter the approved green/white/blue shading, or stretch the artwork. Do not place the full sticker lockup below 320 CSS pixels wide; at smaller sizes, use the compact mark.
+Keep clear space equal to at least one large pixel-square width. Do not remove or rewrite `NEXT SERVICE DUE`, recolor individual elements, alter the approved green/white/blue shading, or stretch the artwork — these prohibitions apply to the DEFAULT skin's artwork; the owner-approved skin variants (see the "Sticker skins" annex in `docs/product/BRAND.md`, adopted 2026-09-21) re-color through the CSS token system only and never alter geometry, the wordmark, or the heading. Do not place the full sticker lockup below 320 CSS pixels wide; at smaller sizes, use the compact mark.
 
 The SVG canvas is fully transparent outside the sticker shape, and the white cling body is intentionally 72% opaque. This allows moving car-window imagery to remain visible beneath the form. Structural black uses a near-white outline/halo so it remains legible over both light and dark motion; green and blue retain near-white shading. Live input/viewports are separate DOM elements, not artwork embedded in the SVG. Before app-store submission, produce platform-specific icon exports with the required opaque backgrounds and safe zones; do not submit this transparent master directly as an iOS app icon.
 

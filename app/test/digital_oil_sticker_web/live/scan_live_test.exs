@@ -261,6 +261,19 @@ defmodule DigitalOilStickerWeb.ScanLiveTest do
   end
 
   describe "no browser storage is loaded on this page" do
+    test "the scan page never carries a data-skin attribute", %{conn: conn} do
+      # /s renders no Layouts.app and hydrates no prefs, so the sticker
+      # resolves the CSS token defaults — the default skin — by construction.
+      # A data-skin appearing here would mean someone's preference leaked
+      # into a stranger's view.
+      {:ok, view, html} = live(conn, ~p"/s")
+
+      refute html =~ "data-skin"
+
+      html = render_hook(view, "scan_code", %{"code" => sample_code()})
+      refute html =~ "data-skin"
+    end
+
     test "the scan route is NOT in the :garage live_session", %{conn: conn} do
       # The whole design of this page is that a stranger can visit without
       # any IndexedDB hydration attempt. If ScanLive lands in :garage, the

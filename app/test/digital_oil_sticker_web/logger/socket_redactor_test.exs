@@ -19,6 +19,7 @@ defmodule DigitalOilStickerWeb.Logger.SocketRedactorTest do
       # a whitespace/encoding drift by the filter is a failure here.
       assert SocketRedactor.redact_sockets("plain text") == "plain text"
       assert SocketRedactor.redact_sockets("") == ""
+
       assert SocketRedactor.redact_sockets("2026-08-01 [info] request completed in 3ms") ==
                "2026-08-01 [info] request completed in 3ms"
     end

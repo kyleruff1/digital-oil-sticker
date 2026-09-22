@@ -67,8 +67,12 @@ defmodule DigitalOilSticker.LocalStore.Schema.V1 do
   # `active_vehicle_id` was added after v1 shipped. Additive, so no version
   # bump: an older payload without it validates unchanged, and an older
   # deployment reading a newer payload carries it through `__unknown__`.
+  # `sticker_skin` (2026-09-21) follows the same additive path — and, like
+  # `active_vehicle_id`, it is deliberately unvalidated: an unknown skin slug
+  # falls back to the default at render time. Quarantining the whole prefs
+  # singleton over a cosmetic value would destroy `active_vehicle_id` with it.
   @prefs_keys ~w(unit_system time_zone onboarding_version display dismissed_notices
-                 active_vehicle_id)
+                 active_vehicle_id sticker_skin)
   @meta_keys ~w(schema_version seq created_at last_write_at write_count persist_granted log)
 
   @type result :: {:ok, map()} | {:error, atom()}

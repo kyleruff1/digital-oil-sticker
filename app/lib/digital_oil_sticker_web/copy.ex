@@ -385,6 +385,20 @@ defmodule DigitalOilStickerWeb.Copy do
 
   def scan_return_to_app, do: "Open Digital Oil Sticker"
 
+  # --- Sticker skins ----------------------------------------------------------
+  # Six owner-approved looks for the sticker artwork (DigitalOilStickerWeb.Skins
+  # owns the slugs). Names are original coinages — no oil brand, no auto maker,
+  # no certification mark — which is what keeps them clear of the third-party
+  # asset guard and the no-affiliation posture.
+  def skins_label, do: "Sticker style"
+
+  def skin_name("service-bay"), do: "Service Bay"
+  def skin_name("midnight-shift"), do: "Midnight Shift"
+  def skin_name("blueprint"), do: "Blueprint"
+  def skin_name("vintage-pump"), do: "Vintage Pump"
+  def skin_name("track-day"), do: "Track Day"
+  def skin_name("brushed-steel"), do: "Brushed Steel"
+
   # --- No-affiliation (rev-2 policy, verbatim) --------------------------------
   def no_affiliation do
     "Vehicle, lubricant, and filter names are used only to identify applicable " <>

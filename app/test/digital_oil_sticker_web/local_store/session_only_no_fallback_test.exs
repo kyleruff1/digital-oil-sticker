@@ -137,6 +137,7 @@ defmodule DigitalOilStickerWeb.LocalStore.SessionOnlyNoFallbackTest do
       refute_push_event(view, "local_store:put", %{})
 
       after_ = assigns_snapshot(view)
+
       assert before.garage == after_.garage,
              "session_only allowed a mutation to reach garage — fallback path exists"
 

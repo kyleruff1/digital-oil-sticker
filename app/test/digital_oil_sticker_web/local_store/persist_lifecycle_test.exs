@@ -122,6 +122,7 @@ defmodule DigitalOilStickerWeb.LocalStore.PersistLifecycleTest do
 
     a = assigns(view)
     assert a.local_state == :loaded
+
     assert a.persist_requested == false,
            "hydration must not flip the fire-once guard — only a staged mutation may"
 

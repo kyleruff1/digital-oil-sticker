@@ -87,7 +87,8 @@ defmodule DigitalOilStickerWeb.Logger.SocketRedactor do
   standard formatter, then redacts every socket representation in the
   resulting iodata.
   """
-  @spec format(Logger.level(), Logger.message(), Logger.Formatter.time(), keyword()) :: IO.chardata()
+  @spec format(Logger.level(), Logger.message(), Logger.Formatter.time(), keyword()) ::
+          IO.chardata()
   def format(level, msg, timestamp, metadata) do
     @format_pattern
     |> Logger.Formatter.format(level, msg, timestamp, metadata)
@@ -131,5 +132,4 @@ defmodule DigitalOilStickerWeb.Logger.SocketRedactor do
         Regex.replace(@socket_regex, str, "#Phoenix.LiveView.Socket<[REDACTED]>")
     end
   end
-
 end

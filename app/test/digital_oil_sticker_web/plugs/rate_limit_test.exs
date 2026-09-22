@@ -143,7 +143,9 @@ defmodule DigitalOilStickerWeb.Plugs.RateLimitTest do
         conn = RateLimit.call(conn_from({203, 0, 113, 1}), opts)
 
         refute conn.halted, "request ##{i} of 3 halted; the bucket should still have tokens"
-        assert conn.status == nil, "request ##{i} sent a response; the plug should be pass-through"
+
+        assert conn.status == nil,
+               "request ##{i} sent a response; the plug should be pass-through"
       end
     end
   end

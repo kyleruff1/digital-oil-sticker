@@ -36,6 +36,44 @@ The home route renders `logo.svg` as the bottom layer of a `position: relative; 
 
 `DATE`, `OR`, `MILEAGE`, `GRADE` labels and their values are HTML, not artwork. Full usage rules (clear space, no recolor/stretch, 320 px minimum, app-store icon caveat) are in `assets/brand/README.md`.
 
+## Sticker skins (owner-approved 2026-09-21)
+
+The sticker artwork is parametric: the deployed component
+(`app/lib/digital_oil_sticker_web/components/sticker_art.ex`) is an inline-SVG
+transcription of `logo.svg` whose paints resolve through CSS custom properties
+(`--skin-*`, declared in `app/assets/css/app.css`). Six owner-approved skins
+re-declare those tokens under a `data-skin` attribute; a picker on the front
+page switches them, and the choice persists in the browser's prefs
+(`sticker_skin`).
+
+**Service Bay is the default and IS the locked contract above, pixel-identical
+by construction**: the CSS token defaults are the locked palette, no override
+block exists for the default skin, and `sticker_art_parity_test.exs` holds the
+inline transcription element-for-element equal to `logo.svg` (which remains
+the canonical reference). The locked color contract and the "no recolor"
+usage rule in `assets/brand/README.md` are scoped to the DEFAULT skin's
+artwork; the five variants below are the owner-approved exception, and they
+never alter geometry, the wordmark, `NEXT SERVICE DUE`, or the viewport
+contract — color, opacity, and accent only.
+
+The five variants are opaque-bodied (the 72% cling translucency is part of
+the default's identity, not theirs). Every HTML-text pairing is computed
+≥ 4.5:1. Page accents re-tint `--color-primary` under the same `data-skin`
+scope; the browser-chrome `theme-color` follows the skin's accent via the
+`SkinChrome` hook. The scan page (`/s`) always renders the default.
+
+| Skin | Body | Ink | Brand A | Brand B | Stamp | Accent (light / dark) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Service Bay (default) | `#FFFFFF` @ 72% | `#101820` | `#159447` | `#1769AA` | `#159447` | `#159447` (static) |
+| Midnight Shift | `#101820` | `#F7FAF8` | `#3DDC84` | `#4FB8FF` | `#3DDC84` | `#3DDC84`/`#101820` both |
+| Blueprint | `#123C6B` | `#F7FAF8` | `#DCE9F7` | `#9FC4E8` | `#FFFFFF` | `#1D4E89`/`#FFFFFF` · `#8FBCE8`/`#0E2B4F` |
+| Vintage Pump | `#F5E9CF` | `#402A1E` | `#8C2B2E` | `#B4690E` | `#7A2024` | `#8C2B2E`/`#FFFFFF` · `#E8A94F`/`#2B1608` |
+| Track Day | `#FFFFFF` | `#14181D` | `#C8102E` | `#4A525C` | `#C8102E` | `#C8102E`/`#FFFFFF` both |
+| Brushed Steel | `#D7DBDE` | `#1F262B` | `#1E5C8F` | `#4A5560` | `#1E5C8F` | `#1E5C8F`/`#FFFFFF` · `#7FB3DC`/`#0F1B24` |
+
+Full per-token values (edge, halo, checkers, skeleton, underline) live in the
+skin blocks of `app/assets/css/app.css` — the single source the app reads.
+
 ## Design history (do not use in production)
 
 `assets/brand/drafts/` retains the superseded iterations: the original orange-drop/teal-gauge badge (`logo-original-badge.png`), the first checkered-form SVG (`logo-form-v1.svg`), badge SVG drafts, and the earlier compact mark. The teal/amber concept is design history only.

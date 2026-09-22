@@ -14,6 +14,7 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
     router: DigitalOilStickerWeb.Router,
     statics: DigitalOilStickerWeb.static_paths()
 
+  alias DigitalOilStickerWeb.Components.StickerArt
   alias DigitalOilStickerWeb.Copy
 
   attr :date_value, :string, default: nil
@@ -31,13 +32,12 @@ defmodule DigitalOilStickerWeb.Components.Sticker do
     <div class="dos-sticker-frame">
       <%!-- Full lockup ≥ 320 CSS px (brand minimum). --%>
       <div class="dos-sticker relative w-full">
-        <img
-          src={~p"/images/dos-logo.svg"}
-          alt=""
-          aria-hidden="true"
-          class="absolute inset-0 h-full w-full select-none"
-          draggable="false"
-        />
+        <%!-- Inline artwork, not an <img>: skins re-paint it through CSS
+             custom properties, which a static image cannot receive. The
+             transcription is held equal to priv/static/images/dos-logo.svg
+             by sticker_art_parity_test.exs; the file remains the canonical
+             brand reference. --%>
+        <StickerArt.artwork />
         <.viewport
           label="Date"
           value={@date_value}

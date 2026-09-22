@@ -140,6 +140,13 @@ defmodule DigitalOilStickerWeb.InducedCrashLogTest do
     %{
       lv: DigitalOilStickerWeb.StickerLive,
       route: "/",
+      event: "set_skin",
+      pattern: {:strict, %{"skin" => :required}},
+      crash_target?: false
+    },
+    %{
+      lv: DigitalOilStickerWeb.StickerLive,
+      route: "/",
       event: "ask_delete_vehicle",
       pattern: {:strict, %{"vehicle-id" => :required}},
       crash_target?: false

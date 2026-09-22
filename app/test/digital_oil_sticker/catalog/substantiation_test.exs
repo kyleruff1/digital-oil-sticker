@@ -190,9 +190,7 @@ defmodule DigitalOilSticker.Catalog.SubstantiationTest do
     test "no config reaches :schedule_supported / :full_product_supported " <>
            "across the three fact-yielding facades" do
       keys =
-        CatalogRepo.all(
-          from(c in "vehicle_configurations", select: c.configuration_key)
-        )
+        CatalogRepo.all(from(c in "vehicle_configurations", select: c.configuration_key))
 
       assert length(keys) > 0,
              "fixture must contain vehicle_configurations rows for this sweep " <>
@@ -237,9 +235,7 @@ defmodule DigitalOilSticker.Catalog.SubstantiationTest do
       # status added by a refactor) trips this before it can be interpreted
       # by callers that pattern-match on the old set.
       keys =
-        CatalogRepo.all(
-          from(c in "vehicle_configurations", select: c.configuration_key)
-        )
+        CatalogRepo.all(from(c in "vehicle_configurations", select: c.configuration_key))
 
       facades = [
         {:get_schedules, &Catalog.get_schedules/1},

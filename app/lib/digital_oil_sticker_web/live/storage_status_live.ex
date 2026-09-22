@@ -55,6 +55,7 @@ defmodule DigitalOilStickerWeb.StorageStatusLive do
       read_only={@read_only}
       conflict_notice={@conflict_notice}
       storage_mode={@storage_mode}
+      skin={@skin}
     >
       <div class="mx-auto max-w-xl">
         <h1 class="text-2xl font-bold">Storage</h1>

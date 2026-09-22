@@ -95,12 +95,10 @@ defmodule DigitalOilSticker.Catalog do
       # empty child set".
       cond do
         not Identity.make_exists?(s.year, s.make_id) ->
-          {:ok,
-           Result.new(:unsupported, [], qualifiers: [%{code: :parent_not_in_cascade}])}
+          {:ok, Result.new(:unsupported, [], qualifiers: [%{code: :parent_not_in_cascade}])}
 
         not Identity.model_exists?(s.year, s.make_id, s.model_id) ->
-          {:ok,
-           Result.new(:unsupported, [], qualifiers: [%{code: :parent_not_in_cascade}])}
+          {:ok, Result.new(:unsupported, [], qualifiers: [%{code: :parent_not_in_cascade}])}
 
         true ->
           with {:ok, rows, cursor} <- Identity.configurations_page(s) do

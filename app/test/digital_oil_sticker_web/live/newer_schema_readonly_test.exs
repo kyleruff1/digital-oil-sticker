@@ -102,6 +102,7 @@ defmodule DigitalOilStickerWeb.NewerSchemaReadonlyTest do
     render_hook(view, "local_store:hydrate", @newer_envelope)
 
     socket = :sys.get_state(view.pid).socket
+
     refute Session.mutations_enabled?(socket),
            "hydrated read-only state must still gate mutations"
 
