@@ -25,6 +25,12 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Endpoint,
 config :digital_oil_sticker, hydration_deadline_ms: 100
 config :digital_oil_sticker, ack_timeout_ms: 100
 
+# Route the Grok client through Req.Test — every HTTP call is served by a
+# per-test stub via Req.Test.set_req_test_from_context/1 + Req.Test.stub/2.
+# No network traffic in the test env regardless of XAI_API_KEY.
+config :digital_oil_sticker, DigitalOilSticker.Grok.Client,
+  req_options: [plug: {Req.Test, DigitalOilSticker.Grok.Client}]
+
 # The whole suite calls the endpoint from `127.0.0.1`, so with the production
 # defaults (60 burst / 1 per second) every test past the first sixty would
 # share one drained bucket and fail with a 429. Rate-limit tests that need

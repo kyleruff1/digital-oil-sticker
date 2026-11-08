@@ -1,0 +1,190 @@
+openapi: 3.1.0
+info:
+  title: Digital Oil Sticker API
+  version: 1.0.0
+  description: |
+    Open, read-only REST API that returns QR oil-change stickers in the
+    format your printer already speaks. One POST at work-order close.
+    No shop account. No new hardware. No per-shop subscription.
+  contact:
+    name: Digital Oil Sticker
+    url: https://digitaloilsticker.com
+  license:
+    name: UNLICENSED
+
+servers:
+  - url: https://digitaloilsticker.com/api/v1
+    description: Production
+  - url: https://digital-oil-sticker.fly.dev/api/v1
+    description: Fly.io canonical
+
+paths:
+  /formats:
+    get:
+      summary: List the output formats the renderer supports
+      operationId: listFormats
+      responses:
+        "200":
+          description: Formats list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  formats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        content_type: { type: string }
+                        description: { type: string }
+
+  /stickers:
+    post:
+      summary: Generate a sticker from a service record
+      operationId: generateSticker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StickerInput"
+      responses:
+        "200":
+          description: Rendered sticker bytes
+          headers:
+            X-Sticker-Code:
+              description: The compact sticker code
+              schema: { type: string }
+            X-Sticker-URL:
+              description: The URL the QR encodes
+              schema: { type: string, format: uri }
+          content:
+            image/png: { schema: { type: string, format: binary } }
+            image/svg+xml: { schema: { type: string } }
+            application/vnd.zebra.zpl: { schema: { type: string } }
+            application/octet-stream: { schema: { type: string, format: binary } }
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  url: { type: string, format: uri }
+                  data: { type: string, description: "base64-encoded output" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "422": { $ref: "#/components/responses/UnprocessableEntity" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /stickers/from-text:
+    post:
+      summary: Generate a sticker from free-text service notes (Grok-backed)
+      operationId: generateStickerFromText
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [configuration_key, text]
+              properties:
+                configuration_key: { type: string, format: uuid }
+                text: { type: string }
+                format:
+                  type: string
+                  enum: [png, svg, zpl, esc_pos, epl, tspl]
+                  default: png
+      responses:
+        "200":
+          description: Rendered sticker bytes
+        "422": { $ref: "#/components/responses/UnprocessableEntity" }
+        "502":
+          description: Grok upstream error
+        "503":
+          description: Grok not configured on this server
+
+  /stickers/{code}.{format}:
+    get:
+      summary: Re-render an existing sticker code
+      operationId: getSticker
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema: { type: string }
+        - name: format
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [png, svg, zpl, esc_pos, epl, tspl]
+      responses:
+        "200":
+          description: Rendered sticker bytes
+          headers:
+            Cache-Control:
+              schema: { type: string, example: "public, max-age=31536000, immutable" }
+
+components:
+  schemas:
+    StickerInput:
+      type: object
+      required: [configuration_key]
+      properties:
+        configuration_key:
+          type: string
+          format: uuid
+          description: Catalog UUID for the vehicle configuration
+        changed_on:
+          type: string
+          format: date
+        odometer_m:
+          type: integer
+          description: Odometer in whole metres (canonical)
+        odometer:
+          type: number
+          description: Odometer value — pair with odometer_unit
+        odometer_unit:
+          type: string
+          enum: [mi, km]
+        grade:
+          type: string
+          enum: [0W-8, 0W-16, 0W-20, 0W-30, 0W-40, 5W-20, 5W-30, 5W-40, 5W-50, 10W-30, 10W-40, 10W-60, 15W-40, 20W-50]
+        base_stock:
+          type: string
+          enum: [conventional, synthetic_blend, full_synthetic, high_mileage]
+        format:
+          type: string
+          enum: [png, svg, zpl, esc_pos, epl, tspl]
+          default: png
+        output:
+          type: string
+          enum: [json]
+          description: Return a JSON envelope with base64-encoded output
+        width:
+          type: integer
+          default: 320
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    UnprocessableEntity:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    RateLimited:
+      description: Too many requests
+      headers:
+        Retry-After:
+          description: Seconds until the next token is available
+          schema: { type: integer }

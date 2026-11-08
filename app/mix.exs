@@ -71,7 +71,19 @@ defmodule DigitalOilSticker.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      # Integration surface (M01-003+): the public REST API + MCP server lets
+      # a Tekmetric / Shopmonkey / Shop-Ware shop POST a service record and
+      # receive a QR sticker in whatever printer language they already speak.
+      # eqrcode produces the QR matrix; PNG/SVG/ZPL/ESC-POS are rendered from
+      # that matrix by hand (no imaging lib needed at MVP).
+      {:eqrcode, "~> 0.2"},
+      # cors_plug: wildcard CORS on /api/v1/* so a browser-side POS integration
+      # (Shopmonkey's work-order screen is one) can call us without a proxy.
+      {:cors_plug, "~> 3.0"},
+      # req: the Grok client talks to api.x.ai (OpenAI-compatible) through this.
+      # Grok is NEVER in the sticker generation hot path — only parse-from-text.
+      {:req, "~> 0.5"}
     ]
   end
 
