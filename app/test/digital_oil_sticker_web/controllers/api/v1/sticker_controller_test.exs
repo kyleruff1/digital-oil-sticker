@@ -139,6 +139,167 @@ defmodule DigitalOilStickerWeb.Api.V1.StickerControllerTest do
     end
   end
 
+  describe "POST /api/v1/stickers/from-text" do
+    # The Grok-backed endpoint. `Req.Test.stub/2` intercepts the HTTP call
+    # before any network traffic — config/test.exs wires the Grok.Client's
+    # req_options to {Req.Test, DigitalOilSticker.Grok.Client}, and the
+    # controller runs in this same test process (Phoenix.ConnTest.dispatch
+    # is synchronous), so the stub is visible to the Req.request/1 call
+    # inside the controller.
+
+    setup do
+      original = System.get_env("XAI_API_KEY")
+      System.put_env("XAI_API_KEY", "test-key")
+
+      on_exit(fn ->
+        if original do
+          System.put_env("XAI_API_KEY", original)
+        else
+          System.delete_env("XAI_API_KEY")
+        end
+      end)
+
+      :ok
+    end
+
+    defp tool_call_response(args) do
+      %{
+        "choices" => [
+          %{
+            "message" => %{
+              "content" => nil,
+              "tool_calls" => [
+                %{
+                  "id" => "call_1",
+                  "type" => "function",
+                  "function" => %{
+                    "name" => "record_service",
+                    "arguments" => Jason.encode!(args)
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    end
+
+    defp prose_response(content) do
+      %{"choices" => [%{"message" => %{"content" => content, "tool_calls" => []}}]}
+    end
+
+    defp stub_json(json) do
+      Req.Test.stub(DigitalOilSticker.Grok.Client, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(json))
+      end)
+    end
+
+    test "happy path: Grok returns fields → PNG bytes with x-sticker-code header",
+         %{conn: conn} do
+      stub_json(
+        tool_call_response(%{
+          "grade" => "5W-30",
+          "base_stock" => "full_synthetic",
+          "odometer" => 45_000,
+          "odometer_unit" => "mi",
+          "changed_on" => "2026-11-08"
+        })
+      )
+
+      body = %{
+        "configuration_key" => @key,
+        "text" => "Full synthetic 5W-30, 45,000 miles, changed today",
+        "format" => "png"
+      }
+
+      conn = post(conn, ~p"/api/v1/stickers/from-text", body)
+
+      assert conn.status == 200
+      assert get_resp_header(conn, "content-type") == ["image/png; charset=utf-8"]
+      assert <<137, 80, 78, 71, _rest::binary>> = conn.resp_body
+      assert [code] = get_resp_header(conn, "x-sticker-code")
+      assert String.length(code) >= 20
+    end
+
+    test ":no_api_key → 503 grok_not_configured", %{conn: conn} do
+      # Override the per-describe setup for this one test: no key at all.
+      System.delete_env("XAI_API_KEY")
+
+      conn =
+        post(conn, ~p"/api/v1/stickers/from-text", %{
+          "configuration_key" => @key,
+          "text" => "5W-30 full synthetic"
+        })
+
+      assert %{"error" => "grok_not_configured"} = json_response(conn, 503)
+    end
+
+    test ":no_tool_call (Grok replied in prose) → 422 could_not_parse_text",
+         %{conn: conn} do
+      stub_json(prose_response("I'm not sure what you meant."))
+
+      conn =
+        post(conn, ~p"/api/v1/stickers/from-text", %{
+          "configuration_key" => @key,
+          "text" => "gibberish nonsense"
+        })
+
+      assert %{"error" => "could_not_parse_text"} = json_response(conn, 422)
+    end
+
+    test ":transport_error → 502 grok_unreachable", %{conn: conn} do
+      Req.Test.stub(DigitalOilSticker.Grok.Client, fn conn ->
+        Req.Test.transport_error(conn, :econnrefused)
+      end)
+
+      conn =
+        post(conn, ~p"/api/v1/stickers/from-text", %{
+          "configuration_key" => @key,
+          "text" => "5W-30 full synthetic"
+        })
+
+      assert %{"error" => "grok_unreachable"} = json_response(conn, 502)
+    end
+
+    test "{:http_error, 500} → 502 grok_error", %{conn: conn} do
+      Req.Test.stub(DigitalOilSticker.Grok.Client, fn conn ->
+        Plug.Conn.send_resp(conn, 500, ~s|{"error":"server error"}|)
+      end)
+
+      conn =
+        post(conn, ~p"/api/v1/stickers/from-text", %{
+          "configuration_key" => @key,
+          "text" => "5W-30 full synthetic"
+        })
+
+      assert %{"error" => "grok_error"} = json_response(conn, 502)
+    end
+
+    test "missing text → 400 missing_text", %{conn: conn} do
+      conn =
+        post(conn, ~p"/api/v1/stickers/from-text", %{
+          "configuration_key" => @key
+        })
+
+      assert %{"error" => "missing_text"} = json_response(conn, 400)
+    end
+
+    test "missing configuration_key → 422 invalid_configuration_key", %{conn: conn} do
+      # The controller's `require_key/1` guards against an EMPTY string
+      # with {:error, :missing_configuration_key} → 422
+      # missing_configuration_key. Omitting the key entirely routes the
+      # same way (Map.get returns nil, which fails the is_binary guard).
+      conn =
+        post(conn, ~p"/api/v1/stickers/from-text", %{
+          "text" => "5W-30 full synthetic"
+        })
+
+      assert %{"error" => "missing_configuration_key"} = json_response(conn, 422)
+    end
+  end
+
   describe "CORS" do
     test "OPTIONS preflight succeeds from any origin", %{conn: conn} do
       conn =
