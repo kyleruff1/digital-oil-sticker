@@ -75,6 +75,18 @@ config :phoenix, :filter_parameters, {:keep, []}
 
 config :phoenix, :json_library, Jason
 
+# Rate limit for the Grok-backed /api/v1/stickers/from-text endpoint.
+# Separate from the loose /api/v1/* bucket because each Grok call costs
+# real money, and a shared 60/min quota means an attacker can drain
+# the whole budget through /from-text. 10 req/min, burst 10.
+#
+# 1/6 ≈ 0.1667 tokens/s — one token every six seconds, so the long-run
+# rate matches a 10/min target and a saturated caller gets a Retry-After
+# of one bucket-refill interval.
+config :digital_oil_sticker, DigitalOilStickerWeb.Plugs.RateLimit.GrokBucket,
+  capacity: 10,
+  refill_per_second: 0.1667
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

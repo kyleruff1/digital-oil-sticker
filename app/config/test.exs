@@ -39,6 +39,13 @@ config :digital_oil_sticker, DigitalOilStickerWeb.Plugs.RateLimit,
   capacity: 1_000_000,
   refill_per_second: 1_000_000
 
+# Same relaxation for the strict /from-text bucket — 127.0.0.1 is the
+# whole suite's client, and the F1 controller tests hit /from-text
+# through it. The dedicated F5 test overrides this per-test.
+config :digital_oil_sticker, DigitalOilStickerWeb.Plugs.RateLimit.GrokBucket,
+  capacity: 1_000_000,
+  refill_per_second: 1_000_000
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 

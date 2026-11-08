@@ -262,3 +262,21 @@ lines of test (an F4 analog for the strict bucket).
 - [x] Catalog has summary table + per-file sections + stubs.
 - [x] Every row labeled OK / REGRESSION / FLAKY / NEEDS INVESTIGATION.
 - [x] No regressions → full stub set below.
+
+## Follow-ups landed
+
+- [x] F1 — commit `208e69c` — 7 new tests on `POST /from-text` (14 → 21 in the file).
+- [x] F3 — commit `7c71a76` — 6 new tests on `POST /mcp` (new file).
+- [x] F2 — commit `1a83d24` — 33 new tests across six renderer files + a dispatcher file (new dir).
+  During grouped verification, the pre-existing `test/digital_oil_sticker/qr_test.exs`
+  collided on the `DigitalOilSticker.QRTest` module name; the per-format split subsumed
+  it with stricter assertions, so it was dropped in the F5 commit.
+- [x] F4 — commit `6a7e8c0` — 3 new tests prove the per-IP bucket is wired into
+  `/api/v1/stickers` end-to-end (drain, per-IP isolation, recovery after refill).
+- [x] F5 — (this commit) — new `:public_api_strict` pipeline, `GrokBucket` ETS
+  table, `:config_key` init opt on the `RateLimit` plug, prod config in
+  `config/config.exs`, test override in `config/test.exs`, and
+  `from_text_rate_limit_test.exs` with 2 cases: the strict bucket drains
+  independently, and draining it does not block `/stickers`.
+
+Sprint closed; API surface coverage complete. **786 tests passing on main.**
