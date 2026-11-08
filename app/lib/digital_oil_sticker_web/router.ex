@@ -29,6 +29,21 @@ defmodule DigitalOilStickerWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Strict variant for the Grok-backed /from-text endpoint. Same wildcard
+  # CORS + accepts, but the RateLimit plug is pointed at its own ETS table
+  # with a tighter capacity (configured in config/config.exs under the
+  # per-table app env key). The structured /stickers endpoint costs
+  # microseconds per request; /from-text spends real money per Grok call.
+  pipeline :public_api_strict do
+    plug CORSPlug, origin: "*"
+
+    plug DigitalOilStickerWeb.Plugs.RateLimit,
+      table: DigitalOilStickerWeb.Plugs.RateLimitStore.GrokBucket,
+      config_key: DigitalOilStickerWeb.Plugs.RateLimit.GrokBucket
+
+    plug :accepts, ["json"]
+  end
+
   scope "/", DigitalOilStickerWeb do
     pipe_through :browser
 
@@ -75,9 +90,6 @@ defmodule DigitalOilStickerWeb.Router do
 
     get "/formats", FormatController, :index
     post "/stickers", StickerController, :create
-    # Grok-backed: free text → structured sticker. The hot path (POST
-    # /stickers) does NOT touch Grok — only this endpoint does.
-    post "/stickers/from-text", StickerController, :from_text
     # The code.format file-like path (e.g. /stickers/ABC123.png) lets a CDN
     # key off the whole last segment. Phoenix's router can't take two dynamic
     # segments between dots, so we match one and split in the controller.
@@ -87,6 +99,16 @@ defmodule DigitalOilStickerWeb.Router do
     # itself via `halt`, but Phoenix needs a matching route to even enter the
     # pipeline — otherwise it returns 404 before cors_plug ever runs.
     match :options, "/*path", StickerController, :preflight
+  end
+
+  # Grok-backed: free text → structured sticker. The hot path (POST
+  # /stickers) does NOT touch Grok — only this endpoint does. Served from
+  # its own pipeline so a dedicated RateLimit bucket (the GrokBucket ETS
+  # table) throttles Grok traffic independently from the structured API.
+  scope "/api/v1", DigitalOilStickerWeb.Api.V1 do
+    pipe_through :public_api_strict
+
+    post "/stickers/from-text", StickerController, :from_text
   end
 
   # Model Context Protocol endpoint. Any MCP-compatible LLM agent — Claude,

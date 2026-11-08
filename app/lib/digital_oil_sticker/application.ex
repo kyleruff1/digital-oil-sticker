@@ -31,6 +31,14 @@ defmodule DigitalOilSticker.Application do
       # process exists only so the table's lifetime is the app's lifetime,
       # not a request's (DOS-M09-007 AC-6).
       DigitalOilStickerWeb.Plugs.RateLimitStore,
+      # Separate bucket for the Grok-backed /api/v1/stickers/from-text
+      # endpoint. The structured sticker endpoint runs millions of ops
+      # per dollar; the Grok call costs real money per request. A shared
+      # 60/min bucket means an attacker can drain the whole budget via
+      # /from-text — so the two live in independently-keyed ETS tables
+      # with their own capacity/refill limits.
+      {DigitalOilStickerWeb.Plugs.RateLimitStore,
+       name: DigitalOilStickerWeb.Plugs.RateLimitStore.GrokBucket},
       {DNSCluster,
        query: Application.get_env(:digital_oil_sticker, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DigitalOilSticker.PubSub},

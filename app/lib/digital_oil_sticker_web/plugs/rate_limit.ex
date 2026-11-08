@@ -91,7 +91,7 @@ defmodule DigitalOilStickerWeb.Plugs.RateLimit do
     if val = Keyword.get(opts, :capacity), do: validate_capacity!(val)
     if val = Keyword.get(opts, :refill_per_second), do: validate_refill!(val)
 
-    Keyword.take(opts, [:capacity, :refill_per_second, :table, :now_fun])
+    Keyword.take(opts, [:capacity, :refill_per_second, :table, :now_fun, :config_key])
   end
 
   @impl true
@@ -118,8 +118,15 @@ defmodule DigitalOilStickerWeb.Plugs.RateLimit do
   # no opts and expects the test env's Application override to raise the
   # limit; the isolated plug test installs it with `capacity: 3` and expects
   # exactly three tokens no matter what config says.
+  #
+  # `:config_key` names the atom this plug looks up in Application env.
+  # The default is `__MODULE__` (the loose `/api/v1/*` bucket). The strict
+  # `/from-text` pipeline installs this plug with a different key so the
+  # two bucket configurations don't collide.
   defp resolve(opts) do
-    overrides = Application.get_env(:digital_oil_sticker, __MODULE__, [])
+    table = Keyword.get_lazy(opts, :table, &RateLimitStore.table/0)
+    config_key = Keyword.get(opts, :config_key, __MODULE__)
+    overrides = Application.get_env(:digital_oil_sticker, config_key, [])
 
     capacity =
       Keyword.get_lazy(opts, :capacity, fn ->
@@ -131,7 +138,6 @@ defmodule DigitalOilStickerWeb.Plugs.RateLimit do
         Keyword.get(overrides, :refill_per_second, @default_refill_per_second)
       end) * 1.0
 
-    table = Keyword.get_lazy(opts, :table, &RateLimitStore.table/0)
     now_fun = Keyword.get(opts, :now_fun, &default_now/0)
 
     {capacity, refill, table, now_fun}
